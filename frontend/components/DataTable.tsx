@@ -60,10 +60,10 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
     <>
       <div className="fixed inset-0 z-[2000] flex flex-col bg-white">
         {/* Header */}
-        <div className="bg-teal-800 text-white px-4 py-3 flex items-center justify-between shrink-0">
+        <div className="bg-green-700 text-white px-4 py-3 flex items-center justify-between shrink-0">
           <div>
             <h2 className="font-bold text-base">Quản lý nguồn gen</h2>
-            <p className="text-teal-200 text-xs">{filtered.length} / {data.length} bản ghi</p>
+            <p className="text-green-100 text-xs">{filtered.length} / {data.length} bản ghi</p>
           </div>
           <button
             onClick={onClose}
@@ -83,12 +83,12 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
             value={search}
             onChange={handleSearchChange}
             placeholder="Tìm kiếm tên, mã, khoa học, đơn vị..."
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+            className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <select
             value={filterCategory}
             onChange={handleCategoryChange}
-            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
           >
             <option value="all">Tất cả nhóm</option>
             {CATEGORIES.map((cat) => (
@@ -117,7 +117,7 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
               {paginated.map((item: NguonGen, idx: number) => {
                 const cat = CATEGORY_MAP[item.nhom];
                 return (
-                  <tr key={item.ma} className="border-b border-gray-100 hover:bg-teal-50 transition-colors">
+                  <tr key={item.ma} className="border-b border-gray-100 hover:bg-green-50 transition-colors">
                     <td className="px-3 py-2 text-gray-400 text-xs">{(page - 1) * pageSize + idx + 1}</td>
                     <td className="px-3 py-2 font-mono text-xs text-gray-600">{item.ma}</td>
                     <td className="px-3 py-2 font-medium text-gray-800">{item.ten}</td>
@@ -135,7 +135,7 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
                       <div className="flex items-center justify-center gap-1">
                         <button
                           onClick={() => setEditItem(item)}
-                          className="p-1.5 text-teal-600 hover:bg-teal-100 rounded transition-colors"
+                          className="p-1.5 text-green-700 hover:bg-green-50 rounded transition-colors"
                           title="Chỉnh sửa"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +188,7 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
                     key={p}
                     onClick={() => setPage(p)}
                     className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
-                      p === page ? "bg-teal-700 text-white border-teal-700" : "border-gray-300 hover:bg-gray-100"
+                      p === page ? "bg-green-700 text-white border-green-700" : "border-gray-300 hover:bg-gray-100"
                     }`}
                   >
                     {p}

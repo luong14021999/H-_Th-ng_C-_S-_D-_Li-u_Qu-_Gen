@@ -31,14 +31,14 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
-        <div className="bg-teal-800 px-6 py-4 flex items-center justify-between">
+        <div className="bg-green-700 px-6 py-4 flex items-center justify-between">
           <div>
             <h2 className="text-white font-bold text-base">Đăng nhập quản trị</h2>
-            <p className="text-teal-200 text-xs mt-0.5">Quỹ Gen Tỉnh Thanh Hóa</p>
+            <p className="text-green-100 text-xs mt-0.5">Quỹ Gen Tỉnh Thanh Hóa</p>
           </div>
           <button
             onClick={onClose}
-            className="text-teal-200 hover:text-white transition-colors"
+            className="text-green-100 hover:text-white transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -53,7 +53,7 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Nhập tên đăng nhập"
               autoFocus
               required
@@ -66,7 +66,7 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Nhập mật khẩu"
               required
             />
@@ -81,7 +81,7 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-teal-700 hover:bg-teal-600 disabled:bg-teal-400 text-white font-medium py-2 rounded-lg transition-colors text-sm"
+            className="w-full bg-green-700 hover:bg-green-600 disabled:opacity-50 text-white font-medium py-2 rounded-lg transition-colors text-sm"
           >
             {loading ? "Đang xác thực..." : "Đăng nhập"}
           </button>

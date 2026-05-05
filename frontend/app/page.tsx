@@ -79,7 +79,7 @@ export default function Home() {
           {isAdmin && !showTable && (
             <button
               onClick={() => setShowTable(true)}
-              className="absolute top-3 left-3 bg-teal-700 hover:bg-teal-600 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-md transition-colors flex items-center gap-1.5 z-[1000]"
+              className="absolute top-3 left-3 bg-green-700 hover:bg-green-600 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-md transition-colors flex items-center gap-1.5 z-[1000]"
             >
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18M3 14h18M3 18h18" />

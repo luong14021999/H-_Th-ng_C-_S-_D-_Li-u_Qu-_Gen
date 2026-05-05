@@ -21,7 +21,7 @@ export default function Sidebar({ selectedCategory, onCategorySelect, counts, to
           onClick={() => onCategorySelect(null)}
           className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-left transition-colors text-sm ${
             selectedCategory === null
-              ? "bg-teal-700 text-white"
+              ? "bg-green-600 text-white"
               : "hover:bg-gray-100 text-gray-700"
           }`}
         >

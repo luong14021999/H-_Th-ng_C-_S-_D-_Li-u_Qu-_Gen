@@ -48,7 +48,7 @@ export default function EditModal({ item, onSave, onClose }: EditModalProps) {
         value={form[field] as string | number}
         onChange={(e) => set(field, type === "number" ? parseFloat(e.target.value) : e.target.value)}
         step={type === "number" ? "0.0001" : undefined}
-        className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 ${
+        className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 ${
           errors[field] ? "border-red-400" : "border-gray-300"
         }`}
       />
@@ -59,12 +59,12 @@ export default function EditModal({ item, onSave, onClose }: EditModalProps) {
   return (
     <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col max-h-[90vh]">
-        <div className="bg-teal-800 px-5 py-3 flex items-center justify-between shrink-0">
+        <div className="bg-green-700 px-5 py-3 flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-white font-bold text-sm">Chỉnh sửa nguồn gen</h2>
-            <p className="text-teal-200 text-xs mt-0.5 font-mono">{item.ma}</p>
+            <p className="text-green-100 text-xs mt-0.5 font-mono">{item.ma}</p>
           </div>
-          <button onClick={onClose} className="text-teal-200 hover:text-white transition-colors">
+          <button onClick={onClose} className="text-green-100 hover:text-white transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -84,7 +84,7 @@ export default function EditModal({ item, onSave, onClose }: EditModalProps) {
             <select
               value={form.nhom}
               onChange={(e) => set("nhom", e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -110,7 +110,7 @@ export default function EditModal({ item, onSave, onClose }: EditModalProps) {
           </button>
           <button
             onClick={handleSubmit}
-            className="flex-1 bg-teal-700 hover:bg-teal-600 text-white text-sm py-2 rounded-lg transition-colors font-medium"
+            className="flex-1 bg-green-700 hover:bg-green-600 text-white text-sm py-2 rounded-lg transition-colors font-medium"
           >
             Lưu thay đổi
           </button>
