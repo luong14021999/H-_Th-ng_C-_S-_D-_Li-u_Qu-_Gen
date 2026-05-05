@@ -16,6 +16,7 @@ export default function Home() {
   const [showLogin, setShowLogin] = useState(false);
   const [showTable, setShowTable] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const counts = useMemo(() => {
     const map: Record<string, number> = {};
@@ -63,10 +64,13 @@ export default function Home() {
         isAdmin={isAdmin}
         onAdminClick={handleAdminClick}
         onLogout={handleLogout}
+        onMenuToggle={() => setSidebarOpen((v) => !v)}
       />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
           selectedCategory={selectedCategory}
           onCategorySelect={setSelectedCategory}
           counts={counts}
