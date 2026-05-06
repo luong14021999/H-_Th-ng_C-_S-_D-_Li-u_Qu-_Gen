@@ -7,11 +7,13 @@ import Sidebar from "@/components/Sidebar";
 import LoginModal from "@/components/LoginModal";
 import DataTable from "@/components/DataTable";
 import { nguonGenData, NguonGen } from "@/data/nguonGen";
+import { ExtendedFormData } from "@/data/extendedTypes";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
 export default function Home() {
   const [data, setData] = useState<NguonGen[]>(nguonGenData);
+  const [extendedMap, setExtendedMap] = useState<Record<string, ExtendedFormData>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showTable, setShowTable] = useState(false);
@@ -50,8 +52,9 @@ export default function Home() {
     }
   };
 
-  const handleEdit = (updated: NguonGen) => {
+  const handleEdit = (updated: NguonGen, ext: ExtendedFormData) => {
     setData((prev) => prev.map((item) => (item.ma === updated.ma ? updated : item)));
+    setExtendedMap((prev) => ({ ...prev, [updated.ma]: ext }));
   };
 
   const handleDelete = (ma: string) => {
@@ -104,6 +107,7 @@ export default function Home() {
       {showTable && isAdmin && (
         <DataTable
           data={data}
+          extendedMap={extendedMap}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onClose={() => setShowTable(false)}

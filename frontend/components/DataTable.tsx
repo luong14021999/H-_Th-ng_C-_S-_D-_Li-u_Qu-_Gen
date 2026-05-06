@@ -2,16 +2,18 @@
 
 import { useState, useMemo } from "react";
 import { CATEGORIES, CATEGORY_MAP, NguonGen } from "@/data/nguonGen";
+import { ExtendedFormData } from "@/data/extendedTypes";
 import EditModal from "./EditModal";
 
 interface DataTableProps {
   data: NguonGen[];
-  onEdit: (updated: NguonGen) => void;
+  extendedMap: Record<string, ExtendedFormData>;
+  onEdit: (updated: NguonGen, ext: ExtendedFormData) => void;
   onDelete: (ma: string) => void;
   onClose: () => void;
 }
 
-export default function DataTable({ data, onEdit, onDelete, onClose }: DataTableProps) {
+export default function DataTable({ data, extendedMap, onEdit, onDelete, onClose }: DataTableProps) {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [page, setPage] = useState(1);
@@ -46,8 +48,8 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
     setPage(1);
   };
 
-  const handleSave = (updated: NguonGen) => {
-    onEdit(updated);
+  const handleSave = (updated: NguonGen, ext: ExtendedFormData) => {
+    onEdit(updated, ext);
     setEditItem(null);
   };
 
@@ -211,6 +213,7 @@ export default function DataTable({ data, onEdit, onDelete, onClose }: DataTable
       {editItem && (
         <EditModal
           item={editItem}
+          extended={extendedMap[editItem.ma] ?? { form1: {}, form2: {}, form3: {}, form4: {} }}
           onSave={handleSave}
           onClose={() => setEditItem(null)}
         />
