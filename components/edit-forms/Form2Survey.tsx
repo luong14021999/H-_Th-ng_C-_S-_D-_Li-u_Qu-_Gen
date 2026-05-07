@@ -14,7 +14,7 @@ const SectionTitle = ({ children }: { children: React.ReactNode }) => (
 const TextRow = ({ label, value, onChange }: {
   label: string; value: string; onChange: (v: string) => void;
 }) => (
-  <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
     <div className="col-span-2">
       <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
@@ -27,7 +27,7 @@ const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherCh
   label: string; name: string; options: string[]; value: string; onChange: (v: string) => void;
   otherValue?: string; onOtherChange?: (v: string) => void;
 }) => (
-  <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1">{label}</label>
     <div className="col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
       {options.map((opt) => (
@@ -55,7 +55,7 @@ const CheckboxRow = ({ label, options, value, onChange }: {
     onChange(next.join(', '));
   };
   return (
-    <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
       <label className="text-sm text-gray-600 pt-1">{label}</label>
       <div className="col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
         {options.map((opt) => (

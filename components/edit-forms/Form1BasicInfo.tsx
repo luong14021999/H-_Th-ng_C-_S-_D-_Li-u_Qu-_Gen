@@ -14,7 +14,7 @@ const Input = ({ label, value, onChange, required, placeholder }: {
   label: string; value: string; onChange: (v: string) => void;
   required?: boolean; placeholder?: string;
 }) => (
-  <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}{label}
     </label>
@@ -33,7 +33,7 @@ const Input = ({ label, value, onChange, required, placeholder }: {
 const Textarea = ({ label, value, onChange }: {
   label: string; value: string; onChange: (v: string) => void;
 }) => (
-  <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
     <div className="col-span-2">
       <textarea
@@ -70,7 +70,7 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
         <Input label="Tên khác" value={d.ten_khac} onChange={(v) => set('ten_khac', v)} />
         <Input label="Tên họ" value={d.ten_ho} onChange={(v) => set('ten_ho', v)} />
         <Input label="Tên bộ" value={d.ten_bo} onChange={(v) => set('ten_bo', v)} />
-        <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
           <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Nhóm nguồn gen</label>
           <div className="col-span-2">
             <select
@@ -82,20 +82,14 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
             </select>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
-          <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Phân nhóm</label>
-          <div className="col-span-2">
-            <input type="text" value={basic.phan_nhom} onChange={(e) => setBasic('phan_nhom', e.target.value)}
-              className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
-          </div>
-        </div>
+
       </div>
 
       {/* Nơi thu thập */}
       <div>
         <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Nơi thu thập</h3>
         <Input label="* Người/cơ quan giao, trồng/cấp giống" value={d.nguon_giao} onChange={(v) => set('nguon_giao', v)} required />
-        <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
           <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Nơi thu thập</label>
           <div className="col-span-2 flex gap-2 flex-wrap">
             {['noi_thu_thap_tinh', 'noi_thu_thap_huyen', 'noi_thu_thap_xa'].map((f, i) => (
@@ -134,7 +128,7 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
                   )}
                 </div>
                 {(['phuong_thuc', 'hinh_thuc', 'don_vi', 'noi'] as const).map((f) => (
-                  <div key={f} className="grid grid-cols-3 gap-2 items-center py-1 border-b border-gray-100">
+                  <div key={f} className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
                     <label className="text-xs text-gray-500">
                       {{ phuong_thuc: '* Phương thức bảo tồn', hinh_thuc: '* Hình thức bảo tồn', don_vi: '* Đơn vị bảo tồn', noi: '* Nơi bảo tồn' }[f]}
                     </label>

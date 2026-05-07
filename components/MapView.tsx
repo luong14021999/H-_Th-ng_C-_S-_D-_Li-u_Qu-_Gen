@@ -93,44 +93,57 @@ export default function MapView({ data }: MapViewProps) {
       <div ref={containerRef} className="w-full h-full" />
 
       {popup && (
-        <div
-          className="absolute z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 text-xs"
-          style={{
-            left: Math.min(popup.x, (containerRef.current?.clientWidth ?? 600) - 240),
-            top: Math.max(popup.y - 170, 8),
-            width: 230,
-          }}
-        >
-          <div className="flex items-start justify-between gap-2 mb-2">
-            <div>
-              <p className="font-bold text-gray-900 text-sm leading-tight">{popup.item.ten}</p>
-              <p className="text-gray-400 font-mono mt-0.5">{popup.item.ma}</p>
+        <>
+          {/* Mobile: bottom sheet */}
+          <div className="sm:hidden absolute bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-2xl shadow-2xl border-t border-gray-200 p-4">
+            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <div className="min-w-0">
+                <p className="font-bold text-gray-900 text-base leading-tight">{popup.item.ten}</p>
+                <p className="text-gray-400 font-mono text-xs mt-0.5">{popup.item.ma}</p>
+              </div>
+              <button onClick={() => setPopup(null)} className="text-gray-400 hover:text-gray-600 shrink-0 text-xl leading-none">✕</button>
             </div>
-            <button
-              onClick={() => setPopup(null)}
-              className="text-gray-400 hover:text-gray-600 shrink-0 text-base leading-none"
-            >
-              ✕
-            </button>
+            {popup.item.khoa_hoc && <p className="italic text-gray-500 text-sm mb-1">{popup.item.khoa_hoc}</p>}
+            {popup.item.don_vi && <p className="text-gray-600 text-sm mb-2"><span className="font-medium">Đơn vị:</span> {popup.item.don_vi}</p>}
+            {(() => {
+              const cat = CATEGORY_MAP[popup.item.nhom];
+              return cat ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-sm" style={{ backgroundColor: cat.color }}>
+                  {cat.icon} {cat.label}
+                </span>
+              ) : null;
+            })()}
           </div>
-          {popup.item.khoa_hoc && (
-            <p className="italic text-gray-500 mb-1">{popup.item.khoa_hoc}</p>
-          )}
-          <p className="text-gray-600 mb-2">
-            <span className="font-medium">Đơn vị:</span> {popup.item.don_vi}
-          </p>
-          {(() => {
-            const cat = CATEGORY_MAP[popup.item.phan_nhom];
-            return cat ? (
-              <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs"
-                style={{ backgroundColor: cat.color }}
-              >
-                {cat.icon} {cat.label}
-              </span>
-            ) : null;
-          })()}
-        </div>
+
+          {/* Desktop: floating card */}
+          <div
+            className="hidden sm:block absolute z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 text-xs"
+            style={{
+              left: Math.min(Math.max(popup.x - 115, 8), (containerRef.current?.clientWidth ?? 600) - 248),
+              top: Math.max(popup.y - 180, 8),
+              width: 230,
+            }}
+          >
+            <div className="flex items-start justify-between gap-2 mb-2">
+              <div>
+                <p className="font-bold text-gray-900 text-sm leading-tight">{popup.item.ten}</p>
+                <p className="text-gray-400 font-mono mt-0.5">{popup.item.ma}</p>
+              </div>
+              <button onClick={() => setPopup(null)} className="text-gray-400 hover:text-gray-600 shrink-0 text-base leading-none">✕</button>
+            </div>
+            {popup.item.khoa_hoc && <p className="italic text-gray-500 mb-1">{popup.item.khoa_hoc}</p>}
+            {popup.item.don_vi && <p className="text-gray-600 mb-2"><span className="font-medium">Đơn vị:</span> {popup.item.don_vi}</p>}
+            {(() => {
+              const cat = CATEGORY_MAP[popup.item.nhom];
+              return cat ? (
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs" style={{ backgroundColor: cat.color }}>
+                  {cat.icon} {cat.label}
+                </span>
+              ) : null;
+            })()}
+          </div>
+        </>
       )}
 
       <div className="absolute bottom-6 right-3 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-md px-3 py-2 text-xs text-gray-600 pointer-events-none">

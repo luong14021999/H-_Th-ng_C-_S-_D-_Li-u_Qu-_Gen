@@ -16,10 +16,10 @@ interface EditModalProps {
 }
 
 const TABS = [
-  { label: 'Thông tin cơ bản' },
-  { label: 'Dữ liệu điều tra, thu thập' },
-  { label: 'Dữ liệu đánh giá ban đầu' },
-  { label: 'Dữ liệu đánh giá chi tiết' },
+  { label: 'Thông tin cơ bản', short: 'Cơ bản' },
+  { label: 'Dữ liệu điều tra, thu thập', short: 'Điều tra' },
+  { label: 'Dữ liệu đánh giá ban đầu', short: 'Đánh giá ban đầu' },
+  { label: 'Dữ liệu đánh giá chi tiết', short: 'Đánh giá chi tiết' },
 ];
 
 export default function EditModal({ item, extended, onSave, onClose }: EditModalProps) {
@@ -62,13 +62,14 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
               tab === i ? 'border-green-600 text-green-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'
             }`}
           >
-            <span className="mr-1 text-xs text-gray-400 hidden sm:inline">{i + 1}.</span>{t.label}
+            <span className="sm:hidden">{t.short}</span>
+            <span className="hidden sm:inline"><span className="mr-1 text-xs text-gray-400">{i + 1}.</span>{t.label}</span>
           </button>
         ))}
       </div>
 
       {/* Form content */}
-      <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4">
         {tab === 0 && <Form1BasicInfo basic={basic} data={form1} onBasicChange={setBasic} onDataChange={setForm1} />}
         {tab === 1 && <Form2Survey data={form2} onChange={setForm2} />}
         {tab === 2 && <Form3InitialAssessment ma={item.ma} data={form3} onChange={setForm3} />}

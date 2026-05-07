@@ -11,7 +11,7 @@ interface Props {
 const Row = ({ label, value, onChange, rows }: {
   label: string; value: string; onChange: (v: string) => void; rows?: number;
 }) => (
-  <div className="grid grid-cols-3 gap-3 items-start py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
     <div className="col-span-2">
       {rows ? (
@@ -26,7 +26,7 @@ const Row = ({ label, value, onChange, rows }: {
 );
 
 const ReadOnly = ({ label, value }: { label: string; value: string }) => (
-  <div className="grid grid-cols-3 gap-3 py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600">{label}</label>
     <span className="col-span-2 text-sm font-mono py-1 text-gray-500">{value || '(tự động)'}</span>
   </div>

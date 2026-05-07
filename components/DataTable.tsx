@@ -88,12 +88,12 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
         </div>
 
         {/* Filters */}
-        <div className="flex gap-3 px-4 py-3 border-b border-gray-200 shrink-0 bg-gray-50">
+        <div className="flex flex-col sm:flex-row gap-2 px-4 py-3 border-b border-gray-200 shrink-0 bg-gray-50">
           <input
             type="text"
             value={search}
             onChange={handleSearchChange}
-            placeholder="Tìm kiếm tên, mã, khoa học, đơn vị..."
+            placeholder="Tìm kiếm tên, mã, khoa học..."
             className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <select
@@ -110,9 +110,10 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
           </select>
         </div>
 
-        {/* Table */}
+        {/* Content */}
         <div className="flex-1 overflow-auto">
-          <table className="w-full text-sm border-collapse">
+          {/* Desktop table */}
+          <table className="hidden sm:table w-full text-sm border-collapse">
             <thead className="sticky top-0 bg-gray-100 z-10">
               <tr>
                 <th className="text-left px-3 py-2 font-semibold text-gray-600 border-b border-gray-200 w-8">#</th>
@@ -174,6 +175,54 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
               })}
             </tbody>
           </table>
+
+          {/* Mobile card list */}
+          <div className="sm:hidden divide-y divide-gray-100">
+            {paginated.map((item: NguonGen, idx: number) => {
+              const cat = CATEGORY_MAP[item.nhom];
+              return (
+                <div key={item.ma} className="px-4 py-3 flex items-start justify-between gap-3 hover:bg-green-50 transition-colors">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-xs text-gray-400">{(page - 1) * pageSize + idx + 1}.</span>
+                      <span className="font-mono text-xs text-gray-500">{item.ma}</span>
+                      <span
+                        className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-white text-xs font-medium shrink-0"
+                        style={{ backgroundColor: cat?.color ?? "#6b7280" }}
+                      >
+                        {cat?.icon} {cat?.label ?? item.nhom}
+                      </span>
+                    </div>
+                    <p className="font-medium text-gray-800 text-sm leading-snug truncate">{item.ten}</p>
+                    {item.khoa_hoc && <p className="text-xs text-gray-400 italic truncate">{item.khoa_hoc}</p>}
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => handleOpenEdit(item)}
+                      disabled={loadingEdit === item.ma}
+                      className="p-2 text-green-700 hover:bg-green-100 rounded-lg transition-colors disabled:opacity-40"
+                    >
+                      {loadingEdit === item.ma ? (
+                        <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setDeleteConfirm(item)}
+                      className="p-2 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-gray-400">
