@@ -123,28 +123,32 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
           <input type="checkbox" id="bao_ton" checked={d.dang_bao_ton} onChange={(e) => set('dang_bao_ton', e.target.checked)} className="accent-green-600" />
           <label htmlFor="bao_ton" className="text-sm text-gray-600">Đang bảo tồn</label>
         </div>
-        {(d.bao_ton_list ?? []).map((entry, idx) => (
-          <div key={idx} className="border border-gray-200 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-xs font-semibold text-gray-500">Danh sách {idx + 1}</span>
-              {(d.bao_ton_list ?? []).length > 1 && (
-                <button onClick={() => removeBaoTon(idx)} className="text-red-400 hover:text-red-600 text-xs">✕ Xóa</button>
-              )}
-            </div>
-            {(['phuong_thuc', 'hinh_thuc', 'don_vi', 'noi'] as const).map((f) => (
-              <div key={f} className="grid grid-cols-3 gap-2 items-center py-1 border-b border-gray-100">
-                <label className="text-xs text-gray-500">
-                  {{ phuong_thuc: '* Phương thức bảo tồn', hinh_thuc: '* Hình thức bảo tồn', don_vi: '* Đơn vị bảo tồn', noi: '* Nơi bảo tồn' }[f]}
-                </label>
-                <input type="text" value={entry[f]} onChange={(e) => updateBaoTon(idx, f, e.target.value)}
-                  className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+        {d.dang_bao_ton && (
+          <>
+            {(d.bao_ton_list ?? []).map((entry, idx) => (
+              <div key={idx} className="border border-gray-200 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-xs font-semibold text-gray-500">Danh sách {idx + 1}</span>
+                  {(d.bao_ton_list ?? []).length > 1 && (
+                    <button onClick={() => removeBaoTon(idx)} className="text-red-400 hover:text-red-600 text-xs">✕ Xóa</button>
+                  )}
+                </div>
+                {(['phuong_thuc', 'hinh_thuc', 'don_vi', 'noi'] as const).map((f) => (
+                  <div key={f} className="grid grid-cols-3 gap-2 items-center py-1 border-b border-gray-100">
+                    <label className="text-xs text-gray-500">
+                      {{ phuong_thuc: '* Phương thức bảo tồn', hinh_thuc: '* Hình thức bảo tồn', don_vi: '* Đơn vị bảo tồn', noi: '* Nơi bảo tồn' }[f]}
+                    </label>
+                    <input type="text" value={entry[f]} onChange={(e) => updateBaoTon(idx, f, e.target.value)}
+                      className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                  </div>
+                ))}
               </div>
             ))}
-          </div>
-        ))}
-        <button onClick={addBaoTon} className="mt-1 text-xs text-green-700 border border-green-600 px-3 py-1 rounded hover:bg-green-50 transition-colors">
-          + Thêm danh sách
-        </button>
+            <button onClick={addBaoTon} className="mt-1 text-xs text-green-700 border border-green-600 px-3 py-1 rounded hover:bg-green-50 transition-colors">
+              + Thêm danh sách
+            </button>
+          </>
+        )}
       </div>
 
       {/* Tình trạng khai thác */}
@@ -154,29 +158,64 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
           <input type="checkbox" id="khai_thac" checked={d.dang_khai_thac} onChange={(e) => set('dang_khai_thac', e.target.checked)} className="accent-green-600" />
           <label htmlFor="khai_thac" className="text-sm text-gray-600">Đang khai thác, sử dụng</label>
         </div>
-        <Input label="* Hình thức khai thác, sử dụng" value={d.hinh_thuc_khai_thac} onChange={(v) => set('hinh_thuc_khai_thac', v)} required />
-        <Input label="* Nơi khai thác, sử dụng" value={d.noi_khai_thac} onChange={(v) => set('noi_khai_thac', v)} required />
-        <Input label="* Đơn vị khai thác, sử dụng" value={d.don_vi_khai_thac} onChange={(v) => set('don_vi_khai_thac', v)} required />
+        {d.dang_khai_thac && (
+          <>
+            <Input label="* Hình thức khai thác, sử dụng" value={d.hinh_thuc_khai_thac} onChange={(v) => set('hinh_thuc_khai_thac', v)} required />
+            <Input label="* Nơi khai thác, sử dụng" value={d.noi_khai_thac} onChange={(v) => set('noi_khai_thac', v)} required />
+            <Input label="* Đơn vị khai thác, sử dụng" value={d.don_vi_khai_thac} onChange={(v) => set('don_vi_khai_thac', v)} required />
+          </>
+        )}
       </div>
 
-      {/* Tọa độ */}
+      {/* Hình ảnh */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Tọa độ trên bản đồ</h3>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid grid-cols-2 gap-2 items-center py-2 border-b border-gray-100">
-            <label className="text-sm text-gray-600">Vĩ độ (lat)</label>
-            <input type="number" step="0.0001" value={basic.lat}
-              onChange={(e) => onBasicChange({ ...basic, lat: parseFloat(e.target.value) })}
-              className="border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
-          </div>
-          <div className="grid grid-cols-2 gap-2 items-center py-2 border-b border-gray-100">
-            <label className="text-sm text-gray-600">Kinh độ (lng)</label>
-            <input type="number" step="0.0001" value={basic.lng}
-              onChange={(e) => onBasicChange({ ...basic, lng: parseFloat(e.target.value) })}
-              className="border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
-          </div>
+        <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Hình ảnh</h3>
+        <div className="py-2">
+          <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-dashed border-green-500 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            Chọn ảnh
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={(e) => {
+                const files = Array.from(e.target.files ?? []);
+                Promise.all(
+                  files.map(
+                    (file) =>
+                      new Promise<string>((resolve) => {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => resolve(ev.target?.result as string);
+                        reader.readAsDataURL(file);
+                      })
+                  )
+                ).then((newImgs) => set('hinh_anh', [...(d.hinh_anh ?? []), ...newImgs]));
+                e.target.value = '';
+              }}
+            />
+          </label>
+          <span className="ml-2 text-xs text-gray-400">Có thể chọn nhiều ảnh</span>
         </div>
-        <Input label="Đơn vị lưu giữ" value={basic.don_vi} onChange={(v) => setBasic('don_vi', v)} />
+        {(d.hinh_anh ?? []).length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-2">
+            {(d.hinh_anh ?? []).map((src, idx) => (
+              <div key={idx} className="relative group aspect-square">
+                <img src={src} alt={`Ảnh ${idx + 1}`} className="absolute inset-0 w-full h-full object-cover rounded-lg border border-gray-200" />
+                <button
+                  type="button"
+                  onClick={() => set('hinh_anh', (d.hinh_anh ?? []).filter((_, i) => i !== idx))}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                >
+                  ✕
+                </button>
+                <span className="absolute bottom-1 left-1 bg-black/40 text-white text-xs px-1 rounded z-10">Ảnh {idx + 1}</span>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

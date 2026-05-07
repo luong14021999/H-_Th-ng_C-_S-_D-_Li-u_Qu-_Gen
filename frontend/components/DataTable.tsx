@@ -10,16 +10,25 @@ interface DataTableProps {
   extendedMap: Record<string, ExtendedFormData>;
   onEdit: (updated: NguonGen, ext: ExtendedFormData) => void;
   onDelete: (ma: string) => void;
+  onOpenEdit?: (ma: string) => Promise<void>;
   onClose: () => void;
 }
 
-export default function DataTable({ data, extendedMap, onEdit, onDelete, onClose }: DataTableProps) {
+export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenEdit, onClose }: DataTableProps) {
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [page, setPage] = useState(1);
   const [editItem, setEditItem] = useState<NguonGen | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<NguonGen | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
   const pageSize = 20;
+
+  const handleOpenEdit = async (item: NguonGen) => {
+    setLoadingEdit(item.ma);
+    await onOpenEdit?.(item.ma);
+    setEditItem(item);
+    setLoadingEdit(null);
+  };
 
   const filtered = useMemo(() => {
     return data.filter((item) => {
@@ -136,13 +145,18 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onClose
                     <td className="px-3 py-2">
                       <div className="flex items-center justify-center gap-1">
                         <button
-                          onClick={() => setEditItem(item)}
-                          className="p-1.5 text-green-700 hover:bg-green-50 rounded transition-colors"
+                          onClick={() => handleOpenEdit(item)}
+                          disabled={loadingEdit === item.ma}
+                          className="p-1.5 text-green-700 hover:bg-green-50 rounded transition-colors disabled:opacity-40"
                           title="Chỉnh sửa"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
+                          {loadingEdit === item.ma ? (
+                            <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          )}
                         </button>
                         <button
                           onClick={() => setDeleteConfirm(item)}
