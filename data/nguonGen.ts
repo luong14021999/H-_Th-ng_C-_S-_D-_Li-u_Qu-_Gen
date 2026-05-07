@@ -53,6 +53,24 @@ export const NHOM_LABELS: Record<string, string> = {
   VS: 'Vi sinh vật, Nấm',
 };
 
+export const PHAN_NHOM_BY_NHOM: Record<string, string[]> = {
+  TT: ['Cây ăn quả', 'Cây chè', 'Cây cói', 'Cây lấy củ', 'Cây lúa', 'Cây mía', 'Cây ngô', 'Cây rau', 'Thuốc lá'],
+  DL: ['Thân bụi', 'Thân gỗ', 'Thân leo', 'Thân thảo'],
+  LN: ['Cây đặc sản', 'Cây gỗ', 'Cây ngập mặn', 'Tre nứa'],
+  CN: ['Gia cầm và chim', 'GS nhai lại/gặm nhấm', 'Tiểu gia súc', 'Thủy cầm'],
+  TS: ['Cá', 'Giáp xác', 'Khác', 'Ốc', 'Thân mềm'],
+  VS: ['Nấm ăn', 'Nấm dược liệu', 'Nấm gây bệnh hại cây trồng', 'Nấm kí sinh/ đối kháng bệnh hại cây trồng', 'Nấm lên men thực phẩm/ xử lý môi trường', 'Vi khuẩn lên men thực phẩm/ xử lý môi trường', 'Vi khuẩn đối kháng bệnh hại cây trồng', 'VSV phân giải lân/ xử lý môi trường'],
+};
+
+export const PHAN_NHOM_LABEL: Record<string, string> = {
+  TT: 'Phân nhóm cây trồng',
+  LN: 'Phân nhóm lâm nghiệp',
+  DL: 'Nhóm dược liệu',
+  CN: 'Phân nhóm vật nuôi',
+  TS: 'Phân nhóm thủy sản',
+  VS: 'Phân nhóm VSV/Nấm',
+};
+
 export const nguonGenData: NguonGen[] = [
   // ── DƯỢC LIỆU (15) ──
   { ma:'VNN.DL.0001', ten:'Cà gai leo', khoa_hoc:'Solanum hainanense Hance', don_vi:'Bùi Xuân Khái', phan_nhom:'Thân leo', nhom:'DL', lat:20.2923, lng:105.3123 },
