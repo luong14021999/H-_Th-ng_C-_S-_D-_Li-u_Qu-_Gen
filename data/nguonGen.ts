@@ -28,6 +28,22 @@ export const CATEGORIES: Category[] = [
 
 export const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
 
+export const PHAN_NHOM_OPTIONS: Record<string, string[]> = {
+  DL: ['Cây gỗ', 'Cây ngập mặn', 'Cây đặc sản', 'Tre nứa'],
+  CN: ['Gia cầm và chim', 'GS nhai lại, gặm nhấm', 'Thủy cầm', 'Tiểu gia súc'],
+  TT: ['Cây ăn quả', 'Cây chè', 'Cây cói', 'Cây lấy củ', 'Cây lúa', 'Cây mía', 'Cây ngô', 'Cây rau'],
+  TS: ['Cá', 'Giáp xác', 'Khác', 'Ốc', 'Thân mềm'],
+  LN: ['Thân bụi', 'Thân gỗ', 'Thân leo', 'Thân thảo'],
+  VS: [
+    'Nấm ăn', 'Nấm dược liệu', 'Nấm gây bệnh hại cây trồng',
+    'Nấm ký sinh/ đối kháng bệnh hại cây trồng',
+    'Nấm lên men thực phẩm, xử lý môi trường',
+    'Vi khuẩn lên men thực phẩm, xử lý môi trường',
+    'Vi khuẩn đối kháng bệnh hại cây trồng',
+    'VSV phân giải lân, xử lý môi trường',
+  ],
+};
+
 export const NHOM_LABELS: Record<string, string> = {
   TT: 'Nông nghiệp / Trồng trọt',
   LN: 'Lâm nghiệp',

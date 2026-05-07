@@ -1,7 +1,67 @@
 "use client";
 
-import { NguonGen, CATEGORIES } from "@/data/nguonGen";
+import { useState, useRef, useEffect } from "react";
+import { NguonGen, CATEGORIES, PHAN_NHOM_OPTIONS } from "@/data/nguonGen";
 import { Form1Data, BaoTonEntry, defaultForm1 } from "@/data/extendedTypes";
+
+function PhanNhomCombobox({ nhom, value, onChange }: {
+  nhom: string; value: string; onChange: (v: string) => void;
+}) {
+  const [query, setQuery] = useState(value);
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const options = PHAN_NHOM_OPTIONS[nhom] ?? [];
+  const filtered = query ? options.filter(o => o.toLowerCase().includes(query.toLowerCase())) : options;
+
+  useEffect(() => { setQuery(value); }, [value]);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const select = (opt: string) => { onChange(opt); setQuery(opt); setOpen(false); };
+  const clear = () => { onChange(""); setQuery(""); };
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="flex items-center border-b border-gray-300 focus-within:border-green-600">
+        <input
+          type="text"
+          value={query}
+          onChange={e => { setQuery(e.target.value); setOpen(true); }}
+          onFocus={() => setOpen(true)}
+          placeholder={nhom ? "Chọn hoặc gõ để tìm..." : "Chọn nhóm nguồn gen trước"}
+          disabled={!nhom}
+          className="flex-1 outline-none px-1 py-1 text-sm bg-transparent disabled:text-gray-400"
+        />
+        {query && (
+          <button type="button" onClick={clear} className="text-gray-400 hover:text-gray-600 px-1">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+      {open && filtered.length > 0 && (
+        <ul className="absolute z-50 left-0 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-52 overflow-y-auto text-sm">
+          {filtered.map(opt => (
+            <li
+              key={opt}
+              onMouseDown={() => select(opt)}
+              className={`px-3 py-2 cursor-pointer ${opt === value ? 'bg-gray-200 font-medium' : 'hover:bg-gray-50'}`}
+            >
+              {opt}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 interface Props {
   basic: NguonGen;
@@ -75,11 +135,24 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
           <div className="col-span-2">
             <select
               value={basic.nhom}
-              onChange={(e) => setBasic('nhom', e.target.value)}
+              onChange={(e) => {
+                setBasic('nhom', e.target.value);
+                setBasic('phan_nhom', '');
+              }}
               className="w-full border-b border-gray-300 focus:border-green-600 outline-none py-1 text-sm bg-transparent"
             >
               {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
             </select>
+          </div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
+          <label className="text-sm text-gray-600 pt-1.5">Phân nhóm</label>
+          <div className="col-span-2">
+            <PhanNhomCombobox
+              nhom={basic.nhom}
+              value={basic.phan_nhom}
+              onChange={(v) => setBasic('phan_nhom', v)}
+            />
           </div>
         </div>
 
