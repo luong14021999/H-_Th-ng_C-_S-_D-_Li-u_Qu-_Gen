@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
 import dynamic from "next/dynamic";
 import Header from "@/components/Header";
+import { CATEGORIES } from "@/data/nguonGen";
 import Sidebar from "@/components/Sidebar";
 import LoginModal from "@/components/LoginModal";
 import DataTable from "@/components/DataTable";
@@ -215,6 +216,37 @@ export default function Home() {
               onItemSelect={handleSidebarItemSelect}
             />
             <main className="flex-1 relative flex flex-col overflow-hidden">
+              {/* Mobile category bar */}
+              <div className="md:hidden flex items-center gap-2 px-2 py-2 overflow-x-auto shrink-0 bg-white border-b border-gray-200">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-colors ${
+                    selectedCategory === null
+                      ? "bg-green-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  }`}
+                >
+                  🗂️ Tất cả
+                </button>
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      const next = cat.id === selectedCategory ? null : cat.id;
+                      setSelectedCategory(next);
+                      if (next) setSidebarOpen(true);
+                    }}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-colors ${
+                      selectedCategory === cat.id
+                        ? "text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                    style={selectedCategory === cat.id ? { backgroundColor: cat.color } : {}}
+                  >
+                    {cat.icon} {cat.label}
+                  </button>
+                ))}
+              </div>
               <MapView data={filteredData} />
             </main>
           </>

@@ -245,7 +245,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
     <>
       <div className="flex h-full bg-white overflow-hidden">
         {/* ── Left filter sidebar (desktop only) ── */}
-        <div className="hidden md:flex md:w-64 lg:w-72 shrink-0 border-r border-gray-200 flex-col overflow-hidden bg-white">
+        <div className="max-md:hidden md:flex md:w-64 lg:w-72 shrink-0 border-r border-gray-200 flex-col overflow-hidden bg-white">
           <div className="px-4 py-4 border-b border-gray-100 shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-xl">{activeCat ? activeCat.icon : "🗂️"}</span>
@@ -313,7 +313,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
           </div>
 
           {/* ── Desktop Table ── */}
-          <div className="hidden md:flex flex-col flex-1 overflow-hidden">
+          <div className="max-md:hidden md:flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-auto">
               <table className="w-full text-sm border-collapse">
                 <thead className="sticky top-0 z-10" style={{ backgroundColor: "#2d4a5e" }}>
@@ -476,7 +476,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
           </div>
 
           {/* ── Mobile Card List ── */}
-          <div className="flex md:hidden flex-col flex-1 overflow-hidden">
+          <div className="md:hidden flex flex-col flex-1 overflow-hidden">
             <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
               {paginated.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-gray-400">

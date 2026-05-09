@@ -179,7 +179,7 @@ export default function Header({
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                   activeTab === tab.id
                     ? "border-white text-white bg-white/10"
                     : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
@@ -194,7 +194,7 @@ export default function Header({
             <button
               ref={nguonGenRef}
               onClick={handleNguonGenToggle}
-              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 isNguonGenActive
                   ? "border-white text-white bg-white/10"
                   : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
