@@ -46,11 +46,6 @@ const IconHome = ({ cls = "w-5 h-5" }) => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
   </svg>
 );
-const IconList = ({ cls = "w-5 h-5" }) => (
-  <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-  </svg>
-);
 const IconChart = ({ cls = "w-5 h-5" }) => (
   <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -64,6 +59,11 @@ const IconShield = ({ cls = "w-5 h-5" }) => (
 const IconPerson = ({ cls = "w-5 h-5" }) => (
   <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+);
+const IconFolder = ({ cls = "w-5 h-5" }) => (
+  <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z" />
   </svg>
 );
 
@@ -145,7 +145,7 @@ export default function Header({
   // Mobile bottom nav tabs
   const adminTabs = [
     { id: "trang-chu", label: "Trang chủ", icon: <IconHome />, action: () => onTabChange("trang-chu") },
-    { id: "danh-muc", label: "Danh mục", icon: <IconList />, action: () => onTabChange("danh-muc") },
+    { id: "danh-muc", label: "Danh mục", icon: <IconFolder />, action: () => onTabChange("danh-muc") },
     { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => onTabChange("thong-ke") },
     { id: "nguon-gen", label: "Nguồn gen", icon: <IconShield />, action: () => setMobileGenSheetOpen(true) },
   ];
@@ -240,7 +240,7 @@ export default function Header({
                   : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
               }`}
             >
-              <IconList cls="w-4 h-4" />
+              <IconFolder cls="w-4 h-4" />
               Danh mục
               <svg className={`w-3.5 h-3.5 text-white/60 transition-transform ${danhMucOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
