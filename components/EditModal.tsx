@@ -42,6 +42,20 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
       setTab(0);
       return;
     }
+    if (!String(form1.nguon_giao ?? "").trim()) {
+      setValidationMsg("Vui lòng nhập Người/cơ quan giao, trồng/cấp giống trước khi lưu.");
+      setTab(0);
+      return;
+    }
+    const hasLocation =
+      String(form1.noi_thu_thap_tinh ?? "").trim() ||
+      String(form1.noi_thu_thap_huyen ?? "").trim() ||
+      String(form1.noi_thu_thap_xa ?? "").trim();
+    if (!hasLocation) {
+      setValidationMsg("Vui lòng nhập Nơi thu thập (Tỉnh/Huyện/Xã) trước khi lưu.");
+      setTab(0);
+      return;
+    }
     onSave(basic, { form1, form2, form3, form4 });
   };
 
