@@ -9,7 +9,6 @@ interface HeaderProps {
   isAdmin: boolean;
   showNav: boolean;
   activeTab: string;
-  totalCount?: number;
   onTabChange: (tab: string) => void;
   onAdminClick: () => void;
   onLogout: () => void;
@@ -54,7 +53,7 @@ const IconPerson = ({ cls = "w-5 h-5" }) => (
 );
 
 export default function Header({
-  isAdmin, showNav, activeTab, totalCount,
+  isAdmin, showNav, activeTab,
   onTabChange, onAdminClick, onLogout, onMenuToggle, onOpenAdmin, onNguonGenCategorySelect,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -145,14 +144,6 @@ export default function Header({
 
           {/* Right: count + user */}
           <div className="flex items-center gap-2 shrink-0">
-            {totalCount !== undefined && (
-              <div className="flex items-center gap-1 bg-white/20 rounded-lg px-2 py-1">
-                <span className="text-sm font-bold">{totalCount}</span>
-                <svg className="w-4 h-4 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h8" />
-                </svg>
-              </div>
-            )}
 
             {isAdmin ? (
               <button
