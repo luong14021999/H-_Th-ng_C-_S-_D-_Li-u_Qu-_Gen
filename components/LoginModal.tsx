@@ -12,10 +12,12 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [backdropHeight, setBackdropHeight] = useState("100dvh");
 
-  // Lock body scroll on iOS Safari to prevent page shifting when keyboard appears
+  // Lock body scroll and freeze backdrop height before iOS keyboard can resize viewport
   useEffect(() => {
     const scrollY = window.scrollY;
+    setBackdropHeight(`${window.innerHeight}px`);
     document.body.style.position = "fixed";
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = "100%";
@@ -43,7 +45,7 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-x-0 top-0 z-[2000] flex items-center justify-center bg-black/50 backdrop-blur-sm" style={{ height: backdropHeight }}>
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
         <div className="bg-green-700 px-6 py-4 flex items-center justify-between">
           <div>
