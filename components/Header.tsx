@@ -25,6 +25,21 @@ const USER_MENU = [
   { id: "logout", label: "Đăng xuất", danger: true },
 ];
 
+const DANH_MUC_ITEMS = [
+  { id: "dm-nhom-nguon-gen", label: "Nhóm nguồn gen" },
+  { id: "dm-don-vi-sx", label: "Đơn vị sản xuất cung cấp gen giống" },
+  { id: "dm-phuong-thuc-bao-ton", label: "Phương thức bảo tồn" },
+  { id: "dm-hinh-thuc-khai-thac", label: "Hình thức khai thác sử dụng" },
+  { id: "dm-hinh-thuc-bao-ton", label: "Hình thức bảo tồn" },
+  { id: "dm-bai-viet", label: "Bài viết khai thác, bảo tồn, sử dụng" },
+];
+
+const THONG_KE_ITEMS = [
+  { id: "tk-don-vi-quan-ly", label: "Nguồn gen theo đơn vị quản lý" },
+  { id: "tk-don-vi-hc", label: "Nguồn gen theo đơn vị hành chính" },
+  { id: "tk-nhom", label: "Nguồn gen theo nhóm nguồn gen" },
+];
+
 // Shared SVG icons
 const IconHome = ({ cls = "w-5 h-5" }) => (
   <svg className={cls} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,11 +75,17 @@ export default function Header({
   const [userMenuPos, setUserMenuPos] = useState({ top: 0, right: 0 });
   const [nguonGenOpen, setNguonGenOpen] = useState(false);
   const [nguonGenPos, setNguonGenPos] = useState({ top: 0, left: 0 });
+  const [danhMucOpen, setDanhMucOpen] = useState(false);
+  const [danhMucPos, setDanhMucPos] = useState({ top: 0, left: 0 });
+  const [thongKeOpen, setThongKeOpen] = useState(false);
+  const [thongKePos, setThongKePos] = useState({ top: 0, left: 0 });
   const [mobileGenSheetOpen, setMobileGenSheetOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const userTriggerRef = useRef<HTMLButtonElement>(null);
   const nguonGenRef = useRef<HTMLButtonElement>(null);
+  const danhMucRef = useRef<HTMLButtonElement>(null);
+  const thongKeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -88,6 +109,28 @@ export default function Header({
       setNguonGenPos({ top: r.bottom, left: r.left });
     }
     setNguonGenOpen((v) => !v);
+    setDanhMucOpen(false);
+    setThongKeOpen(false);
+  };
+
+  const handleDanhMucToggle = () => {
+    if (!danhMucOpen && danhMucRef.current) {
+      const r = danhMucRef.current.getBoundingClientRect();
+      setDanhMucPos({ top: r.bottom, left: r.left });
+    }
+    setDanhMucOpen((v) => !v);
+    setNguonGenOpen(false);
+    setThongKeOpen(false);
+  };
+
+  const handleThongKeToggle = () => {
+    if (!thongKeOpen && thongKeRef.current) {
+      const r = thongKeRef.current.getBoundingClientRect();
+      setThongKePos({ top: r.bottom, left: r.left });
+    }
+    setThongKeOpen((v) => !v);
+    setNguonGenOpen(false);
+    setDanhMucOpen(false);
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -174,24 +217,54 @@ export default function Header({
         {/* ── Desktop nav tab bar ── */}
         {showNav && (
           <div className="max-md:hidden bg-green-800 flex overflow-x-auto">
-            {[
-              { id: "trang-chu", label: "Trang chủ", icon: <IconHome cls="w-4 h-4" /> },
-              { id: "danh-muc", label: "Danh mục", icon: <IconList cls="w-4 h-4" /> },
-              { id: "thong-ke", label: "Thống kê", icon: <IconChart cls="w-4 h-4" /> },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
-                  activeTab === tab.id
-                    ? "border-white text-white bg-white/10"
-                    : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
-                }`}
-              >
-                {tab.icon}
-                {tab.label}
-              </button>
-            ))}
+            {/* Trang chủ */}
+            <button
+              onClick={() => onTabChange("trang-chu")}
+              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                activeTab === "trang-chu"
+                  ? "border-white text-white bg-white/10"
+                  : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <IconHome cls="w-4 h-4" />
+              Trang chủ
+            </button>
+
+            {/* Danh mục — dropdown */}
+            <button
+              ref={danhMucRef}
+              onClick={handleDanhMucToggle}
+              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                activeTab === "danh-muc"
+                  ? "border-white text-white bg-white/10"
+                  : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <IconList cls="w-4 h-4" />
+              Danh mục
+              <svg className={`w-3.5 h-3.5 text-white/60 transition-transform ${danhMucOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Thống kê — dropdown */}
+            <button
+              ref={thongKeRef}
+              onClick={handleThongKeToggle}
+              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                activeTab === "thong-ke"
+                  ? "border-white text-white bg-white/10"
+                  : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <IconChart cls="w-4 h-4" />
+              Thống kê
+              <svg className={`w-3.5 h-3.5 text-white/60 transition-transform ${thongKeOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {/* Nguồn gen — dropdown */}
             <button
               ref={nguonGenRef}
               onClick={handleNguonGenToggle}
@@ -203,10 +276,7 @@ export default function Header({
             >
               <IconShield cls="w-4 h-4" />
               Nguồn gen
-              <svg
-                className={`w-3.5 h-3.5 text-white/60 transition-transform ${nguonGenOpen ? "rotate-180" : ""}`}
-                fill="none" stroke="currentColor" viewBox="0 0 24 24"
-              >
+              <svg className={`w-3.5 h-3.5 text-white/60 transition-transform ${nguonGenOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
@@ -309,6 +379,56 @@ export default function Header({
               >
                 <span className="text-base">{cat.icon}</span>
                 <span className="font-medium">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* ── Desktop Danh mục dropdown portal ── */}
+      {mounted && danhMucOpen && createPortal(
+        <>
+          <div className="fixed inset-0" style={{ zIndex: 9998 }} onClick={() => setDanhMucOpen(false)} />
+          <div
+            className="fixed bg-white shadow-xl rounded-lg w-72 overflow-hidden border border-gray-200"
+            style={{ top: danhMucPos.top, left: danhMucPos.left, zIndex: 9999 }}
+          >
+            <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Danh mục</p>
+            </div>
+            {DANH_MUC_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => { setDanhMucOpen(false); onTabChange("danh-muc"); }}
+                className="w-full text-left px-4 py-3 text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 hover:text-green-800"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* ── Desktop Thống kê dropdown portal ── */}
+      {mounted && thongKeOpen && createPortal(
+        <>
+          <div className="fixed inset-0" style={{ zIndex: 9998 }} onClick={() => setThongKeOpen(false)} />
+          <div
+            className="fixed bg-white shadow-xl rounded-lg w-72 overflow-hidden border border-gray-200"
+            style={{ top: thongKePos.top, left: thongKePos.left, zIndex: 9999 }}
+          >
+            <div className="px-3 py-2 bg-gray-50 border-b border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Thống kê</p>
+            </div>
+            {THONG_KE_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => { setThongKeOpen(false); onTabChange("thong-ke"); }}
+                className="w-full text-left px-4 py-3 text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 hover:text-green-800"
+              >
+                {item.label}
               </button>
             ))}
           </div>
