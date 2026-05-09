@@ -48,11 +48,11 @@ const NAV_TABS = [
 ];
 
 const USER_MENU = [
-  { id: "profile", label: "Thông tin cá nhân" },
-  { id: "password", label: "Đổi mật khẩu" },
-  { id: "admin", label: "Quản trị", highlight: true },
-  { id: "guide", label: "Hướng dẫn sử dụng" },
-  { id: "logout", label: "Đăng xuất" },
+  { id: "admin", label: "Quản trị dữ liệu", danger: false },
+  { id: "profile", label: "Thông tin cá nhân", danger: false },
+  { id: "password", label: "Đổi mật khẩu", danger: false },
+  { id: "guide", label: "Hướng dẫn sử dụng", danger: false },
+  { id: "logout", label: "Đăng xuất", danger: true },
 ];
 
 export default function Header({
@@ -228,8 +228,8 @@ export default function Header({
                 key={menuItem.id}
                 onClick={() => handleUserMenuAction(menuItem.id)}
                 className={`w-full text-left px-4 py-3 text-sm transition-colors border-b border-gray-100 last:border-0 ${
-                  menuItem.highlight
-                    ? "bg-green-700 text-white font-semibold hover:bg-green-800"
+                  menuItem.danger
+                    ? "text-red-600 hover:bg-red-50"
                     : "hover:bg-gray-50 text-gray-700"
                 }`}
               >

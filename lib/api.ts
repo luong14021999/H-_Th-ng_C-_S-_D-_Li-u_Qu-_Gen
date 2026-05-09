@@ -9,8 +9,14 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err || res.statusText);
+    let msg: string;
+    try {
+      const json = await res.json();
+      msg = json.error ?? json.message ?? JSON.stringify(json);
+    } catch {
+      msg = (await res.text()) || res.statusText;
+    }
+    throw new Error(`[${res.status}] ${path}: ${msg}`);
   }
   if (res.status === 204) return undefined as T;
   return res.json();

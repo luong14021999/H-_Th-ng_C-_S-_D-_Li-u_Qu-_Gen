@@ -49,6 +49,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
   const [filterCategory, setFilterCategory] = useState<string>(activeCategory ?? "all");
   const [filterPhanNhom, setFilterPhanNhom] = useState<string>("all");
   const [categoryOpen, setCategoryOpen] = useState(true);
+  const [filterDrawerOpen, setFilterDrawerOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -58,6 +59,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
       setPage(1);
     }
   }, [activeCategory]);
+
   const [editItem, setEditItem] = useState<NguonGen | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<NguonGen | null>(null);
   const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
@@ -147,137 +149,143 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
   const totalPages = Math.ceil(filtered.length / pageSize);
   const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
+  // Reusable filter panel content (used in both sidebar and mobile drawer)
+  const filterPanelContent = (
+    <div className="flex-1 px-4 py-4 flex flex-col gap-5 overflow-y-auto">
+      {/* Mã nguồn gen */}
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Mã nguồn gen
+        </label>
+        <input
+          type="text"
+          value={searchMa}
+          onChange={(e) => { setSearchMa(e.target.value); setPage(1); }}
+          placeholder="Tìm kiếm theo mã..."
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
+        />
+      </div>
+
+      {/* Tên nguồn gen */}
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Tên nguồn gen
+        </label>
+        <input
+          type="text"
+          value={searchTen}
+          onChange={(e) => { setSearchTen(e.target.value); setPage(1); }}
+          placeholder="Tìm kiếm theo tên..."
+          className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
+        />
+      </div>
+
+      {/* Nhóm nguồn gen accordion */}
+      <div>
+        <button
+          onClick={() => setCategoryOpen((v) => !v)}
+          className="flex items-center justify-between w-full text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5"
+        >
+          <span>Nhóm nguồn gen</span>
+          <svg
+            className={`w-4 h-4 text-gray-500 transition-transform ${categoryOpen ? "rotate-180" : ""}`}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+        {categoryOpen && (
+          <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
+            <button
+              onClick={() => { setFilterPhanNhom("all"); setPage(1); setFilterDrawerOpen(false); }}
+              className={`w-full text-left px-3 py-3 text-sm transition-colors ${
+                filterPhanNhom === "all" ? "bg-slate-700 text-white" : "hover:bg-gray-50 text-gray-700"
+              }`}
+            >
+              Tất cả
+            </button>
+            {availablePhanNhom.map((pn) => (
+              <button
+                key={pn}
+                onClick={() => { setFilterPhanNhom(pn); setPage(1); setFilterDrawerOpen(false); }}
+                className={`w-full text-left px-3 py-3 text-sm transition-colors ${
+                  filterPhanNhom === pn ? "bg-slate-700 text-white" : "hover:bg-gray-50 text-gray-700"
+                }`}
+              >
+                {pn}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Ngày nhập liệu */}
+      <div>
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Ngày nhập liệu
+        </label>
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            className="flex-1 min-w-0 border border-gray-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+          />
+          <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+          <input
+            type="date"
+            className="flex-1 min-w-0 border border-gray-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
+          />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       <div className="flex h-full bg-white overflow-hidden">
-        {/* ── Left filter sidebar ── */}
-        <div className="w-72 shrink-0 border-r border-gray-200 flex flex-col overflow-y-auto bg-white">
-          {/* Sidebar header */}
-          <div className="px-4 py-4 border-b border-gray-100">
+        {/* ── Left filter sidebar (desktop only) ── */}
+        <div className="hidden md:flex md:w-64 lg:w-72 shrink-0 border-r border-gray-200 flex-col overflow-hidden bg-white">
+          <div className="px-4 py-4 border-b border-gray-100 shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-xl">{activeCat ? activeCat.icon : "🗂️"}</span>
               <h2 className="text-base font-bold text-gray-800">
                 {activeCat ? activeCat.label : "Tất cả"}
               </h2>
-              <button className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center font-bold shrink-0">
-                ?
-              </button>
             </div>
           </div>
-
-          <div className="flex-1 px-4 py-4 flex flex-col gap-5">
-            {/* Mã nguồn gen */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-                Mã nguồn gen
-              </label>
-              <input
-                type="text"
-                value={searchMa}
-                onChange={(e) => { setSearchMa(e.target.value); setPage(1); }}
-                placeholder="Tìm kiếm theo mã..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
-              />
-            </div>
-
-            {/* Tên nguồn gen */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-                Tên nguồn gen
-              </label>
-              <input
-                type="text"
-                value={searchTen}
-                onChange={(e) => { setSearchTen(e.target.value); setPage(1); }}
-                placeholder="Tìm kiếm theo tên..."
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-gray-400"
-              />
-            </div>
-
-            {/* Nhóm nguồn gen accordion */}
-            <div>
-              <button
-                onClick={() => setCategoryOpen((v) => !v)}
-                className="flex items-center justify-between w-full text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5"
-              >
-                <span>Nhóm nguồn gen</span>
-                <svg
-                  className={`w-4 h-4 text-gray-500 transition-transform ${categoryOpen ? "rotate-180" : ""}`}
-                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-              {categoryOpen && (
-                <div className="border border-gray-200 rounded-lg overflow-hidden divide-y divide-gray-100">
-                  <button
-                    onClick={() => { setFilterPhanNhom("all"); setPage(1); }}
-                    className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
-                      filterPhanNhom === "all"
-                        ? "bg-slate-700 text-white"
-                        : "hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    Tất cả
-                  </button>
-                  {availablePhanNhom.map((pn) => (
-                    <button
-                      key={pn}
-                      onClick={() => { setFilterPhanNhom(pn); setPage(1); }}
-                      className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
-                        filterPhanNhom === pn
-                          ? "bg-slate-700 text-white"
-                          : "hover:bg-gray-50 text-gray-700"
-                      }`}
-                    >
-                      {pn}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Ngày nhập liệu */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
-                Ngày nhập liệu
-              </label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  className="flex-1 min-w-0 border border-gray-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                />
-                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-                <input
-                  type="date"
-                  className="flex-1 min-w-0 border border-gray-300 rounded-lg px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-600"
-                />
-              </div>
-            </div>
-          </div>
+          {filterPanelContent}
         </div>
 
         {/* ── Right main content ── */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           {/* Top action bar */}
-          <div className="px-5 py-3 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white">
+          <div className="px-3 sm:px-5 py-3 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white gap-2">
             <div className="flex items-center gap-2 min-w-0">
-              {activeCat && <span className="text-lg shrink-0">{activeCat.icon}</span>}
+              {/* Mobile filter toggle */}
+              <button
+                onClick={() => setFilterDrawerOpen(true)}
+                className="md:hidden flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs font-medium px-3 py-2 rounded-lg transition-colors hover:bg-gray-50 shrink-0"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                </svg>
+                <span>Lọc</span>
+                {(searchMa || searchTen || filterPhanNhom !== "all") && (
+                  <span className="w-2 h-2 bg-green-500 rounded-full" />
+                )}
+              </button>
+              {activeCat && <span className="text-lg shrink-0 hidden sm:inline">{activeCat.icon}</span>}
               <h2 className="text-sm font-bold text-gray-800 truncate">
                 {activeCat ? activeCat.label : "Tất cả nguồn gen"}
               </h2>
-              <button className="w-5 h-5 rounded-full bg-green-600 text-white text-xs flex items-center justify-center font-bold shrink-0">
-                ?
-              </button>
-              <span className="text-xs text-gray-400 hidden sm:inline">({filtered.length} bản ghi)</span>
+              <span className="text-xs text-gray-400 shrink-0">({filtered.length})</span>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 onClick={handleRefreshDates}
                 disabled={refreshingDates}
-                className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors"
                 title="Đồng bộ ngày nhập liệu từ dữ liệu gốc"
               >
                 {refreshingDates ? (
@@ -287,194 +295,307 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                 )}
-                <span className="hidden sm:inline">{refreshingDates ? "Đang cập nhật..." : "Cập nhật ngày"}</span>
+                <span className="hidden lg:inline">{refreshingDates ? "Đang cập nhật..." : "Cập nhật ngày"}</span>
               </button>
-              <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors">
+              <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                 </svg>
-                <span className="hidden sm:inline">Xuất file excel</span>
+                <span className="hidden sm:inline">Xuất Excel</span>
               </button>
-              <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-3 py-2 rounded-lg transition-colors">
+              <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
-                <span className="hidden sm:inline">+ Thêm mới (F2)</span>
+                <span className="hidden sm:inline">Thêm mới</span>
               </button>
             </div>
           </div>
 
-          {/* Table */}
-          <div className="flex-1 overflow-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead className="sticky top-0 z-10" style={{ backgroundColor: "#2d4a5e" }}>
-                <tr>
-                  <th className="text-left px-3 py-3 font-semibold text-white text-xs w-10">#</th>
-                  <th
-                    className="text-left px-3 py-3 font-semibold text-white text-xs cursor-pointer select-none whitespace-nowrap"
-                    onClick={() => handleSort("ma")}
-                  >
-                    <span className="flex items-center">
-                      Mã nguồn gen
-                      <SortIcon field="ma" active={sortField} dir={sortDir} />
-                    </span>
-                  </th>
-                  <th
-                    className="text-left px-3 py-3 font-semibold text-white text-xs cursor-pointer select-none"
-                    onClick={() => handleSort("ten")}
-                  >
-                    <span className="flex items-center">
-                      Tên
-                      <SortIcon field="ten" active={sortField} dir={sortDir} />
-                    </span>
-                  </th>
-                  <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden md:table-cell whitespace-nowrap">
-                    ĐVCC sản xuất
-                  </th>
-                  <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden lg:table-cell whitespace-nowrap">
-                    Nhóm nguồn gen
-                  </th>
-                  <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden xl:table-cell whitespace-nowrap">
-                    Tọa độ
-                  </th>
-                  <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden lg:table-cell whitespace-nowrap">
-                    Ngày nhập liệu
-                  </th>
-                  <th className="text-center px-3 py-3 font-semibold text-white text-xs w-28">Thao tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginated.map((item, idx) => {
-                  const cat = CATEGORY_MAP[item.nhom];
-                  const rowNum = (page - 1) * pageSize + idx + 1;
-                  return (
-                    <tr key={item.ma} className="border-b border-gray-100 hover:bg-green-50/60 transition-colors">
-                      <td className="px-3 py-2.5 text-gray-400 text-xs">{rowNum}</td>
-                      <td className="px-3 py-2.5 font-mono text-xs text-gray-700 font-medium whitespace-nowrap">
-                        {item.ma}
-                      </td>
-                      <td className="px-3 py-2.5">
-                        <p className="text-sm text-gray-800 leading-snug">
-                          <span className="text-gray-400 text-xs">Việt Nam: </span>
-                          <span className="font-semibold">{item.ten}</span>
-                        </p>
-                        {item.khoa_hoc && (
-                          <p className="text-xs text-gray-500 leading-snug mt-0.5">
-                            <span className="text-gray-400">Khoa học: </span>
-                            <span className="italic">{item.khoa_hoc}</span>
+          {/* ── Desktop Table ── */}
+          <div className="hidden md:flex flex-col flex-1 overflow-hidden">
+            <div className="flex-1 overflow-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead className="sticky top-0 z-10" style={{ backgroundColor: "#2d4a5e" }}>
+                  <tr>
+                    <th className="text-left px-3 py-3 font-semibold text-white text-xs w-10">#</th>
+                    <th
+                      className="text-left px-3 py-3 font-semibold text-white text-xs cursor-pointer select-none whitespace-nowrap"
+                      onClick={() => handleSort("ma")}
+                    >
+                      <span className="flex items-center">
+                        Mã nguồn gen
+                        <SortIcon field="ma" active={sortField} dir={sortDir} />
+                      </span>
+                    </th>
+                    <th
+                      className="text-left px-3 py-3 font-semibold text-white text-xs cursor-pointer select-none"
+                      onClick={() => handleSort("ten")}
+                    >
+                      <span className="flex items-center">
+                        Tên
+                        <SortIcon field="ten" active={sortField} dir={sortDir} />
+                      </span>
+                    </th>
+                    <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden lg:table-cell whitespace-nowrap">
+                      ĐVCC sản xuất
+                    </th>
+                    <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden xl:table-cell whitespace-nowrap">
+                      Nhóm nguồn gen
+                    </th>
+                    <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden lg:table-cell whitespace-nowrap">
+                      Ngày nhập liệu
+                    </th>
+                    <th className="text-center px-3 py-3 font-semibold text-white text-xs w-24">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginated.map((item, idx) => {
+                    const cat = CATEGORY_MAP[item.nhom];
+                    const rowNum = (page - 1) * pageSize + idx + 1;
+                    return (
+                      <tr key={item.ma} className="border-b border-gray-100 hover:bg-green-50/60 transition-colors">
+                        <td className="px-3 py-2.5 text-gray-400 text-xs">{rowNum}</td>
+                        <td className="px-3 py-2.5 font-mono text-xs text-gray-700 font-medium whitespace-nowrap">
+                          {item.ma}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <p className="text-sm text-gray-800 leading-snug">
+                            <span className="text-gray-400 text-xs">Việt Nam: </span>
+                            <span className="font-semibold">{item.ten}</span>
                           </p>
-                        )}
-                      </td>
-                      <td className="px-3 py-2.5 text-sm text-gray-600 hidden md:table-cell">
-                        {item.don_vi || "—"}
-                      </td>
-                      <td className="px-3 py-2.5 text-sm text-gray-600 hidden lg:table-cell">
-                        {cat?.label ?? item.nhom}
-                      </td>
-                      <td className="px-3 py-2.5 hidden xl:table-cell">
-                        <p className="text-xs text-gray-500">X: {item.lat}</p>
-                        <p className="text-xs text-gray-500">Y: {item.lng}</p>
-                      </td>
-                      <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell">{formatDate(item.created_at)}</td>
-                      <td className="px-3 py-2.5">
-                        <div className="flex items-center justify-center gap-1">
+                          {item.khoa_hoc && (
+                            <p className="text-xs text-gray-500 leading-snug mt-0.5">
+                              <span className="text-gray-400">Khoa học: </span>
+                              <span className="italic">{item.khoa_hoc}</span>
+                            </p>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5 text-sm text-gray-600 hidden lg:table-cell">
+                          {item.don_vi || "—"}
+                        </td>
+                        <td className="px-3 py-2.5 text-sm text-gray-600 hidden xl:table-cell">
+                          {cat?.label ?? item.nhom}
+                        </td>
+                        <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell">{formatDate(item.created_at)}</td>
+                        <td className="px-3 py-2.5">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              onClick={() => handleOpenEdit(item)}
+                              disabled={loadingEdit === item.ma}
+                              className="p-2 text-green-700 hover:bg-green-100 rounded transition-colors disabled:opacity-40"
+                              title="Chỉnh sửa"
+                            >
+                              {loadingEdit === item.ma ? (
+                                <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              )}
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirm(item)}
+                              className="p-2 text-red-500 hover:bg-red-100 rounded transition-colors"
+                              title="Xóa"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleDownload(item)}
+                              disabled={loadingDownload === item.ma}
+                              className="p-2 text-blue-600 hover:bg-blue-100 rounded transition-colors disabled:opacity-40"
+                              title="Tải xuống Excel"
+                            >
+                              {loadingDownload === item.ma ? (
+                                <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                              )}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {filtered.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm">Không tìm thấy kết quả</p>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 shrink-0 bg-gray-50">
+                <p className="text-xs text-gray-500">
+                  Trang {page} / {totalPages} — {filtered.length} bản ghi
+                </p>
+                <div className="flex gap-1">
+                  <button
+                    onClick={() => setPage(Math.max(1, page - 1))}
+                    disabled={page === 1}
+                    className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-100 transition-colors"
+                  >
+                    ← Trước
+                  </button>
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => setPage(p)}
+                        className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
+                          p === page ? "bg-green-700 text-white border-green-700" : "border-gray-300 hover:bg-gray-100"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    );
+                  })}
+                  <button
+                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                    disabled={page === totalPages}
+                    className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-100 transition-colors"
+                  >
+                    Sau →
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Mobile Card List ── */}
+          <div className="flex md:hidden flex-col flex-1 overflow-hidden">
+            <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+              {paginated.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                  <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-sm">Không tìm thấy kết quả</p>
+                </div>
+              ) : (
+                paginated.map((item, idx) => {
+                  const rowNum = (page - 1) * pageSize + idx + 1;
+                  const cat = CATEGORY_MAP[item.nhom];
+                  return (
+                    <div key={item.ma} className="px-4 py-3 hover:bg-green-50/50 transition-colors">
+                      <div className="flex items-start gap-3">
+                        {/* Number badge */}
+                        <span className="text-xs text-gray-400 mt-0.5 w-5 shrink-0">{rowNum}</span>
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-mono text-xs text-gray-500 mb-0.5">{item.ma}</p>
+                          <p className="font-semibold text-sm text-gray-800 leading-snug">{item.ten}</p>
+                          {item.khoa_hoc && (
+                            <p className="text-xs text-gray-500 italic mt-0.5">{item.khoa_hoc}</p>
+                          )}
+                          <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            {cat && (
+                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                                <span>{cat.icon}</span>
+                                <span>{cat.label}</span>
+                              </span>
+                            )}
+                            {item.don_vi && (
+                              <span className="text-xs text-gray-400">· {item.don_vi}</span>
+                            )}
+                            <span className="text-xs text-gray-400">{formatDate(item.created_at)}</span>
+                          </div>
+                        </div>
+                        {/* Actions */}
+                        <div className="flex items-center gap-0.5 shrink-0">
                           <button
                             onClick={() => handleOpenEdit(item)}
                             disabled={loadingEdit === item.ma}
-                            className="p-1.5 text-green-700 hover:bg-green-100 rounded transition-colors disabled:opacity-40"
+                            className="p-2.5 text-green-700 hover:bg-green-100 rounded-lg transition-colors disabled:opacity-40"
                             title="Chỉnh sửa"
                           >
                             {loadingEdit === item.ma ? (
-                              <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+                              <div className="w-5 h-5 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
                             ) : (
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                               </svg>
                             )}
                           </button>
                           <button
                             onClick={() => setDeleteConfirm(item)}
-                            className="p-1.5 text-red-500 hover:bg-red-100 rounded transition-colors"
+                            className="p-2.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors"
                             title="Xóa"
                           >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                           </button>
-                          <button
-                            onClick={() => handleDownload(item)}
-                            disabled={loadingDownload === item.ma}
-                            className="p-1.5 text-blue-600 hover:bg-blue-100 rounded transition-colors disabled:opacity-40"
-                            title="Tải xuống Excel"
-                          >
-                            {loadingDownload === item.ma ? (
-                              <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-                            ) : (
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                              </svg>
-                            )}
-                          </button>
                         </div>
-                      </td>
-                    </tr>
+                      </div>
+                    </div>
                   );
-                })}
-              </tbody>
-            </table>
+                })
+              )}
+            </div>
 
-            {filtered.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                <svg className="w-12 h-12 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <p className="text-sm">Không tìm thấy kết quả</p>
-              </div>
-            )}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between px-5 py-3 border-t border-gray-200 shrink-0 bg-gray-50">
-              <p className="text-xs text-gray-500">
-                Trang {page} / {totalPages} — {filtered.length} bản ghi
-              </p>
-              <div className="flex gap-1">
+            {/* Mobile Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200 shrink-0 bg-gray-50">
                 <button
                   onClick={() => setPage(Math.max(1, page - 1))}
                   disabled={page === 1}
-                  className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-1 px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-100 transition-colors"
                 >
                   ← Trước
                 </button>
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  const p = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
-                  return (
-                    <button
-                      key={p}
-                      onClick={() => setPage(p)}
-                      className={`px-3 py-1.5 text-xs border rounded-lg transition-colors ${
-                        p === page
-                          ? "bg-green-700 text-white border-green-700"
-                          : "border-gray-300 hover:bg-gray-100"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  );
-                })}
+                <p className="text-xs text-gray-500">{page} / {totalPages}</p>
                 <button
                   onClick={() => setPage(Math.min(totalPages, page + 1))}
                   disabled={page === totalPages}
-                  className="px-3 py-1.5 text-xs border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-100 transition-colors"
+                  className="flex items-center gap-1 px-4 py-2 text-sm border border-gray-300 rounded-lg disabled:opacity-40 hover:bg-gray-100 transition-colors"
                 >
                   Sau →
                 </button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
+
+      {/* ── Mobile filter drawer ── */}
+      {filterDrawerOpen && (
+        <div className="md:hidden fixed inset-0 z-[2500] flex">
+          <div className="w-4/5 max-w-xs bg-white shadow-2xl flex flex-col h-full">
+            <div className="px-4 py-4 border-b border-gray-100 flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">{activeCat ? activeCat.icon : "🗂️"}</span>
+                <h2 className="text-base font-bold text-gray-800">
+                  {activeCat ? activeCat.label : "Bộ lọc"}
+                </h2>
+              </div>
+              <button
+                onClick={() => setFilterDrawerOpen(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            {filterPanelContent}
+          </div>
+          <div className="flex-1 bg-black/40" onClick={() => setFilterDrawerOpen(false)} />
+        </div>
+      )}
 
       {/* Edit modal */}
       {editItem && (
@@ -488,8 +609,8 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
 
       {/* Delete confirm */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
                 <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,13 +630,13 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
             <div className="flex gap-2">
               <button
                 onClick={() => setDeleteConfirm(null)}
-                className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="flex-1 border border-gray-300 text-gray-700 text-sm py-2.5 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 Hủy
               </button>
               <button
                 onClick={() => handleDelete(deleteConfirm)}
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2 rounded-lg transition-colors font-medium"
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white text-sm py-2.5 rounded-lg transition-colors font-medium"
               >
                 Xóa
               </button>
