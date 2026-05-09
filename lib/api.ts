@@ -9,12 +9,13 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
+    const text = await res.text();
     let msg: string;
     try {
-      const json = await res.json();
-      msg = json.error ?? json.message ?? JSON.stringify(json);
+      const json = JSON.parse(text);
+      msg = json.error ?? json.message ?? text;
     } catch {
-      msg = (await res.text()) || res.statusText;
+      msg = text || res.statusText;
     }
     throw new Error(`[${res.status}] ${path}: ${msg}`);
   }
