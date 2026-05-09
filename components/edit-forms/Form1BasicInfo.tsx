@@ -48,11 +48,12 @@ const Textarea = ({ label, value, onChange }: {
   </div>
 );
 
-function SearchableSelect({ label, value, onChange, options }: {
+function SearchableSelect({ label, value, onChange, options, required }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: string[];
+  required?: boolean;
 }) {
   const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
@@ -77,7 +78,9 @@ function SearchableSelect({ label, value, onChange, options }: {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-      <label className="text-sm text-gray-600 pt-1.5">{label}</label>
+      <label className="text-sm text-gray-600 pt-1.5">
+        {required && <span className="text-red-500 mr-0.5">*</span>}{label}
+      </label>
       <div className="col-span-2 relative" ref={containerRef}>
         <div className="flex items-center border-b border-gray-300 focus-within:border-green-600">
           <input
@@ -129,13 +132,14 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
       {/* Basic identifiers */}
       <div>
         <Input label="Mã nguồn gen" value={basic.ma} onChange={() => {}} />
-        <Input label="* Tên Việt Nam" value={basic.ten} onChange={(v) => setBasic('ten', v)} required />
+        <Input label="Tên Việt Nam" value={basic.ten} onChange={(v) => setBasic('ten', v)} required />
         <Input label="Tên khoa học" value={basic.khoa_hoc} onChange={(v) => setBasic('khoa_hoc', v)} />
         <Input label="Tên khác" value={d.ten_khac} onChange={(v) => set('ten_khac', v)} />
         <Input label="Tên họ" value={d.ten_ho} onChange={(v) => set('ten_ho', v)} />
         <Input label="Tên bộ" value={d.ten_bo} onChange={(v) => set('ten_bo', v)} />
         <SearchableSelect
-          label="* Nhóm nguồn gen"
+          label="Nhóm nguồn gen"
+          required
           value={basic.phan_nhom}
           onChange={(v) => setBasic('phan_nhom', v)}
           options={PHAN_NHOM_BY_NHOM[basic.nhom] ?? []}
@@ -146,7 +150,7 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
       {/* Nơi thu thập */}
       <div>
         <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Nơi thu thập</h3>
-        <Input label="* Người/cơ quan giao, trồng/cấp giống" value={d.nguon_giao} onChange={(v) => set('nguon_giao', v)} required />
+        <Input label="Người/cơ quan giao, trồng/cấp giống" value={d.nguon_giao} onChange={(v) => set('nguon_giao', v)} required />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
           <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Nơi thu thập</label>
           <div className="col-span-2 flex gap-2 flex-wrap">
