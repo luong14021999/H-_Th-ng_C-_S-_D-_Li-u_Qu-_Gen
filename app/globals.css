@@ -23,6 +23,8 @@ html,
 body {
   /* dvh adjusts when mobile browser chrome shows/hides */
   height: 100dvh;
+  /* prevent rubber-band/pull-to-refresh scroll — only the map scrolls */
+  overscroll-behavior: none;
 }
 
 body {

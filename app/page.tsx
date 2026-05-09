@@ -184,6 +184,7 @@ export default function Home() {
           if (isAdmin) { setShowTable(true); setActiveTab("danh-muc"); }
           else setShowLogin(true);
         }}
+        totalCount={data.length}
         onNguonGenCategorySelect={(categoryId) => {
           setTableCategory(categoryId);
           setShowTable(true);
