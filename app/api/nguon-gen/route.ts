@@ -9,3 +9,14 @@ export async function GET() {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data);
 }
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const { data, error } = await supabaseAdmin
+    .from("nguon_gen")
+    .insert(body)
+    .select()
+    .single();
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data, { status: 201 });
+}

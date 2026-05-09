@@ -25,6 +25,9 @@ async function req<T>(path: string, init?: RequestInit): Promise<T> {
 // ── Nguồn gen ─────────────────────────────────────────────
 export const apiGetAll = () => req<NguonGen[]>("/nguon-gen");
 
+export const apiCreate = (body: Partial<NguonGen>) =>
+  req<NguonGen>("/nguon-gen", { method: "POST", body: JSON.stringify(body) });
+
 export const apiUpdate = (ma: string, body: Partial<NguonGen>) =>
   req<NguonGen>(`/nguon-gen/${ma}`, { method: "PATCH", body: JSON.stringify(body) });
 

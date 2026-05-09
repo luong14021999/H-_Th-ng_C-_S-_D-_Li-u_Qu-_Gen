@@ -12,6 +12,7 @@ import { importNguonGenExcel } from "@/lib/importExcel";
 interface EditModalProps {
   item: NguonGen;
   extended: ExtendedFormData;
+  isNew?: boolean;
   onSave: (updated: NguonGen, ext: ExtendedFormData) => void;
   onClose: () => void;
 }
@@ -23,7 +24,7 @@ const TABS = [
   { label: 'Dữ liệu đánh giá chi tiết', short: 'Đánh giá chi tiết' },
 ];
 
-export default function EditModal({ item, extended, onSave, onClose }: EditModalProps) {
+export default function EditModal({ item, extended, isNew, onSave, onClose }: EditModalProps) {
   const [tab, setTab] = useState(0);
   const [basic, setBasic] = useState<NguonGen>({ ...item });
   const [form1, setForm1] = useState<Partial<Form1Data>>(extended.form1 ?? defaultForm1());
@@ -75,8 +76,8 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
       {/* Header */}
       <div className="bg-green-700 text-white px-4 py-3 flex items-center justify-between shrink-0">
         <div className="min-w-0">
-          <h2 className="font-bold text-base">Chỉnh sửa nguồn gen</h2>
-          <p className="text-green-100 text-xs font-mono mt-0.5 truncate">{item.ma} — {item.ten}</p>
+          <h2 className="font-bold text-base">{isNew ? "Thêm mới nguồn gen" : "Chỉnh sửa nguồn gen"}</h2>
+          <p className="text-green-100 text-xs font-mono mt-0.5 truncate">{isNew ? "Nhập đầy đủ thông tin bên dưới" : `${item.ma} — ${item.ten}`}</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           {/* Import XLSX */}
@@ -110,7 +111,7 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
           </button>
 
           <button onClick={handleSave} className="bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors">
-            Lưu tất cả
+            {isNew ? "Tạo mới" : "Lưu tất cả"}
           </button>
           <button onClick={onClose} className="text-green-100 hover:text-white p-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -203,7 +204,7 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
           ) : (
             <button onClick={handleSave}
               className="px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
-              Lưu tất cả
+              {isNew ? "Tạo mới" : "Lưu tất cả"}
             </button>
           )}
         </div>

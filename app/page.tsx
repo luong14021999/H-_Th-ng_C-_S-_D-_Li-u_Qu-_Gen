@@ -11,7 +11,7 @@ import EditModal from "@/components/EditModal";
 import { nguonGenData, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
-import { apiGetAll, apiGetForms, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
+import { apiGetAll, apiGetForms, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -126,6 +126,23 @@ export default function Home() {
     }
   };
 
+  const handleAdd = async (newItem: NguonGen, ext: ExtendedFormData) => {
+    try {
+      const created = await apiCreate(newItem);
+      await Promise.all([
+        apiSaveForm(created.ma, "form1", ext.form1),
+        apiSaveForm(created.ma, "form2", ext.form2),
+        apiSaveForm(created.ma, "form3", ext.form3),
+        apiSaveForm(created.ma, "form4", ext.form4),
+      ]);
+      setData((prev) => [...prev, created]);
+      setExtendedMap((prev) => ({ ...prev, [created.ma]: ext }));
+    } catch (err) {
+      console.error("Lỗi tạo:", err);
+      alert("Lỗi khi tạo bản ghi. Vui lòng thử lại.");
+    }
+  };
+
   const handleDelete = async (ma: string) => {
     try {
       await apiDelete(ma);
@@ -197,6 +214,7 @@ export default function Home() {
             data={data}
             extendedMap={extendedMap}
             onEdit={handleEdit}
+            onAdd={handleAdd}
             onDelete={handleDelete}
             onOpenEdit={handleOpenEdit}
             onClose={() => { setShowTable(false); setActiveTab("nguon-gen"); }}

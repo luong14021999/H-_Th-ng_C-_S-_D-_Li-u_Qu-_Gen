@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { CATEGORY_MAP, NguonGen, nguonGenData } from "@/data/nguonGen";
-import { ExtendedFormData } from "@/data/extendedTypes";
+import { ExtendedFormData, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 import EditModal from "./EditModal";
 import { exportNguonGenExcel, exportDanhSachExcel } from "@/lib/exportExcel";
 import { apiSeed } from "@/lib/api";
@@ -12,6 +12,7 @@ interface DataTableProps {
   extendedMap: Record<string, ExtendedFormData>;
   onEdit: (updated: NguonGen, ext: ExtendedFormData) => void;
   onDelete: (ma: string) => void;
+  onAdd: (item: NguonGen, ext: ExtendedFormData) => Promise<void>;
   onOpenEdit?: (ma: string) => Promise<void>;
   onClose: () => void;
   activeCategory?: string;
@@ -43,7 +44,7 @@ function SortIcon({ field, active, dir }: { field: SortField; active: SortField;
   );
 }
 
-export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenEdit, onClose: _onClose, activeCategory }: DataTableProps) {
+export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, onOpenEdit, onClose: _onClose, activeCategory }: DataTableProps) {
   const [searchMa, setSearchMa] = useState("");
   const [searchTen, setSearchTen] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>(activeCategory ?? "all");
@@ -60,6 +61,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
     }
   }, [activeCategory]);
 
+  const [showAddModal, setShowAddModal] = useState(false);
   const [editItem, setEditItem] = useState<NguonGen | null>(null);
   const [deleteConfirm, setDeleteConfirm] = useState<NguonGen | null>(null);
   const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
@@ -136,6 +138,17 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
     }
     return result.sort((a, b) => a.localeCompare(b));
   }, [data, filterCategory]);
+
+  const blankItem = useMemo<NguonGen>(() => ({
+    ma: "",
+    ten: "",
+    khoa_hoc: "",
+    don_vi: "",
+    phan_nhom: filterCategory !== "all" ? (availablePhanNhom[0] ?? "") : "",
+    nhom: filterCategory !== "all" ? filterCategory : "",
+    lat: 19.8,
+    lng: 105.8,
+  }), [filterCategory, availablePhanNhom]);
 
   const filtered = useMemo(() => {
     let list = data.filter((item) => {
@@ -322,7 +335,10 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
                 )}
                 <span className="hidden sm:inline">{exportingList ? "Đang xuất..." : "Xuất Excel"}</span>
               </button>
-              <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors">
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors"
+              >
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
@@ -614,6 +630,20 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
           </div>
           <div className="flex-1 bg-black/40" onClick={() => setFilterDrawerOpen(false)} />
         </div>
+      )}
+
+      {/* Add modal */}
+      {showAddModal && (
+        <EditModal
+          item={blankItem}
+          extended={{ form1: defaultForm1(), form2: defaultForm2(), form3: defaultForm3(), form4: defaultForm4() }}
+          isNew
+          onSave={async (newItem, ext) => {
+            await onAdd(newItem, ext);
+            setShowAddModal(false);
+          }}
+          onClose={() => setShowAddModal(false)}
+        />
       )}
 
       {/* Edit modal */}
