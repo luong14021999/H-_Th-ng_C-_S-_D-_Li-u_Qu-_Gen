@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface LoginModalProps {
   onClose: () => void;
@@ -12,6 +12,20 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Lock body scroll on iOS Safari to prevent page shifting when keyboard appears
+  useEffect(() => {
+    const scrollY = window.scrollY;
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = "100%";
+    return () => {
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      window.scrollTo(0, scrollY);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -55,7 +69,6 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
               onChange={(e) => setUsername(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Nhập tên đăng nhập"
-              autoFocus
               required
             />
           </div>
