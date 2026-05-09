@@ -32,10 +32,10 @@ export const apiCreate = (body: Partial<NguonGen>) =>
 export const apiUpdate = (ma: string, body: Partial<NguonGen>) =>
   req<NguonGen>(`/nguon-gen/${ma}`, { method: "PATCH", body: JSON.stringify(body) });
 
-export const apiDelete = (ma: string) => {
-  if (!ma) return Promise.reject(new Error("Mã nguồn gen không được trống"));
-  return req<void>(`/nguon-gen/${ma}`, { method: "DELETE" });
-};
+export const apiDelete = (ma: string) =>
+  ma
+    ? req<void>(`/nguon-gen/${ma}`, { method: "DELETE" })
+    : req<void>(`/nguon-gen?ma=`, { method: "DELETE" });
 
 // ── Forms ─────────────────────────────────────────────────
 export const apiGetForms = (ma: string) =>
