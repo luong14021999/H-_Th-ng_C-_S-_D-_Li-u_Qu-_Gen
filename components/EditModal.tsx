@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData, Form1Data, Form2Data, Form3Data, Form4Data, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 import Form1BasicInfo from "./edit-forms/Form1BasicInfo";
 import Form2Survey from "./edit-forms/Form2Survey";
 import Form3InitialAssessment from "./edit-forms/Form3InitialAssessment";
 import Form4DetailedAssessment from "./edit-forms/Form4DetailedAssessment";
+import { importNguonGenExcel } from "@/lib/importExcel";
 
 interface EditModalProps {
   item: NguonGen;
@@ -29,8 +30,45 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
   const [form2, setForm2] = useState<Partial<Form2Data>>(extended.form2 ?? defaultForm2());
   const [form3, setForm3] = useState<Partial<Form3Data>>(extended.form3 ?? defaultForm3());
   const [form4, setForm4] = useState<Partial<Form4Data>>(extended.form4 ?? defaultForm4());
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => onSave(basic, { form1, form2, form3, form4 });
+
+  const handleReset = () => {
+    if (tab === 0) setForm1(defaultForm1());
+    else if (tab === 1) setForm2(defaultForm2());
+    else if (tab === 2) setForm3(defaultForm3());
+    else if (tab === 3) setForm4(defaultForm4());
+    setShowResetConfirm(false);
+  };
+
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    setImporting(true);
+    try {
+      const result = await importNguonGenExcel(file);
+      if (result.form2) setForm2(result.form2);
+      if (result.form3) setForm3(result.form3);
+      if (result.form4) setForm4(result.form4);
+      if (result.ma) setBasic((prev) => ({ ...prev, ma: result.ma! }));
+    } catch {
+      alert("Không thể đọc file. Vui lòng chọn file Excel được xuất từ hệ thống.");
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "F9") { e.preventDefault(); setShowResetConfirm(true); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   return (
     <div className="fixed inset-0 z-[2000] flex flex-col bg-white">
@@ -40,8 +78,38 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
           <h2 className="font-bold text-base">Chỉnh sửa nguồn gen</h2>
           <p className="text-green-100 text-xs font-mono mt-0.5 truncate">{item.ma} — {item.ten}</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button onClick={handleSave} className="bg-white text-green-700 font-semibold text-sm px-4 py-1.5 rounded hover:bg-green-50 transition-colors">
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Import XLSX */}
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors disabled:opacity-50"
+            title="Nhập từ tệp XLSX"
+          >
+            {importing ? (
+              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            )}
+            <span className="hidden sm:inline">Nhập từ tệp XLSX</span>
+          </button>
+          <input ref={fileInputRef} type="file" accept=".xlsx" className="hidden" onChange={handleImport} />
+
+          {/* Reset current form */}
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors"
+            title="Làm mới (F9)"
+          >
+            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="hidden sm:inline">Làm mới (F9)</span>
+          </button>
+
+          <button onClick={handleSave} className="bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors">
             Lưu tất cả
           </button>
           <button onClick={onClose} className="text-green-100 hover:text-white p-1">
@@ -75,6 +143,42 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
         {tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form3} onChange={setForm3} />}
         {tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form4} onChange={setForm4} />}
       </div>
+
+      {/* Reset confirmation */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">Xác nhận làm mới</p>
+                <p className="text-xs text-gray-500 mt-0.5">Dữ liệu chưa lưu sẽ bị xóa</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700 mb-5">
+              Bạn có chắc muốn đặt lại toàn bộ dữ liệu của tab <span className="font-semibold">{TABS[tab].label}</span> về mặc định?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="flex-1 border border-gray-300 text-gray-700 text-sm py-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={handleReset}
+                className="flex-1 bg-yellow-500 hover:bg-yellow-600 text-white text-sm py-2 rounded-lg transition-colors font-medium"
+              >
+                Làm mới
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer nav */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-gray-200 bg-gray-50 shrink-0">

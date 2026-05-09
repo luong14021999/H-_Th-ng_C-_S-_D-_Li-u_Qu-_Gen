@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import LoginModal from "@/components/LoginModal";
 import DataTable from "@/components/DataTable";
+import EditModal from "@/components/EditModal";
 import { nguonGenData, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +22,9 @@ export default function Home() {
   const [showTable, setShowTable] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarEditItem, setSidebarEditItem] = useState<NguonGen | null>(null);
+  const [activeTab, setActiveTab] = useState("nguon-gen");
+  const [tableCategory, setTableCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
 
@@ -91,7 +95,6 @@ export default function Home() {
   const handleLogin = () => {
     setIsAdmin(true);
     setShowLogin(false);
-    setShowTable(true);
   };
 
   const handleLogout = () => {
@@ -144,6 +147,12 @@ export default function Home() {
     }
   };
 
+  const handleSidebarItemSelect = async (item: NguonGen) => {
+    setSidebarOpen(false);
+    await handleOpenEdit(item.ma);
+    setSidebarEditItem(item);
+  };
+
   if (loading || seeding) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-gray-50 gap-3">
@@ -159,51 +168,70 @@ export default function Home() {
     <div className="h-full flex flex-col">
       <Header
         isAdmin={isAdmin}
+        showNav={isAdmin && showTable}
+        activeTab={activeTab}
+        onTabChange={(tab) => {
+          setActiveTab(tab);
+          if (tab === "trang-chu") setShowTable(false);
+          else if (tab === "thong-ke") setShowTable(false);
+          else if (tab === "danh-muc" && isAdmin) { setShowTable(true); setTableCategory("all"); }
+        }}
         onAdminClick={handleAdminClick}
         onLogout={handleLogout}
         onMenuToggle={() => setSidebarOpen((v) => !v)}
+        onOpenAdmin={() => {
+          if (isAdmin) { setShowTable(true); setActiveTab("danh-muc"); }
+          else setShowLogin(true);
+        }}
+        onNguonGenCategorySelect={(categoryId) => {
+          setTableCategory(categoryId);
+          setShowTable(true);
+          setActiveTab("nguon-gen");
+        }}
       />
 
       <div className="flex flex-1 overflow-hidden">
-        <Sidebar
-          open={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-          selectedCategory={selectedCategory}
-          onCategorySelect={setSelectedCategory}
-          counts={counts}
-          total={data.length}
-        />
-
-        <main className="flex-1 relative flex flex-col overflow-hidden">
-          <MapView data={filteredData} />
-
-          {isAdmin && !showTable && (
-            <button
-              onClick={() => setShowTable(true)}
-              className="absolute top-3 left-3 bg-green-700 hover:bg-green-600 text-white text-xs font-medium px-3 py-2 rounded-lg shadow-md transition-colors flex items-center gap-1.5 z-[1000]"
-            >
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M3 6h18M3 14h18M3 18h18" />
-              </svg>
-              Quản lý dữ liệu
-            </button>
-          )}
-        </main>
+        {showTable && isAdmin ? (
+          <DataTable
+            data={data}
+            extendedMap={extendedMap}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            onOpenEdit={handleOpenEdit}
+            onClose={() => { setShowTable(false); setActiveTab("nguon-gen"); }}
+            activeCategory={tableCategory}
+          />
+        ) : (
+          <>
+            <Sidebar
+              open={sidebarOpen}
+              onClose={() => setSidebarOpen(false)}
+              selectedCategory={selectedCategory}
+              onCategorySelect={setSelectedCategory}
+              counts={counts}
+              total={data.length}
+              items={data}
+              extendedMap={extendedMap}
+              onItemSelect={handleSidebarItemSelect}
+            />
+            <main className="flex-1 relative flex flex-col overflow-hidden">
+              <MapView data={filteredData} />
+            </main>
+          </>
+        )}
       </div>
+
+      {sidebarEditItem && (
+        <EditModal
+          item={sidebarEditItem}
+          extended={extendedMap[sidebarEditItem.ma] ?? { form1: {}, form2: {}, form3: {}, form4: {} }}
+          onSave={async (updated, ext) => { await handleEdit(updated, ext); setSidebarEditItem(null); }}
+          onClose={() => setSidebarEditItem(null)}
+        />
+      )}
 
       {showLogin && (
         <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />
-      )}
-
-      {showTable && isAdmin && (
-        <DataTable
-          data={data}
-          extendedMap={extendedMap}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-          onOpenEdit={handleOpenEdit}
-          onClose={() => setShowTable(false)}
-        />
       )}
     </div>
   );
