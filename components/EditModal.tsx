@@ -72,8 +72,8 @@ export default function EditModal({ item, extended, onSave, onClose }: EditModal
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4">
         {tab === 0 && <Form1BasicInfo basic={basic} data={form1} onBasicChange={setBasic} onDataChange={setForm1} />}
         {tab === 1 && <Form2Survey data={form2} onChange={setForm2} />}
-        {tab === 2 && <Form3InitialAssessment ma={item.ma} data={form3} onChange={setForm3} />}
-        {tab === 3 && <Form4DetailedAssessment ma={item.ma} data={form4} onChange={setForm4} />}
+        {tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form3} onChange={setForm3} />}
+        {tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form4} onChange={setForm4} />}
       </div>
 
       {/* Footer nav */}

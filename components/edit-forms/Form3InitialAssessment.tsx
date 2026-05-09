@@ -4,6 +4,7 @@ import { Form3Data, defaultForm3 } from "@/data/extendedTypes";
 
 interface Props {
   ma: string;
+  onMaChange: (v: string) => void;
   data: Partial<Form3Data>;
   onChange: (updated: Partial<Form3Data>) => void;
 }
@@ -25,12 +26,6 @@ const Row = ({ label, value, onChange, rows }: {
   </div>
 );
 
-const ReadOnly = ({ label, value }: { label: string; value: string }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 py-2 border-b border-gray-100">
-    <label className="text-sm text-gray-600">{label}</label>
-    <span className="col-span-2 text-sm font-mono py-1 text-gray-500">{value || '(tự động)'}</span>
-  </div>
-);
 
 const SectionTitle = ({ children }: { children: React.ReactNode }) => (
   <h3 className="font-bold text-gray-700 mt-5 mb-2 bg-gray-100 px-3 py-1.5 rounded text-xs uppercase tracking-wide">{children}</h3>
@@ -44,7 +39,7 @@ const SubLabel = ({ children }: { children: React.ReactNode }) => (
   <p className="text-xs text-gray-500 italic mt-2 mb-1">{children}</p>
 );
 
-export default function Form3InitialAssessment({ ma, data, onChange }: Props) {
+export default function Form3InitialAssessment({ ma, onMaChange, data, onChange }: Props) {
   const d = { ...defaultForm3(), ...data };
   const set = (f: keyof Form3Data, v: string) => onChange({ ...d, [f]: v });
 
@@ -53,7 +48,7 @@ export default function Form3InitialAssessment({ ma, data, onChange }: Props) {
       <SectionTitle>I. Thông tin chung</SectionTitle>
       <Row label="1. Mã số hệ thống" value={d.ma_so_he_thong} onChange={(v) => set('ma_so_he_thong', v)} />
       <Row label="2. Mã số nhiệm vụ" value={d.ma_so_nhiem_vu} onChange={(v) => set('ma_so_nhiem_vu', v)} />
-      <ReadOnly label="3. Mã nguồn gen" value={ma} />
+      <Row label="3. Mã nguồn gen" value={ma} onChange={onMaChange} />
       <Row label="4. Tên giống" value={d.ten_giong} onChange={(v) => set('ten_giong', v)} />
       <Row label="5. Nguồn giống (nguồn giống đem nhân)" value={d.nguon_giong} onChange={(v) => set('nguon_giong', v)} />
       <Row label="6. Nơi nhân giống/nuôi/trồng/cấp giống" value={d.noi_nhan_giong} onChange={(v) => set('noi_nhan_giong', v)} />
