@@ -169,7 +169,7 @@ export default function Home() {
     <div className="h-full flex flex-col">
       <Header
         isAdmin={isAdmin}
-        showNav={isAdmin}
+        showNav={isAdmin && showTable}
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
@@ -191,8 +191,7 @@ export default function Home() {
         }}
       />
 
-      {/* pb-16 on mobile reserves space above fixed bottom nav */}
-      <div className="flex flex-1 overflow-hidden md:pb-0 pb-16">
+      <div className={`flex flex-1 overflow-hidden ${isAdmin && showTable ? "pb-16 md:pb-0" : ""}`}>
         {showTable && isAdmin ? (
           <DataTable
             data={data}

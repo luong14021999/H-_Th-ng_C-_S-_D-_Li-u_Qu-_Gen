@@ -162,7 +162,7 @@ export default function Header({
             ) : (
               <button
                 onClick={onAdminClick}
-                className="hidden sm:flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-sm font-medium px-3 py-1.5 rounded transition-colors"
+                className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-sm font-medium px-3 py-1.5 rounded transition-colors"
               >
                 <IconPerson cls="w-4 h-4" />
                 Đăng nhập
