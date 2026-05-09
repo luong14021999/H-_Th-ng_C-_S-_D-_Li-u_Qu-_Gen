@@ -412,7 +412,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
                         <td className="px-3 py-2.5 text-sm text-gray-600 hidden xl:table-cell">
                           {cat?.label ?? item.nhom}
                         </td>
-                        <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell">{formatDate(item.created_at)}</td>
+                        <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell whitespace-nowrap">{formatDate(item.created_at)}</td>
                         <td className="px-3 py-2.5">
                           <div className="flex items-center justify-center gap-1">
                             <button
