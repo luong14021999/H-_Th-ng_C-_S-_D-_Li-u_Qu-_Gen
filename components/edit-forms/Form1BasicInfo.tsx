@@ -8,6 +8,7 @@ import { Form1Data, BaoTonEntry, defaultForm1 } from "@/data/extendedTypes";
 interface Props {
   basic: NguonGen;
   data: Partial<Form1Data>;
+  isNew?: boolean;
   onBasicChange: (updated: NguonGen) => void;
   onDataChange: (updated: Partial<Form1Data>) => void;
 }
@@ -113,7 +114,7 @@ function SearchableSelect({ label, value, onChange, options, required }: {
   );
 }
 
-export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChange }: Props) {
+export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDataChange }: Props) {
   const d = { ...defaultForm1(), ...data };
   const set = (field: keyof Form1Data, val: unknown) => onDataChange({ ...d, [field]: val });
   const setBasic = (field: keyof NguonGen, val: string) => onBasicChange({ ...basic, [field]: val });
@@ -131,7 +132,7 @@ export default function Form1BasicInfo({ basic, data, onBasicChange, onDataChang
     <div className="space-y-5 text-sm">
       {/* Basic identifiers */}
       <div>
-        <Input label="Mã nguồn gen" value={basic.ma} onChange={() => {}} />
+        <Input label="Mã nguồn gen" value={basic.ma} onChange={isNew ? (v) => setBasic('ma', v) : () => {}} required={isNew} placeholder={isNew ? "Nhập mã nguồn gen..." : undefined} />
         <Input label="Tên Việt Nam" value={basic.ten} onChange={(v) => setBasic('ten', v)} required />
         <Input label="Tên khoa học" value={basic.khoa_hoc} onChange={(v) => setBasic('khoa_hoc', v)} />
         <Input label="Tên khác" value={d.ten_khac} onChange={(v) => set('ten_khac', v)} />
