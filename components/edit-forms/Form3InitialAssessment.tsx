@@ -51,7 +51,7 @@ export default function Form3InitialAssessment({ ma, data, onChange }: Props) {
   return (
     <div className="text-sm">
       <SectionTitle>I. Thông tin chung</SectionTitle>
-      <ReadOnly label="1. Mã số hệ thống" value={d.ma_so_he_thong} />
+      <Row label="1. Mã số hệ thống" value={d.ma_so_he_thong} onChange={(v) => set('ma_so_he_thong', v)} />
       <Row label="2. Mã số nhiệm vụ" value={d.ma_so_nhiem_vu} onChange={(v) => set('ma_so_nhiem_vu', v)} />
       <ReadOnly label="3. Mã nguồn gen" value={ma} />
       <Row label="4. Tên giống" value={d.ten_giong} onChange={(v) => set('ten_giong', v)} />
