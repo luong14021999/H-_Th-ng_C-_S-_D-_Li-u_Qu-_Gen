@@ -22,6 +22,11 @@ const NAV_TABS = [
     id: "trang-chu",
     label: "Trang chủ",
     icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+    ),
+    iconSm: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
       </svg>
@@ -31,6 +36,11 @@ const NAV_TABS = [
     id: "danh-muc",
     label: "Danh mục",
     icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+      </svg>
+    ),
+    iconSm: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
       </svg>
@@ -40,6 +50,11 @@ const NAV_TABS = [
     id: "thong-ke",
     label: "Thống kê",
     icon: (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+      </svg>
+    ),
+    iconSm: (
       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
       </svg>
@@ -64,6 +79,8 @@ export default function Header({
 
   const [nguonGenOpen, setNguonGenOpen] = useState(false);
   const [nguonGenPos, setNguonGenPos] = useState({ top: 0, left: 0 });
+
+  const [mobileGenSheetOpen, setMobileGenSheetOpen] = useState(false);
 
   const [mounted, setMounted] = useState(false);
 
@@ -96,6 +113,7 @@ export default function Header({
 
   const handleCategorySelect = (categoryId: string) => {
     setNguonGenOpen(false);
+    setMobileGenSheetOpen(false);
     onNguonGenCategorySelect(categoryId);
     onTabChange("nguon-gen");
   };
@@ -118,7 +136,7 @@ export default function Header({
               </svg>
             </button>
 
-            <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-full overflow-hidden bg-white shrink-0 ring-2 ring-white/30">
+            <div className="w-11 h-11 rounded-full overflow-hidden bg-white shrink-0 ring-2 ring-white/30">
               <Image src="/logo.png" alt="Logo" width={52} height={52} className="w-full h-full object-cover" />
             </div>
 
@@ -171,21 +189,20 @@ export default function Header({
           </div>
         </div>
 
-        {/* Nav tab bar */}
+        {/* Desktop nav tab bar — hidden on mobile */}
         {showNav && (
-          <div className="bg-green-800 flex overflow-x-auto">
-            {/* Danh mục & Thống kê — plain tabs */}
+          <div className="max-md:hidden bg-green-800 flex overflow-x-auto">
             {NAV_TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+                className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                   activeTab === tab.id
                     ? "border-white text-white bg-white/10"
                     : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
                 }`}
               >
-                {tab.icon}
+                {tab.iconSm}
                 {tab.label}
               </button>
             ))}
@@ -194,7 +211,7 @@ export default function Header({
             <button
               ref={nguonGenRef}
               onClick={handleNguonGenToggle}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+              className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                 isNguonGenActive
                   ? "border-white text-white bg-white/10"
                   : "border-transparent text-white/65 hover:text-white hover:bg-white/10"
@@ -214,6 +231,70 @@ export default function Header({
           </div>
         )}
       </header>
+
+      {/* ── Mobile bottom nav bar ── */}
+      {showNav && mounted && createPortal(
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 flex safe-area-pb">
+          {NAV_TABS.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => onTabChange(tab.id)}
+              className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
+                activeTab === tab.id ? "text-green-700" : "text-gray-400 hover:text-gray-600"
+              }`}
+            >
+              {tab.icon}
+              <span className="text-[10px] font-medium">{tab.label}</span>
+            </button>
+          ))}
+
+          {/* Nguồn gen */}
+          <button
+            onClick={() => setMobileGenSheetOpen(true)}
+            className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
+              isNguonGenActive ? "text-green-700" : "text-gray-400 hover:text-gray-600"
+            }`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span className="text-[10px] font-medium">Nguồn gen</span>
+          </button>
+        </nav>,
+        document.body
+      )}
+
+      {/* ── Mobile Nguồn gen bottom sheet ── */}
+      {mounted && mobileGenSheetOpen && createPortal(
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-[9998]"
+            onClick={() => setMobileGenSheetOpen(false)}
+          />
+          <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white rounded-t-2xl overflow-hidden pb-safe">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            </div>
+            <div className="px-4 py-2.5 border-b border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Nhóm nguồn gen</p>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh]">
+              {CATEGORIES.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700"
+                >
+                  <span className="text-xl">{cat.icon}</span>
+                  <span className="font-medium">{cat.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="h-4" />
+          </div>
+        </>,
+        document.body
+      )}
 
       {/* User menu portal */}
       {mounted && userMenuOpen && createPortal(
@@ -241,7 +322,7 @@ export default function Header({
         document.body
       )}
 
-      {/* Nguồn gen category dropdown portal */}
+      {/* Desktop Nguồn gen category dropdown portal */}
       {mounted && nguonGenOpen && createPortal(
         <>
           <div className="fixed inset-0" style={{ zIndex: 9998 }} onClick={() => setNguonGenOpen(false)} />

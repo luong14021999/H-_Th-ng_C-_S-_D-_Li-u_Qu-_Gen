@@ -191,7 +191,8 @@ export default function Home() {
         }}
       />
 
-      <div className="flex flex-1 overflow-hidden">
+      {/* pb-16 on mobile reserves space above fixed bottom nav */}
+      <div className="flex flex-1 overflow-hidden md:pb-0 pb-16">
         {showTable && isAdmin ? (
           <DataTable
             data={data}
