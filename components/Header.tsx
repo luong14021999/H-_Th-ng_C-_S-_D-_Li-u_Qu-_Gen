@@ -117,7 +117,7 @@ export default function Header({
 
   return (
     <>
-      <header className="shrink-0 z-30 shadow-lg" style={{ backgroundColor: "#1a3050" }}>
+      <header className="shrink-0 z-30 shadow-lg bg-green-700">
         {/* ── Main top bar ── */}
         <div className="text-white px-3 py-2 flex items-center gap-3">
           {/* Hamburger (mobile, map sidebar) */}
@@ -225,7 +225,7 @@ export default function Header({
 
       {/* ── Mobile bottom nav — always visible ── */}
       {mounted && createPortal(
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex" style={{ backgroundColor: "#1a3050" }}>
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex bg-green-700">
           {bottomTabs.map((tab) => {
             const isActive = activeTab === tab.id || (tab.id === "nguon-gen" && isNguonGenActive);
             return (
