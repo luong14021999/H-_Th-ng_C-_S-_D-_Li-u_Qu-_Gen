@@ -142,8 +142,8 @@ export default function Header({
             <p className="text-xs text-white/60 hidden sm:block italic">Viện nông nghiệp Thanh Hoá</p>
           </div>
 
-          {/* Right: count + user */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right: count + user — hidden on mobile (bottom nav handles it) */}
+          <div className="max-md:hidden flex items-center gap-2 shrink-0">
 
             {isAdmin ? (
               <button
