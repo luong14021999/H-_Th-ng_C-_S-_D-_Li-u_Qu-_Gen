@@ -111,7 +111,7 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
           </button>
 
           <button onClick={handleSave} className="bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors">
-            {isNew ? "Tạo mới" : "Lưu tất cả"}
+            {isNew ? "Tạo mới" : "Lưu lại"}
           </button>
           <button onClick={onClose} className="text-green-100 hover:text-white p-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,7 +204,7 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
           ) : (
             <button onClick={handleSave}
               className="px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
-              {isNew ? "Tạo mới" : "Lưu tất cả"}
+              {isNew ? "Tạo mới" : "Lưu lại"}
             </button>
           )}
         </div>
