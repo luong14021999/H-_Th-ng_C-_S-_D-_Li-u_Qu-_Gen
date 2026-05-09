@@ -191,7 +191,7 @@ export default function Home() {
         }}
       />
 
-      <div className={`flex flex-1 overflow-hidden ${isAdmin && showTable ? "pb-16 md:pb-0" : ""}`}>
+      <div className="flex flex-1 overflow-hidden pb-16 md:pb-0">
         {showTable && isAdmin ? (
           <DataTable
             data={data}
