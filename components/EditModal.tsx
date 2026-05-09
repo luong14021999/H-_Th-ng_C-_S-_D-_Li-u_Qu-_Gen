@@ -32,17 +32,13 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
   const [form3, setForm3] = useState<Partial<Form3Data>>(extended.form3 ?? defaultForm3());
   const [form4, setForm4] = useState<Partial<Form4Data>>(extended.form4 ?? defaultForm4());
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [validationMsg, setValidationMsg] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
-    if (!basic.ma.trim()) {
-      alert("Vui lòng nhập Mã nguồn gen trước khi lưu.");
-      setTab(0);
-      return;
-    }
     if (!basic.ten.trim()) {
-      alert("Vui lòng nhập Tên Việt Nam trước khi lưu.");
+      setValidationMsg("Vui lòng nhập Tên Việt Nam trước khi lưu.");
       setTab(0);
       return;
     }
@@ -156,6 +152,32 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
         {tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form3} onChange={setForm3} />}
         {tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form4} onChange={setForm4} />}
       </div>
+
+      {/* Validation error modal */}
+      {validationMsg && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center shrink-0">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                </svg>
+              </div>
+              <div>
+                <p className="font-semibold text-gray-900">Thông tin bắt buộc</p>
+                <p className="text-xs text-gray-500 mt-0.5">Vui lòng kiểm tra lại</p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-700 mb-5">{validationMsg}</p>
+            <button
+              onClick={() => setValidationMsg(null)}
+              className="w-full bg-red-600 hover:bg-red-700 text-white text-sm py-2.5 rounded-lg transition-colors font-medium"
+            >
+              Đã hiểu
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Reset confirmation */}
       {showResetConfirm && (
