@@ -128,7 +128,10 @@ export default function Home() {
 
   const handleAdd = async (newItem: NguonGen, ext: ExtendedFormData) => {
     try {
-      const created = await apiCreate(newItem);
+      const body = newItem.ma.trim()
+        ? newItem
+        : { ...newItem, ma: `NG${Date.now()}` };
+      const created = await apiCreate(body);
       await Promise.all([
         apiSaveForm(created.ma, "form1", ext.form1),
         apiSaveForm(created.ma, "form2", ext.form2),

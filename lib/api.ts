@@ -45,8 +45,10 @@ export const apiSaveForm = (
   ma: string,
   formKey: "form1" | "form2" | "form3" | "form4",
   data: object
-) =>
-  req(`/nguon-gen/${ma}/${formKey}`, { method: "PUT", body: JSON.stringify(data) });
+) => {
+  if (!ma) return Promise.reject(new Error("Mã nguồn gen không được trống"));
+  return req(`/nguon-gen/${ma}/${formKey}`, { method: "PUT", body: JSON.stringify(data) });
+};
 
 // ── Images ────────────────────────────────────────────────
 export const apiUploadImage = async (ma: string, file: File): Promise<string> => {
