@@ -248,6 +248,97 @@ function buildForm4Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
   dataRow(ws, r++, "Danh mục tài liệu tham khảo", f4.tai_lieu_tham_khao);
 }
 
+export async function exportDanhSachExcel(items: NguonGen[], categoryLabel: string, fileName: string) {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "HeThongCoSoDuLieuGen";
+  const ws = wb.addWorksheet("Danh sách");
+
+  ws.columns = [
+    { width: 8 },
+    { width: 36 },
+    { width: 36 },
+    { width: 26 },
+  ];
+
+  const COLS = 4;
+  const greenMedium = { style: "medium" as const, color: { argb: "FF2E7D32" } };
+  const thinGray = { style: "thin" as const, color: { argb: "FFCCCCCC" } };
+
+  // Row 1: main title
+  ws.mergeCells(1, 1, 1, COLS);
+  const titleCell = ws.getCell(1, 1);
+  titleCell.value = "DANH SÁCH NGUỒN GEN";
+  titleCell.font = { bold: true, size: 13 };
+  titleCell.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(1).height = 28;
+
+  // Row 2: category sub-title (if filtered)
+  let headerRow = 2;
+  if (categoryLabel && categoryLabel !== "Tất cả nguồn gen") {
+    ws.mergeCells(2, 1, 2, COLS);
+    const sub = ws.getCell(2, 1);
+    sub.value = categoryLabel;
+    sub.font = { bold: true, size: 11, color: { argb: "FF1B5E20" } };
+    sub.alignment = { horizontal: "center", vertical: "middle" };
+    ws.getRow(2).height = 20;
+    headerRow = 3;
+  }
+
+  // Header row
+  const HEADERS = ["STT", "Tên nguồn", "Đơn vị sản xuất cung cấp", "Nhóm nguồn gen"];
+  const hRow = ws.getRow(headerRow);
+  hRow.height = 22;
+  HEADERS.forEach((h, i) => {
+    const cell = hRow.getCell(i + 1);
+    cell.value = h;
+    cell.font = { bold: true, size: 10 };
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFB0B0B0" } };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.border = { top: thinGray, left: thinGray, bottom: thinGray, right: thinGray };
+  });
+
+  // Data rows
+  items.forEach((item, idx) => {
+    const rIdx = headerRow + 1 + idx;
+    const row = ws.getRow(rIdx);
+    row.height = 18;
+    const isEven = idx % 2 === 1;
+    const bg = isEven ? "FFF5F5F5" : "FFFFFFFF";
+    [idx + 1, item.ten, item.don_vi || "", item.phan_nhom || ""].forEach((v, i) => {
+      const cell = row.getCell(i + 1);
+      cell.value = v;
+      cell.font = { size: 10 };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
+      cell.alignment = { vertical: "middle", horizontal: i === 0 ? "center" : "left", wrapText: i === 1 };
+      cell.border = { top: thinGray, left: thinGray, bottom: thinGray, right: thinGray };
+    });
+  });
+
+  // Green medium outer border around entire table
+  const lastDataRow = headerRow + items.length;
+  for (let r = 1; r <= lastDataRow; r++) {
+    const L = ws.getRow(r).getCell(1);
+    const R = ws.getRow(r).getCell(COLS);
+    L.border = { ...L.border, left: greenMedium };
+    R.border = { ...R.border, right: greenMedium };
+  }
+  for (let c = 1; c <= COLS; c++) {
+    const T = ws.getRow(1).getCell(c);
+    const B = ws.getRow(lastDataRow).getCell(c);
+    T.border = { ...T.border, top: greenMedium };
+    B.border = { ...B.border, bottom: greenMedium };
+  }
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${fileName}.xlsx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function exportNguonGenExcel(item: NguonGen, ext: ExtendedFormData) {
   const wb: WB = new ExcelJS.Workbook();
   wb.creator = "HeThongCoSoDuLieuGen";

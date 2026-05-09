@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { CATEGORY_MAP, NguonGen, nguonGenData } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import EditModal from "./EditModal";
-import { exportNguonGenExcel } from "@/lib/exportExcel";
+import { exportNguonGenExcel, exportDanhSachExcel } from "@/lib/exportExcel";
 import { apiSeed } from "@/lib/api";
 
 interface DataTableProps {
@@ -67,6 +67,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [refreshingDates, setRefreshingDates] = useState(false);
+  const [exportingList, setExportingList] = useState(false);
   const pageSize = 20;
 
   const handleRefreshDates = async () => {
@@ -83,6 +84,15 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
   };
 
   const activeCat = filterCategory !== "all" ? CATEGORY_MAP[filterCategory] : null;
+
+  const handleExportList = async () => {
+    setExportingList(true);
+    const label = activeCat ? activeCat.label : "Tất cả nguồn gen";
+    const date = new Date().toLocaleDateString("vi-VN").replace(/\//g, "-");
+    const fileName = `DanhSach_${activeCat ? activeCat.label : "NguonGen"}_${date}`;
+    await exportDanhSachExcel(filtered, label, fileName);
+    setExportingList(false);
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -297,11 +307,20 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onOpenE
                 )}
                 <span className="hidden lg:inline">{refreshingDates ? "Đang cập nhật..." : "Cập nhật ngày"}</span>
               </button>
-              <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span className="hidden sm:inline">Xuất Excel</span>
+              <button
+                onClick={handleExportList}
+                disabled={exportingList || filtered.length === 0}
+                className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors"
+                title={`Xuất ${filtered.length} bản ghi ra Excel`}
+              >
+                {exportingList ? (
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">{exportingList ? "Đang xuất..." : "Xuất Excel"}</span>
               </button>
               <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
