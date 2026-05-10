@@ -127,6 +127,44 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
     setTimeout(() => setToast(null), duration);
   }, []);
 
+  const exportMapImage = useCallback(async () => {
+    const el = containerRef.current;
+    if (!el) return;
+    showToast("Đang xuất ảnh...", 8000);
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(el, { useCORS: true, logging: false, scale: 2 });
+      const link = document.createElement("a");
+      link.download = `ban-do-nguon-gen-${Date.now()}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      showToast("Đã xuất ảnh thành công");
+    } catch {
+      showToast("Lỗi khi xuất ảnh");
+    }
+  }, [showToast]);
+
+  const exportMapPDF = useCallback(async () => {
+    const el = containerRef.current;
+    if (!el) return;
+    showToast("Đang xuất PDF...", 8000);
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const { jsPDF } = await import("jspdf");
+      const canvas = await html2canvas(el, { useCORS: true, logging: false, scale: 2 });
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
+      const w = canvas.width / 2;
+      const h = canvas.height / 2;
+      const orientation = w >= h ? "l" : "p";
+      const pdf = new jsPDF({ orientation, unit: "px", format: [w, h] });
+      pdf.addImage(imgData, "JPEG", 0, 0, w, h);
+      pdf.save(`ban-do-nguon-gen-${Date.now()}.pdf`);
+      showToast("Đã xuất PDF thành công");
+    } catch {
+      showToast("Lỗi khi xuất PDF");
+    }
+  }, [showToast]);
+
   // Stable ref to setMeasureDisplay so event handlers always see latest setter
   const setMeasureDisplayRef = useRef(setMeasureDisplay);
   setMeasureDisplayRef.current = setMeasureDisplay;
@@ -346,13 +384,13 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
           </ToolButton>
         )}
 
-        <ToolButton title="Xuất ảnh bản đồ" onClick={() => showToast("Tính năng đang phát triển")}>
+        <ToolButton title="Xuất ảnh bản đồ" onClick={exportMapImage}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </ToolButton>
 
-        <ToolButton title="Xuất PDF" onClick={() => showToast("Tính năng đang phát triển")}>
+        <ToolButton title="Xuất PDF" onClick={exportMapPDF}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
