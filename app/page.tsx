@@ -12,6 +12,7 @@ import { nguonGenData, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
 import { apiGetAll, apiGetForms, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
+import ThongKeTable from "@/components/ThongKeTable";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -28,6 +29,7 @@ export default function Home() {
   const [tableCategory, setTableCategory] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
+  const [activeStats, setActiveStats] = useState<string | null>(null);
 
   // Load data from backend on mount
   const loadData = useCallback(async () => {
@@ -189,13 +191,14 @@ export default function Home() {
     <div className="h-full flex flex-col">
       <Header
         isAdmin={isAdmin}
-        showNav={isAdmin && showTable}
+        showNav={isAdmin && (showTable || activeStats !== null)}
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
-          if (tab === "trang-chu") setShowTable(false);
-          else if (tab === "thong-ke") setShowTable(false);
-          else if (tab === "danh-muc" && isAdmin) { setShowTable(true); setTableCategory("all"); }
+          if (tab === "trang-chu") { setShowTable(false); setActiveStats(null); }
+          else if (tab === "thong-ke") { setShowTable(false); }
+          else if (tab === "danh-muc" && isAdmin) { setShowTable(true); setTableCategory("all"); setActiveStats(null); }
+          else if (tab === "nguon-gen") { setActiveStats(null); }
         }}
         onAdminClick={handleAdminClick}
         onLogout={handleLogout}
@@ -209,10 +212,16 @@ export default function Home() {
           setShowTable(true);
           setActiveTab("nguon-gen");
         }}
+        onThongKeSelect={(id) => {
+          setActiveStats(id);
+          setShowTable(false);
+        }}
       />
 
       <div className="flex flex-1 overflow-hidden pb-16 md:pb-0">
-        {showTable && isAdmin ? (
+        {activeStats === "tk-don-vi-quan-ly" ? (
+          <ThongKeTable data={data} />
+        ) : showTable && isAdmin ? (
           <DataTable
             data={data}
             extendedMap={extendedMap}

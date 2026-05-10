@@ -339,6 +339,73 @@ export async function exportDanhSachExcel(items: NguonGen[], categoryLabel: stri
   URL.revokeObjectURL(url);
 }
 
+export async function exportThongKeExcel(rows: { ten: string; dia_chi: string; count: number }[]) {
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "HeThongCoSoDuLieuGen";
+  const ws = wb.addWorksheet("Thống kê");
+
+  const COLS = 4;
+  const greenMedium = { style: "medium" as const, color: { argb: "FF2E7D32" } };
+  const thinGray = { style: "thin" as const, color: { argb: "FFCCCCCC" } };
+
+  ws.columns = [{ width: 8 }, { width: 40 }, { width: 30 }, { width: 22 }];
+
+  ws.mergeCells(1, 1, 1, COLS);
+  const t = ws.getCell(1, 1);
+  t.value = "THỐNG KÊ NGUỒN GEN THEO ĐƠN VỊ QUẢN LÝ";
+  t.font = { bold: true, size: 13 };
+  t.alignment = { horizontal: "center", vertical: "middle" };
+  ws.getRow(1).height = 28;
+
+  const HEADERS = ["STT", "Tên đơn vị cung cấp", "Địa chỉ đơn vị cung cấp", "Số lượng nguồn gen"];
+  const hRow = ws.getRow(2);
+  hRow.height = 22;
+  HEADERS.forEach((h, i) => {
+    const cell = hRow.getCell(i + 1);
+    cell.value = h;
+    cell.font = { bold: true, size: 10 };
+    cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FFB0B0B0" } };
+    cell.alignment = { horizontal: "center", vertical: "middle" };
+    cell.border = { top: thinGray, left: thinGray, bottom: thinGray, right: thinGray };
+  });
+
+  rows.forEach((row, idx) => {
+    const rIdx = 3 + idx;
+    const r = ws.getRow(rIdx);
+    r.height = 18;
+    const bg = idx % 2 === 1 ? "FFF5F5F5" : "FFFFFFFF";
+    [idx + 1, row.ten || "Chưa có thông tin", row.dia_chi, row.count].forEach((v, i) => {
+      const cell = r.getCell(i + 1);
+      cell.value = v;
+      cell.font = { size: 10 };
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: bg } };
+      cell.alignment = { vertical: "middle", horizontal: i === 0 || i === 3 ? "center" : "left" };
+      cell.border = { top: thinGray, left: thinGray, bottom: thinGray, right: thinGray };
+    });
+  });
+
+  const lastRow = 2 + rows.length;
+  for (let r = 1; r <= lastRow; r++) {
+    const L = ws.getRow(r).getCell(1);
+    const R = ws.getRow(r).getCell(COLS);
+    L.border = { ...L.border, left: greenMedium };
+    R.border = { ...R.border, right: greenMedium };
+  }
+  for (let c = 1; c <= COLS; c++) {
+    ws.getRow(1).getCell(c).border = { ...ws.getRow(1).getCell(c).border, top: greenMedium };
+    ws.getRow(lastRow).getCell(c).border = { ...ws.getRow(lastRow).getCell(c).border, bottom: greenMedium };
+  }
+
+  const buf = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "ThongKe_DonViQuanLy.xlsx";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export async function exportNguonGenExcel(item: NguonGen, ext: ExtendedFormData) {
   const wb: WB = new ExcelJS.Workbook();
   wb.creator = "HeThongCoSoDuLieuGen";

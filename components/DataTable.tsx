@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { CATEGORY_MAP, NguonGen, nguonGenData } from "@/data/nguonGen";
+import { CATEGORY_MAP, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 import EditModal from "./EditModal";
 import { exportNguonGenExcel, exportDanhSachExcel } from "@/lib/exportExcel";
-import { apiSeed } from "@/lib/api";
 
 interface DataTableProps {
   data: NguonGen[];
@@ -68,22 +67,8 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
   const [loadingDownload, setLoadingDownload] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
-  const [refreshingDates, setRefreshingDates] = useState(false);
   const [exportingList, setExportingList] = useState(false);
   const pageSize = 20;
-
-  const handleRefreshDates = async () => {
-    if (!confirm(`Cập nhật ngày nhập liệu cho ${nguonGenData.length} bản ghi từ dữ liệu gốc?`)) return;
-    setRefreshingDates(true);
-    try {
-      await apiSeed(nguonGenData);
-    } catch (err) {
-      console.error("Lỗi cập nhật ngày:", err);
-      alert("Lỗi khi cập nhật ngày. Vui lòng thử lại.");
-    } finally {
-      setRefreshingDates(false);
-    }
-  };
 
   const activeCat = filterCategory !== "all" ? CATEGORY_MAP[filterCategory] : null;
 
@@ -305,21 +290,6 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
               <span className="text-xs text-gray-400 shrink-0">({filtered.length})</span>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                onClick={handleRefreshDates}
-                disabled={refreshingDates}
-                className="flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-60 text-white text-xs font-medium px-2.5 py-2 rounded-lg transition-colors"
-                title="Đồng bộ ngày nhập liệu từ dữ liệu gốc"
-              >
-                {refreshingDates ? (
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                )}
-                <span className="hidden lg:inline">{refreshingDates ? "Đang cập nhật..." : "Cập nhật ngày"}</span>
-              </button>
               <button
                 onClick={handleExportList}
                 disabled={exportingList || filtered.length === 0}
