@@ -283,7 +283,15 @@ export default function Home() {
                   </button>
                 ))}
               </div>
-              <MapView data={filteredData} />
+              <MapView
+                data={filteredData}
+                isAdmin={isAdmin}
+                onAddNewAtPoint={(lat, lng) => {
+                  const template: NguonGen = { ma: "", ten: "", khoa_hoc: "", don_vi: "", phan_nhom: "", nhom: "TT", lat, lng };
+                  setSidebarEditItem(template);
+                }}
+                onDeleteItem={handleDelete}
+              />
             </main>
           </>
         )}
