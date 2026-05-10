@@ -66,6 +66,10 @@ export const apiUploadImage = async (ma: string, file: File): Promise<string> =>
 export const apiDeleteImage = (ma: string, filename: string) =>
   req(`/nguon-gen/${ma}/images/${filename}`, { method: "DELETE" });
 
+// ── Locations (for statistics filters) ───────────────────
+export interface LocationRow { ma: string; huyen: string; xa: string; }
+export const apiGetLocations = () => req<LocationRow[]>("/forms/locations");
+
 // ── Seed (chạy 1 lần) ────────────────────────────────────
 export const apiSeed = (records: NguonGen[]) =>
   req<{ seeded: number; message?: string }>("/admin/seed", {

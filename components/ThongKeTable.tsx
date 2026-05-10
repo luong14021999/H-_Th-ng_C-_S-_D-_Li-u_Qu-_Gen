@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
+import { apiGetLocations, LocationRow } from "@/lib/api";
 
 interface DonViRow {
   ten: string;
@@ -256,14 +257,28 @@ export default function ThongKeTable({ data }: Props) {
   const [filterPhanNhom, setFilterPhanNhom] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [locationMap, setLocationMap] = useState<Record<string, LocationRow>>({});
 
   useEffect(() => { setMounted(true); }, []);
 
+  useEffect(() => {
+    apiGetLocations().then((rows) => {
+      const map: Record<string, LocationRow> = {};
+      for (const r of rows) map[r.ma] = r;
+      setLocationMap(map);
+    }).catch(() => {});
+  }, []);
+
   const filteredData = useMemo(() => {
-    if (filterPhanNhom) return data.filter((item) => item.phan_nhom === filterPhanNhom);
-    if (filterNhomId) return data.filter((item) => item.nhom === filterNhomId);
-    return data;
-  }, [data, filterNhomId, filterPhanNhom]);
+    return data.filter((item) => {
+      if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
+      if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
+      const loc = locationMap[item.ma];
+      if (filterDistrict && (loc?.huyen ?? "") !== filterDistrict) return false;
+      if (filterWard && (loc?.xa ?? "") !== filterWard) return false;
+      return true;
+    });
+  }, [data, filterNhomId, filterPhanNhom, filterDistrict, filterWard, locationMap]);
 
   const rows = useMemo<DonViRow[]>(() => {
     const map = new Map<string, number>();
