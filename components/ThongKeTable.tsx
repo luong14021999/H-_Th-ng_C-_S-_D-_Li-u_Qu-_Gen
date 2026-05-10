@@ -145,17 +145,17 @@ function FilterSection({ title, children, defaultOpen = true }: {
 function SearchableDropdown({ placeholder, options, value, onChange }: {
   placeholder: string; options: string[]; value: string; onChange: (v: string) => void;
 }) {
-  const [query, setQuery] = useState(value);
+  const [query, setQuery] = useState(value ?? "");
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { setQuery(value); }, [value]);
+  useEffect(() => { setQuery(value ?? ""); }, [value]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
         setOpen(false);
-        setQuery(value);
+        setQuery(value ?? "");
       }
     };
     document.addEventListener("mousedown", handler);
