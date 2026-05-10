@@ -139,7 +139,6 @@ export default function Header({
     setNguonGenOpen(false);
     setMobileGenSheetOpen(false);
     onNguonGenCategorySelect(categoryId);
-    onTabChange("nguon-gen");
   };
 
   const isNguonGenActive = activeTab === "nguon-gen";
