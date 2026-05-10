@@ -153,8 +153,6 @@ export default function Header({
   ];
   const guestTabs = [
     { id: "trang-chu", label: "Bản đồ", icon: <IconHome />, action: () => onTabChange("trang-chu") },
-    { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => setMobileThongKeSheetOpen(true) },
-    { id: "nguon-gen", label: "Nguồn gen", icon: <IconShield />, action: () => setMobileGenSheetOpen(true) },
     { id: "login", label: "Đăng nhập", icon: <IconPerson />, action: onAdminClick },
   ];
   const bottomTabs = isAdmin ? adminTabs : guestTabs;
