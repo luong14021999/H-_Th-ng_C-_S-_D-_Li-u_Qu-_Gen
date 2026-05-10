@@ -115,7 +115,6 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const measurePointsRef = useRef<[number, number][]>([]);
   const legendBtnRef = useRef<HTMLDivElement>(null);
-  const routeLayerRef = useRef<L.LayerGroup | null>(null);
 
   const [popup, setPopup] = useState<PopupInfo | null>(null);
   const [activeTool, setActiveTool] = useState<string>("none");
@@ -125,7 +124,6 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
   const [toast, setToast] = useState<string | null>(null);
   const [routeSidebarOpen, setRouteSidebarOpen] = useState(false);
   const [routeSearch, setRouteSearch] = useState("");
-  const [routingItem, setRoutingItem] = useState<NguonGen | null>(null);
 
   const showToast = useCallback((msg: string, duration = 2800) => {
     setToast(msg);
@@ -170,56 +168,10 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
     }
   }, [showToast]);
 
-  const handleRouteTo = useCallback(async (item: NguonGen) => {
-    setRoutingItem(item);
-    setRouteSidebarOpen(false);
-    const map = mapRef.current;
-    const rl = routeLayerRef.current;
-    if (!map || !rl) return;
-    rl.clearLayers();
-
-    showToast("Đang lấy vị trí của bạn...", 5000);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const userLatLng: [number, number] = [pos.coords.latitude, pos.coords.longitude];
-        const destLatLng: [number, number] = [item.lat, item.lng];
-
-        // User marker
-        L.circleMarker(userLatLng, { radius: 8, color: "#2563eb", fillColor: "#3b82f6", fillOpacity: 1, weight: 2 })
-          .bindTooltip("Vị trí của bạn", { permanent: false })
-          .addTo(rl);
-
-        try {
-          // OSRM public routing API
-          const url = `https://router.project-osrm.org/route/v1/driving/${userLatLng[1]},${userLatLng[0]};${destLatLng[1]},${destLatLng[0]}?overview=full&geometries=geojson`;
-          const res = await fetch(url);
-          const json = await res.json();
-          if (json.routes?.[0]) {
-            const route = json.routes[0];
-            const coords = (route.geometry.coordinates as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number]);
-            L.polyline(coords, { color: "#2563eb", weight: 4, opacity: 0.85 }).addTo(rl);
-            const km = (route.distance / 1000).toFixed(1);
-            const mins = Math.round(route.duration / 60);
-            showToast(`${km} km • ~${mins} phút lái xe`, 6000);
-            map.fitBounds(L.polyline(coords).getBounds(), { padding: [50, 80] });
-          } else {
-            throw new Error("no route");
-          }
-        } catch {
-          // Fallback: straight line
-          L.polyline([userLatLng, destLatLng], { color: "#2563eb", weight: 3, dashArray: "8 6", opacity: 0.8 }).addTo(rl);
-          const km = haversineKm(userLatLng, destLatLng).toFixed(1);
-          showToast(`Khoảng cách thẳng: ${km} km`, 5000);
-          map.fitBounds(L.latLngBounds([userLatLng, destLatLng]), { padding: [60, 100] });
-        }
-      },
-      () => {
-        showToast("Không thể lấy vị trí. Hãy cho phép truy cập vị trí.");
-        setRoutingItem(null);
-      },
-      { timeout: 8000 }
-    );
-  }, [showToast]);
+  const handleRouteTo = useCallback((item: NguonGen) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${item.lat},${item.lng}&travelmode=driving`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  }, []);
 
   // Stable ref to setMeasureDisplay so event handlers always see latest setter
   const setMeasureDisplayRef = useRef(setMeasureDisplay);
@@ -308,8 +260,6 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
     }).addTo(map);
 
     measureLayerRef.current = L.layerGroup().addTo(map);
-    routeLayerRef.current = L.layerGroup().addTo(map);
-
     map.on("click", (e) => {
       const tool = activeToolRef.current;
       if (tool === "measure-distance" || tool === "measure-area") {
@@ -333,7 +283,6 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
       mapRef.current = null;
       layerGroupRef.current = null;
       measureLayerRef.current = null;
-      routeLayerRef.current = null;
     };
   }, [onAddNewAtPoint, doMeasure]);
 
@@ -483,7 +432,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
           </svg>
         </ToolButton>
 
-        <ToolButton title="Tìm đường" onClick={() => { setRouteSidebarOpen((v) => !v); routeLayerRef.current?.clearLayers(); setRoutingItem(null); }} active={routeSidebarOpen}>
+        <ToolButton title="Tìm đường" onClick={() => setRouteSidebarOpen((v) => !v)} active={routeSidebarOpen}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -591,12 +540,11 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
               )
               .map((item) => {
                 const cat = CATEGORY_MAP[item.nhom];
-                const isActive = routingItem?.ma === item.ma;
                 return (
                   <button
                     key={item.ma}
                     onClick={() => handleRouteTo(item)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors ${isActive ? "bg-blue-50" : ""}`}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors"
                   >
                     {/* Emoji thumbnail */}
                     <div className="w-14 h-14 shrink-0 rounded-lg flex items-center justify-center text-3xl" style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}>
