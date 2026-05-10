@@ -4,7 +4,6 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
-import { apiGetLocations, LocationRow } from "@/lib/api";
 
 interface DonViRow {
   ten: string;
@@ -266,53 +265,38 @@ export default function ThongKeTable({ data }: Props) {
   const [filterPhanNhom, setFilterPhanNhom] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [locationMap, setLocationMap] = useState<Record<string, LocationRow>>({});
-
   useEffect(() => { setMounted(true); }, []);
 
-  useEffect(() => {
-    apiGetLocations().then((rows) => {
-      const map: Record<string, LocationRow> = {};
-      for (const r of rows) map[r.ma] = r;
-      setLocationMap(map);
-    }).catch(() => {});
-  }, []);
-
+  // Step 1: filter individual records by nhom/phan_nhom only
   const filteredData = useMemo(() => {
     return data.filter((item) => {
       if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
       if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
-
-      if (filterDistrict) {
-        const loc = locationMap[item.ma];
-        const normFilter = normAdmin(filterDistrict);
-        const form1Match = loc?.huyen ? normAdmin(loc.huyen) === normFilter : false;
-        const donViMatch = normAdmin(item.don_vi ?? "").includes(normFilter);
-        if (!form1Match && !donViMatch) return false;
-      }
-
-      if (filterWard) {
-        const loc = locationMap[item.ma];
-        const normFilter = normAdmin(filterWard);
-        const form1Match = loc?.xa ? normAdmin(loc.xa) === normFilter : false;
-        const donViMatch = normAdmin(item.don_vi ?? "").includes(normFilter);
-        if (!form1Match && !donViMatch) return false;
-      }
-
       return true;
     });
-  }, [data, filterNhomId, filterPhanNhom, filterDistrict, filterWard, locationMap]);
+  }, [data, filterNhomId, filterPhanNhom]);
 
+  // Step 2: group by don_vi, then filter rows by district/ward (search in ĐVCC name)
   const rows = useMemo<DonViRow[]>(() => {
     const map = new Map<string, number>();
     for (const item of filteredData) {
       const key = item.don_vi ?? "";
       map.set(key, (map.get(key) ?? 0) + 1);
     }
-    const arr = Array.from(map.entries()).map(([ten, count]) => ({ ten, dia_chi: "", count }));
+    let arr = Array.from(map.entries()).map(([ten, count]) => ({ ten, dia_chi: "", count }));
+
+    if (filterDistrict) {
+      const normFilter = normAdmin(filterDistrict);
+      arr = arr.filter((row) => normAdmin(row.ten).includes(normFilter));
+    }
+    if (filterWard) {
+      const normFilter = normAdmin(filterWard);
+      arr = arr.filter((row) => normAdmin(row.ten).includes(normFilter));
+    }
+
     arr.sort((a, b) => (sortAsc ? a.count - b.count : b.count - a.count));
     return arr;
-  }, [filteredData, sortAsc]);
+  }, [filteredData, filterDistrict, filterWard, sortAsc]);
 
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
   const paged = rows.slice((page - 1) * pageSize, page * pageSize);
