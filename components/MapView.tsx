@@ -114,6 +114,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
   const activeToolRef = useRef<string>("none");
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const measurePointsRef = useRef<[number, number][]>([]);
+  const legendBtnRef = useRef<HTMLDivElement>(null);
 
   const [popup, setPopup] = useState<PopupInfo | null>(null);
   const [activeTool, setActiveTool] = useState<string>("none");
@@ -334,6 +335,15 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
   const cursorClass =
     isMeasureActive || activeTool === "add" ? "[&_.leaflet-container]:!cursor-crosshair" : "";
 
+  const legendTopPx = (() => {
+    const btn = legendBtnRef.current;
+    const container = containerRef.current;
+    if (btn && container) {
+      return btn.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    }
+    return 12;
+  })();
+
   return (
     <div className={`w-full h-full relative ${cursorClass}`}>
       <div ref={containerRef} className="w-full h-full" />
@@ -396,11 +406,13 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
           </svg>
         </ToolButton>
 
-        <ToolButton title="Chú giải" onClick={() => setShowLegend((v) => !v)} active={showLegend}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </ToolButton>
+        <div ref={legendBtnRef}>
+          <ToolButton title="Chú giải" onClick={() => setShowLegend((v) => !v)} active={showLegend}>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </ToolButton>
+        </div>
 
         <ToolButton title="Khai thác dữ liệu theo lĩnh vực" onClick={() => showToast("Tính năng đang phát triển")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -459,8 +471,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
       {/* ── Legend panel ── */}
       {showLegend && (
         <div
-          className="absolute top-3 left-3 z-[1000] bg-white rounded-2xl shadow-xl overflow-hidden"
-          style={{ minWidth: 220, maxWidth: "calc(100vw - 4rem)" }}
+          className="absolute z-[1000] bg-white rounded-2xl shadow-xl overflow-hidden"
+          style={{ minWidth: 220, maxWidth: "calc(100vw - 4rem)", right: "3.25rem", top: legendTopPx }}
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
