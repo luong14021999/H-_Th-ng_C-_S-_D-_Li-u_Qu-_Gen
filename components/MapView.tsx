@@ -459,15 +459,32 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
       {/* ── Legend panel ── */}
       {showLegend && (
         <div
-          className="absolute top-3 z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[160px]"
-          style={{ right: "3.25rem", maxWidth: "calc(100vw - 4rem)" }}
+          className="absolute top-3 left-3 z-[1000] bg-white rounded-2xl shadow-xl overflow-hidden"
+          style={{ minWidth: 220, maxWidth: "calc(100vw - 4rem)" }}
         >
-          <p className="font-semibold text-xs text-gray-700 mb-2 uppercase tracking-wide">Chú giải</p>
-          <div className="flex flex-col gap-1.5">
-            {CATEGORIES.map((cat) => (
-              <div key={cat.id} className="flex items-center gap-2">
-                <span className="text-lg leading-none">{cat.icon}</span>
-                <span className="text-xs text-gray-700">{cat.label}</span>
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <span className="font-bold text-base text-gray-900">Chú giải</span>
+            <button
+              onClick={() => setShowLegend(false)}
+              className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-base font-bold"
+            >›</button>
+          </div>
+          {/* Rows */}
+          <div className="flex flex-col px-4 py-2 gap-0">
+            {/* Location marker row */}
+            <div className="flex items-center gap-3 py-2">
+              <span className="text-2xl leading-none">📍</span>
+              <span className="text-sm text-gray-800">Đơn vị sx cung cấp nguồn gen</span>
+            </div>
+            <div className="h-px bg-gray-100" />
+            {CATEGORIES.map((cat, i) => (
+              <div key={cat.id}>
+                <div className="flex items-center gap-3 py-2">
+                  <span className="text-2xl leading-none">{cat.icon}</span>
+                  <span className="text-sm text-gray-800">{cat.label}</span>
+                </div>
+                {i < CATEGORIES.length - 1 && <div className="h-px bg-gray-100" />}
               </div>
             ))}
           </div>
