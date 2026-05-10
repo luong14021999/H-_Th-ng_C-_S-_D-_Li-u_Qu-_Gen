@@ -37,19 +37,19 @@ interface OsrmRoute {
   steps: { name: string; distance: number; maneuver: { type: string } }[];
 }
 
+// Tốc độ trung bình thực tế Việt Nam (km/h)
 const TRANSPORT_MODES = [
-  { id: "driving",   icon: "🚗", label: "Ô tô",   osrm: "driving",  factor: 1.00, color: "#1a73e8" },
-  { id: "motorbike", icon: "🏍️", label: "Xe máy", osrm: "driving",  factor: 0.85, color: "#1a73e8" },
-  { id: "foot",      icon: "🚶", label: "Đi bộ",  osrm: "foot",     factor: 1.00, color: "#1a73e8" },
+  { id: "driving",   icon: "🚗", label: "Ô tô",   avgKph: 55, color: "#1a73e8" },
+  { id: "motorbike", icon: "🏍️", label: "Xe máy", avgKph: 40, color: "#1a73e8" },
+  { id: "foot",      icon: "🚶", label: "Đi bộ",  avgKph: 5,  color: "#1a73e8" },
 ];
 
 async function fetchRoutes(
   from: [number, number],
   to: [number, number],
-  profile: string
 ): Promise<OsrmRoute[]> {
   try {
-    const url = `https://router.project-osrm.org/route/v1/${profile}/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson&alternatives=true&steps=true`;
+    const url = `https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson&alternatives=true&steps=true`;
     const res = await fetch(url, { signal: AbortSignal.timeout(9000) });
     const json = await res.json();
     if (!json.routes?.length) return [];
@@ -58,7 +58,7 @@ async function fetchRoutes(
       const steps = r.legs?.[0]?.steps ?? [];
       return {
         distance: r.distance,
-        duration: r.duration,
+        duration: r.duration,       // OSRM driving time (used only as base)
         coords: (r.geometry.coordinates as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number]),
         roadName: extractRoadName(steps),
         steps,
@@ -67,6 +67,11 @@ async function fetchRoutes(
   } catch {
     return [];
   }
+}
+
+// Tính thời gian theo tốc độ thực tế thay vì dùng OSRM duration trực tiếp
+function calcDuration(distanceMetres: number, avgKph: number): number {
+  return (distanceMetres / 1000 / avgKph) * 3600; // seconds
 }
 
 // ── Inline Leaflet map ────────────────────────────────────────────────────────
@@ -175,11 +180,9 @@ export default function TimDuongPage() {
   }), [data, search, selectedCategory]);
 
   const fetchAll = useCallback(async (from: [number, number], to: [number, number]) => {
-    const [driveRoutes, footRoutes] = await Promise.all([
-      fetchRoutes(from, to, "driving"),
-      fetchRoutes(from, to, "foot"),
-    ]);
-    setRoutesByMode({ driving: driveRoutes, motorbike: driveRoutes, foot: footRoutes });
+    const driveRoutes = await fetchRoutes(from, to);
+    // All 3 modes share the same road geometry; only time differs by avgKph
+    setRoutesByMode({ driving: driveRoutes, motorbike: driveRoutes, foot: driveRoutes });
   }, []);
 
   const handleSelect = useCallback((item: NguonGen) => {
@@ -299,7 +302,7 @@ export default function TimDuongPage() {
           {/* Best route summary */}
           <div className="px-5 py-4">
             <p className="text-2xl font-bold text-red-500">
-              {formatDuration(currentRoutes[0].duration * modeConf.factor)}
+              {formatDuration(calcDuration(currentRoutes[0].distance, modeConf.avgKph))}
               <span className="text-base font-normal text-gray-500 ml-2">({formatKm(currentRoutes[0].distance)})</span>
             </p>
             <p className="text-sm text-gray-500 mt-0.5">Tuyến đường nhanh nhất</p>
@@ -358,7 +361,7 @@ export default function TimDuongPage() {
                   )}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-semibold text-red-500">{formatDuration(route.duration * modeConf.factor)}</p>
+                  <p className="text-sm font-semibold text-red-500">{formatDuration(calcDuration(route.distance, modeConf.avgKph))}</p>
                   <p className="text-xs text-gray-400">{formatKm(route.distance)}</p>
                 </div>
               </div>
