@@ -26,6 +26,99 @@ function normAdmin(val: string) {
     .toLowerCase();
 }
 
+function BarChart({ rows }: { rows: DonViRow[] }) {
+  const top10 = rows.slice(0, 10);
+  const maxCount = Math.max(...top10.map((r) => r.count), 1);
+
+  // Nice x-axis ticks: 5–6 ticks up to ceil(maxCount)
+  const tickCount = 5;
+  const step = Math.max(1, Math.ceil(maxCount / tickCount));
+  const axisMax = step * tickCount;
+  const ticks = Array.from({ length: tickCount + 1 }, (_, i) => i * step);
+
+  return (
+    <div className="bg-white rounded shadow-sm p-4 sm:p-8 flex flex-col gap-4">
+      <h3 className="text-center font-semibold text-gray-700 text-sm sm:text-base">
+        Top 10 đơn vị quản lý(hộ ccsx) theo số lượng nguồn gen
+      </h3>
+
+      {top10.length === 0 ? (
+        <p className="text-center text-gray-400 py-12">Không có dữ liệu</p>
+      ) : (
+        <>
+          {/* Chart grid + bars */}
+          <div className="flex gap-0 min-w-0">
+            {/* Y-axis labels */}
+            <div className="shrink-0 flex flex-col justify-between pr-2" style={{ width: 160 }}>
+              {top10.map((row, i) => (
+                <div
+                  key={row.ten || `b${i}`}
+                  className="flex items-center justify-end text-xs text-gray-600 text-right leading-tight"
+                  style={{ height: 32, marginBottom: i < top10.length - 1 ? 8 : 0 }}
+                >
+                  <span className="line-clamp-2">{row.ten || "(Chưa có thông tin)"}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Bars + grid */}
+            <div className="flex-1 relative min-w-0">
+              {/* Vertical grid lines */}
+              <div className="absolute inset-0 flex pointer-events-none">
+                {ticks.map((t) => (
+                  <div
+                    key={t}
+                    className="absolute top-0 bottom-0 border-l border-gray-200"
+                    style={{ left: `${(t / axisMax) * 100}%` }}
+                  />
+                ))}
+              </div>
+
+              {/* Bars */}
+              <div className="flex flex-col gap-2">
+                {top10.map((row, i) => (
+                  <div key={row.ten || `br${i}`} className="flex items-center gap-2" style={{ height: 32 }}>
+                    <div
+                      className="h-6 rounded-sm transition-all duration-500"
+                      style={{
+                        width: `${(row.count / axisMax) * 100}%`,
+                        backgroundColor: "#4a90c4",
+                        minWidth: row.count > 0 ? 2 : 0,
+                      }}
+                    />
+                    <span className="text-xs font-medium text-gray-600 shrink-0">{row.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* X-axis */}
+          <div className="flex" style={{ paddingLeft: 160 }}>
+            <div className="flex-1 relative h-5">
+              {ticks.map((t) => (
+                <span
+                  key={t}
+                  className="absolute text-xs text-gray-500 -translate-x-1/2"
+                  style={{ left: `${(t / axisMax) * 100}%` }}
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center justify-center gap-2 pt-1">
+            <div className="w-5 h-3 rounded-sm" style={{ backgroundColor: "#4a90c4" }} />
+            <span className="text-xs text-gray-600">Số lượng nguồn gen</span>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function FilterSection({ title, children, defaultOpen = true }: {
   title: string; children: React.ReactNode; defaultOpen?: boolean;
 }) {
@@ -405,46 +498,50 @@ export default function ThongKeTable({ data }: Props) {
           </div>
         </div>
 
-        {/* Table area */}
+        {/* Chart or Table area */}
         <div className="flex-1 overflow-auto p-2 sm:p-4">
-          <div className="bg-white rounded shadow-sm overflow-hidden">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr style={{ backgroundColor: "#5b8fa8" }} className="text-white">
-                  <th className="px-3 sm:px-4 py-3 text-center font-semibold w-10 sm:w-12">#</th>
-                  <th className="px-3 sm:px-4 py-3 text-left font-semibold">Tên đơn vị cung cấp</th>
-                  <th className="hidden md:table-cell px-4 py-3 text-left font-semibold">Địa chỉ đơn vị cung cấp</th>
-                  <th
-                    className="px-3 sm:px-4 py-3 text-right font-semibold cursor-pointer select-none whitespace-nowrap"
-                    onClick={() => { setSortAsc((v) => !v); setPage(1); }}
-                  >
-                    <span className="hidden sm:inline">Số lượng nguồn gen </span>
-                    <span className="sm:hidden">SL </span>
-                    <span className="opacity-80">{sortAsc ? "↑" : "↓"}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paged.map((row, idx) => (
-                  <tr key={row.ten || `__blank_${idx}`} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-3 sm:px-4 py-2.5 text-center text-gray-500 border-b border-gray-100 text-xs sm:text-sm">{(page - 1) * pageSize + idx + 1}</td>
-                    <td className="px-3 sm:px-4 py-2.5 text-gray-800 border-b border-gray-100 text-xs sm:text-sm">{row.ten}</td>
-                    <td className="hidden md:table-cell px-4 py-2.5 text-gray-600 border-b border-gray-100">{row.dia_chi}</td>
-                    <td className="px-3 sm:px-4 py-2.5 text-right text-gray-800 border-b border-gray-100 font-medium text-xs sm:text-sm">{row.count}</td>
+          {reportType === "chart" ? (
+            <BarChart rows={rows} />
+          ) : (
+            <div className="bg-white rounded shadow-sm overflow-hidden">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr style={{ backgroundColor: "#5b8fa8" }} className="text-white">
+                    <th className="px-3 sm:px-4 py-3 text-center font-semibold w-10 sm:w-12">#</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-semibold">Tên đơn vị cung cấp</th>
+                    <th className="hidden md:table-cell px-4 py-3 text-left font-semibold">Địa chỉ đơn vị cung cấp</th>
+                    <th
+                      className="px-3 sm:px-4 py-3 text-right font-semibold cursor-pointer select-none whitespace-nowrap"
+                      onClick={() => { setSortAsc((v) => !v); setPage(1); }}
+                    >
+                      <span className="hidden sm:inline">Số lượng nguồn gen </span>
+                      <span className="sm:hidden">SL </span>
+                      <span className="opacity-80">{sortAsc ? "↑" : "↓"}</span>
+                    </th>
                   </tr>
-                ))}
-                {paged.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-4 py-12 text-center text-gray-400">Không có dữ liệu</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {paged.map((row, idx) => (
+                    <tr key={row.ten || `__blank_${idx}`} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                      <td className="px-3 sm:px-4 py-2.5 text-center text-gray-500 border-b border-gray-100 text-xs sm:text-sm">{(page - 1) * pageSize + idx + 1}</td>
+                      <td className="px-3 sm:px-4 py-2.5 text-gray-800 border-b border-gray-100 text-xs sm:text-sm">{row.ten}</td>
+                      <td className="hidden md:table-cell px-4 py-2.5 text-gray-600 border-b border-gray-100">{row.dia_chi}</td>
+                      <td className="px-3 sm:px-4 py-2.5 text-right text-gray-800 border-b border-gray-100 font-medium text-xs sm:text-sm">{row.count}</td>
+                    </tr>
+                  ))}
+                  {paged.length === 0 && (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-12 text-center text-gray-400">Không có dữ liệu</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
-        {/* Pagination */}
-        <div className="shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 sm:px-6 py-2.5 bg-white border-t border-gray-200">
+        {/* Pagination — hidden in chart mode */}
+        <div className={`shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 sm:px-6 py-2.5 bg-white border-t border-gray-200 ${reportType === "chart" ? "hidden" : ""}`}>
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
             <select
               value={pageSize}
