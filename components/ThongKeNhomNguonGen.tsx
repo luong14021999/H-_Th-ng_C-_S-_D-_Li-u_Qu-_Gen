@@ -5,32 +5,20 @@ import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
 
-interface DonViRow {
-  ten: string;
-  dia_chi: string;
+interface NhomRow {
+  nhomId: string;
+  nhomLabel: string;
+  nhomIcon: string;
   count: number;
+  phanNhoms: { label: string; count: number }[];
 }
 
 interface Props {
   data: NguonGen[];
 }
 
-const PAGE_SIZES = [10, 20, 50];
-
-// Strip "Huyện / Thị xã / Thành phố / Quận / Xã / Phường / Thị trấn" prefixes so
-// free-text form values ("Thọ Xuân") match dropdown values ("Huyện Thọ Xuân").
-function normAdmin(val: string) {
-  return val
-    .replace(/^(Thành phố|Thị xã|Thị trấn|Huyện|Quận|Phường|Xã)\s+/i, "")
-    .trim()
-    .toLowerCase();
-}
-
-function BarChart({ rows }: { rows: DonViRow[] }) {
-  const top10 = rows.slice(0, 10);
-  const maxCount = Math.max(...top10.map((r) => r.count), 1);
-
-  // Nice x-axis ticks: 5–6 ticks up to ceil(maxCount)
+function BarChart({ rows }: { rows: NhomRow[] }) {
+  const maxCount = Math.max(...rows.map((r) => r.count), 1);
   const tickCount = 5;
   const step = Math.max(1, Math.ceil(maxCount / tickCount));
   const axisMax = step * tickCount;
@@ -39,32 +27,26 @@ function BarChart({ rows }: { rows: DonViRow[] }) {
   return (
     <div className="bg-white rounded shadow-sm p-4 sm:p-8 flex flex-col gap-4">
       <h3 className="text-center font-semibold text-gray-700 text-sm sm:text-base">
-        Top 10 đơn vị quản lý(hộ ccsx) theo số lượng nguồn gen
+        Nguồn gen theo nhóm nguồn gen
       </h3>
-
-      {top10.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="text-center text-gray-400 py-12">Không có dữ liệu</p>
       ) : (
         <>
-          {/* Chart grid + bars */}
           <div className="flex gap-0 min-w-0">
-            {/* Y-axis labels */}
-            <div className="shrink-0 flex flex-col justify-between pr-2" style={{ width: 160 }}>
-              {top10.map((row, i) => (
+            <div className="shrink-0 flex flex-col pr-2" style={{ width: 140 }}>
+              {rows.map((row, i) => (
                 <div
-                  key={row.ten || `b${i}`}
+                  key={row.nhomId}
                   className="flex items-center justify-end text-xs text-gray-600 text-right leading-tight"
-                  style={{ height: 32, marginBottom: i < top10.length - 1 ? 8 : 0 }}
+                  style={{ height: 32, marginBottom: i < rows.length - 1 ? 8 : 0 }}
                 >
-                  <span className="line-clamp-2">{row.ten || "(Chưa có thông tin)"}</span>
+                  {row.nhomIcon} {row.nhomLabel}
                 </div>
               ))}
             </div>
-
-            {/* Bars + grid */}
             <div className="flex-1 relative min-w-0">
-              {/* Vertical grid lines */}
-              <div className="absolute inset-0 flex pointer-events-none">
+              <div className="absolute inset-0 pointer-events-none">
                 {ticks.map((t) => (
                   <div
                     key={t}
@@ -73,11 +55,9 @@ function BarChart({ rows }: { rows: DonViRow[] }) {
                   />
                 ))}
               </div>
-
-              {/* Bars */}
               <div className="flex flex-col gap-2">
-                {top10.map((row, i) => (
-                  <div key={row.ten || `br${i}`} className="flex items-center gap-2" style={{ height: 32 }}>
+                {rows.map((row) => (
+                  <div key={row.nhomId} className="flex items-center gap-2" style={{ height: 32 }}>
                     <div
                       className="h-6 rounded-sm transition-all duration-500"
                       style={{
@@ -92,9 +72,7 @@ function BarChart({ rows }: { rows: DonViRow[] }) {
               </div>
             </div>
           </div>
-
-          {/* X-axis */}
-          <div className="flex" style={{ paddingLeft: 160 }}>
+          <div className="flex" style={{ paddingLeft: 140 }}>
             <div className="flex-1 relative h-5">
               {ticks.map((t) => (
                 <span
@@ -107,8 +85,6 @@ function BarChart({ rows }: { rows: DonViRow[] }) {
               ))}
             </div>
           </div>
-
-          {/* Legend */}
           <div className="flex items-center justify-center gap-2 pt-1">
             <div className="w-5 h-3 rounded-sm" style={{ backgroundColor: "#4a90c4" }} />
             <span className="text-xs text-gray-600">Số lượng nguồn gen</span>
@@ -209,105 +185,27 @@ function SearchableDropdown({ placeholder, options, value, onChange }: {
   );
 }
 
-function NhomTreeDropdown({ nhomId, phanNhom, onSelect }: {
-  nhomId: string; phanNhom: string;
-  onSelect: (nhomId: string, phanNhom: string) => void;
-}) {
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
-    () => Object.fromEntries(CATEGORIES.map((c) => [c.id, true]))
-  );
-  const [dropOpen, setDropOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const h = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setDropOpen(false);
-    };
-    document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, []);
-
-  const label = phanNhom || (nhomId ? CATEGORIES.find((c) => c.id === nhomId)?.label : "");
-
-  return (
-    <div className="relative" ref={ref}>
-      <div
-        onClick={() => setDropOpen((v) => !v)}
-        className="flex items-center border-b border-gray-300 cursor-pointer hover:border-green-500 transition-colors py-1"
-      >
-        <span className={`flex-1 text-sm ${label ? "text-gray-700" : "text-gray-400"}`}>
-          {label || "Tìm kiếm theo nhóm nguồn gen"}
-        </span>
-        {(nhomId || phanNhom) ? (
-          <button
-            onMouseDown={(e) => { e.stopPropagation(); onSelect("", ""); }}
-            className="text-gray-400 hover:text-gray-600 p-0.5 shrink-0"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        ) : (
-          <svg className="w-4 h-4 text-gray-400 shrink-0 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        )}
-      </div>
-
-      {dropOpen && (
-        <div className="absolute z-50 left-0 right-0 bg-white border border-gray-200 rounded shadow-lg mt-1 max-h-72 overflow-y-auto">
-          {CATEGORIES.map((cat) => {
-            const items = PHAN_NHOM_BY_NHOM[cat.id] ?? [];
-            const isOpen = openGroups[cat.id];
-            return (
-              <div key={cat.id}>
-                <div
-                  onClick={() => setOpenGroups((p) => ({ ...p, [cat.id]: !p[cat.id] }))}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-800 cursor-pointer hover:bg-gray-50 select-none"
-                >
-                  <span className="text-gray-400 text-[10px] w-3">{isOpen ? "▼" : "▶"}</span>
-                  {cat.label}
-                </div>
-                {isOpen && items.map((pn) => (
-                  <div
-                    key={pn}
-                    onMouseDown={() => { onSelect(cat.id, pn); setDropOpen(false); }}
-                    className={`pl-8 pr-3 py-2.5 text-sm cursor-pointer ${
-                      phanNhom === pn ? "bg-[#2d5fa3] text-white" : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    {pn}
-                  </div>
-                ))}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
 function SidebarContent({
-  filterDistrict, filterWard, filterNhomId, filterPhanNhom,
-  setFilterDistrict, setFilterWard, setFilterNhomId, setFilterPhanNhom,
-  setPage, reportType, setReportType,
+  filterDistrict, filterWard, filterDonVi,
+  setFilterDistrict, setFilterWard, setFilterDonVi,
+  donViOptions, reportType, setReportType,
 }: {
-  filterDistrict: string; filterWard: string; filterNhomId: string; filterPhanNhom: string;
+  filterDistrict: string; filterWard: string; filterDonVi: string;
   setFilterDistrict: (v: string) => void; setFilterWard: (v: string) => void;
-  setFilterNhomId: (v: string) => void; setFilterPhanNhom: (v: string) => void;
-  setPage: (p: number) => void; reportType: string; setReportType: (v: "list" | "chart") => void;
+  setFilterDonVi: (v: string) => void;
+  donViOptions: string[];
+  reportType: string; setReportType: (v: "list" | "chart") => void;
 }) {
   return (
     <>
       <FilterSection title="Loại báo cáo">
         <div className="space-y-2.5">
           <label className="flex items-center gap-2.5 cursor-pointer">
-            <input type="radio" name="report-type" value="chart" checked={reportType === "chart"} onChange={() => setReportType("chart")} className="accent-green-600" />
-            <span className="text-sm text-gray-700">Biểu đồ top 10</span>
+            <input type="radio" name="report-type-tk" value="chart" checked={reportType === "chart"} onChange={() => setReportType("chart")} className="accent-green-600" />
+            <span className="text-sm text-gray-700">Biểu đồ</span>
           </label>
           <label className="flex items-center gap-2.5 cursor-pointer">
-            <input type="radio" name="report-type" value="list" checked={reportType === "list"} onChange={() => setReportType("list")} className="accent-green-600" />
+            <input type="radio" name="report-type-tk" value="list" checked={reportType === "list"} onChange={() => setReportType("list")} className="accent-green-600" />
             <span className="text-sm text-gray-700">Bảng danh sách</span>
           </label>
         </div>
@@ -335,11 +233,12 @@ function SidebarContent({
         />
       </FilterSection>
 
-      <FilterSection title="Nhóm nguồn gen">
-        <NhomTreeDropdown
-          nhomId={filterNhomId}
-          phanNhom={filterPhanNhom}
-          onSelect={(nid, pn) => { setFilterNhomId(nid); setFilterPhanNhom(pn); setPage(1); }}
+      <FilterSection title="Đơn vị cung cấp">
+        <SearchableDropdown
+          placeholder="Chọn đơn vị cung cấp sản xuất"
+          options={donViOptions}
+          value={filterDonVi}
+          onChange={setFilterDonVi}
         />
       </FilterSection>
     </>
@@ -348,89 +247,92 @@ function SidebarContent({
 
 export default function ThongKeTable({ data }: Props) {
   const [sortAsc, setSortAsc] = useState(false);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
   const [exporting, setExporting] = useState(false);
   const [reportType, setReportType] = useState<"list" | "chart">("list");
   const [filterDistrict, setFilterDistrict] = useState("");
   const [filterWard, setFilterWard] = useState("");
-  const [filterNhomId, setFilterNhomId] = useState("");
-  const [filterPhanNhom, setFilterPhanNhom] = useState("");
+  const [filterDonVi, setFilterDonVi] = useState("");
+  const [expandedNhoms, setExpandedNhoms] = useState<Set<string>>(new Set());
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
-  // Step 1: filter individual records by nhom/phan_nhom only
+  const donViOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const item of data) if (item.don_vi) set.add(item.don_vi);
+    return Array.from(set).sort();
+  }, [data]);
+
   const filteredData = useMemo(() => {
     return data.filter((item) => {
-      if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
-      if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
+      const dv = (item.don_vi ?? "").toLowerCase();
+      if (filterDistrict && !dv.includes(filterDistrict.toLowerCase())) return false;
+      if (filterWard && !dv.includes(filterWard.toLowerCase())) return false;
+      if (filterDonVi && item.don_vi !== filterDonVi) return false;
       return true;
     });
-  }, [data, filterNhomId, filterPhanNhom]);
+  }, [data, filterDistrict, filterWard, filterDonVi]);
 
-  // Step 2: group by don_vi, then filter rows by district/ward (search in ĐVCC name)
-  const rows = useMemo<DonViRow[]>(() => {
-    const map = new Map<string, number>();
-    for (const item of filteredData) {
-      const key = item.don_vi ?? "";
-      map.set(key, (map.get(key) ?? 0) + 1);
-    }
-    let arr = Array.from(map.entries()).map(([ten, count]) => ({ ten, dia_chi: "", count }));
+  const nhomRows = useMemo<NhomRow[]>(() => {
+    const result = CATEGORIES.map((cat) => {
+      const catItems = filteredData.filter((item) => item.nhom === cat.id);
+      const phanNhomCounts = new Map<string, number>();
+      for (const item of catItems) {
+        const pn = item.phan_nhom ?? "";
+        if (pn) phanNhomCounts.set(pn, (phanNhomCounts.get(pn) ?? 0) + 1);
+      }
+      const phanNhoms = (PHAN_NHOM_BY_NHOM[cat.id] ?? [])
+        .map((pn) => ({ label: pn, count: phanNhomCounts.get(pn) ?? 0 }))
+        .filter((pn) => pn.count > 0);
+      return {
+        nhomId: cat.id,
+        nhomLabel: cat.label,
+        nhomIcon: cat.icon,
+        count: catItems.length,
+        phanNhoms,
+      };
+    }).filter((row) => row.count > 0);
 
-    if (filterDistrict) {
-      const normFilter = normAdmin(filterDistrict);
-      arr = arr.filter((row) => normAdmin(row.ten).includes(normFilter));
-    }
-    if (filterWard) {
-      const normFilter = normAdmin(filterWard);
-      arr = arr.filter((row) => normAdmin(row.ten).includes(normFilter));
-    }
+    result.sort((a, b) => sortAsc ? a.count - b.count : b.count - a.count);
+    return result;
+  }, [filteredData, sortAsc]);
 
-    arr.sort((a, b) => (sortAsc ? a.count - b.count : b.count - a.count));
-    return arr;
-  }, [filteredData, filterDistrict, filterWard, sortAsc]);
-
-  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
-  const paged = rows.slice((page - 1) * pageSize, page * pageSize);
-
-  const pageNums = useMemo(() => {
-    const win = 5;
-    const half = Math.floor(win / 2);
-    let start = Math.max(1, page - half);
-    const end = Math.min(totalPages, start + win - 1);
-    start = Math.max(1, end - win + 1);
-    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-  }, [page, totalPages]);
+  const toggleNhom = (nhomId: string) => {
+    setExpandedNhoms((prev) => {
+      const next = new Set(prev);
+      if (next.has(nhomId)) next.delete(nhomId);
+      else next.add(nhomId);
+      return next;
+    });
+  };
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      const { exportThongKeExcel } = await import("@/lib/exportExcel");
-      await exportThongKeExcel(rows);
+      const { exportThongKeNhomExcel } = await import("@/lib/exportExcel");
+      await exportThongKeNhomExcel(nhomRows);
     } finally {
       setExporting(false);
     }
   };
 
-  const changePage = (p: number) => setPage(Math.max(1, Math.min(totalPages, p)));
+  const totalCount = nhomRows.reduce((sum, r) => sum + r.count, 0);
+  const activeFilterCount = [filterDistrict, filterWard, filterDonVi].filter(Boolean).length;
 
   const sidebarProps = {
-    filterDistrict, filterWard, filterNhomId, filterPhanNhom,
-    setFilterDistrict, setFilterWard, setFilterNhomId, setFilterPhanNhom,
-    setPage, reportType, setReportType,
+    filterDistrict, filterWard, filterDonVi,
+    setFilterDistrict, setFilterWard, setFilterDonVi,
+    donViOptions, reportType, setReportType,
   };
-
-  const activeFilterCount = [filterDistrict, filterWard, filterNhomId || filterPhanNhom].filter(Boolean).length;
 
   return (
     <div className="flex-1 flex overflow-hidden bg-gray-100">
-      {/* ── Desktop sidebar ── */}
+      {/* Desktop sidebar */}
       <div className="hidden md:block w-72 shrink-0 bg-white border-r border-gray-200 overflow-y-auto">
         <SidebarContent {...sidebarProps} />
       </div>
 
-      {/* ── Mobile sidebar bottom sheet ── */}
+      {/* Mobile sidebar bottom sheet */}
       {mounted && mobileSidebarOpen && createPortal(
         <>
           <div className="fixed inset-0 bg-black/40 z-[9998] md:hidden" onClick={() => setMobileSidebarOpen(false)} />
@@ -454,12 +356,11 @@ export default function ThongKeTable({ data }: Props) {
         document.body
       )}
 
-      {/* ── Main content ── */}
+      {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header bar */}
         <div className="shrink-0 flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-white border-b border-gray-200 gap-2">
           <div className="flex items-center gap-2 min-w-0">
-            {/* Mobile filter button */}
             <button
               onClick={() => setMobileSidebarOpen(true)}
               className="md:hidden flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs px-2.5 py-1.5 rounded-lg shrink-0 relative"
@@ -472,8 +373,8 @@ export default function ThongKeTable({ data }: Props) {
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-green-600 text-white text-[10px] rounded-full flex items-center justify-center">{activeFilterCount}</span>
               )}
             </button>
-            <h2 className="font-bold text-sm sm:text-lg text-gray-800 truncate">Nguồn gen theo đơn vị quản lý</h2>
-            <div className="hidden sm:flex w-5 h-5 rounded-full bg-green-600 text-white items-center justify-center text-xs font-bold cursor-help shrink-0" title="Thống kê số lượng nguồn gen theo đơn vị cung cấp">?</div>
+            <h2 className="font-bold text-sm sm:text-lg text-gray-800 truncate">Nguồn gen theo nhóm nguồn gen</h2>
+            <div className="hidden sm:flex w-5 h-5 rounded-full bg-green-600 text-white items-center justify-center text-xs font-bold cursor-help shrink-0" title="Thống kê số lượng nguồn gen theo nhóm">?</div>
           </div>
           <div className="flex items-center gap-1.5 shrink-0">
             <button
@@ -488,7 +389,7 @@ export default function ThongKeTable({ data }: Props) {
             </button>
             <button
               onClick={() => window.print()}
-              className="flex items-center gap-1.5 bg-green-600 hover:bg-green-500 text-white text-xs sm:text-sm px-2.5 sm:px-4 py-2 rounded transition-colors"
+              className="flex items-center gap-1.5 border border-gray-300 text-gray-600 text-xs sm:text-sm px-2.5 sm:px-4 py-2 rounded transition-colors hover:bg-gray-50"
             >
               <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
@@ -498,86 +399,80 @@ export default function ThongKeTable({ data }: Props) {
           </div>
         </div>
 
-        {/* Chart or Table area */}
+        {/* Chart or Table */}
         <div className="flex-1 overflow-auto p-2 sm:p-4">
           {reportType === "chart" ? (
-            <BarChart rows={rows} />
+            <BarChart rows={nhomRows} />
           ) : (
             <div className="bg-white rounded shadow-sm overflow-hidden">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr style={{ backgroundColor: "#5b8fa8" }} className="text-white">
-                    <th className="px-3 sm:px-4 py-3 text-center font-semibold w-10 sm:w-12">#</th>
-                    <th className="px-3 sm:px-4 py-3 text-left font-semibold">Tên đơn vị cung cấp</th>
-                    <th className="hidden md:table-cell px-4 py-3 text-left font-semibold">Địa chỉ đơn vị cung cấp</th>
+                    <th className="px-3 py-3 text-center font-semibold w-14">#</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-semibold">Tên nhóm nguồn gen</th>
                     <th
                       className="px-3 sm:px-4 py-3 text-right font-semibold cursor-pointer select-none whitespace-nowrap"
-                      onClick={() => { setSortAsc((v) => !v); setPage(1); }}
+                      onClick={() => setSortAsc((v) => !v)}
                     >
-                      <span className="hidden sm:inline">Số lượng nguồn gen </span>
-                      <span className="sm:hidden">SL </span>
-                      <span className="opacity-80">{sortAsc ? "↑" : "↓"}</span>
+                      Số lượng nguồn gen <span className="opacity-80">{sortAsc ? "↑" : "↓"}</span>
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {paged.map((row, idx) => (
-                    <tr key={row.ten || `__blank_${idx}`} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                      <td className="px-3 sm:px-4 py-2.5 text-center text-gray-500 border-b border-gray-100 text-xs sm:text-sm">{(page - 1) * pageSize + idx + 1}</td>
-                      <td className="px-3 sm:px-4 py-2.5 text-gray-800 border-b border-gray-100 text-xs sm:text-sm">{row.ten}</td>
-                      <td className="hidden md:table-cell px-4 py-2.5 text-gray-600 border-b border-gray-100">{row.dia_chi}</td>
-                      <td className="px-3 sm:px-4 py-2.5 text-right text-gray-800 border-b border-gray-100 font-medium text-xs sm:text-sm">{row.count}</td>
-                    </tr>
-                  ))}
-                  {paged.length === 0 && (
+                  {nhomRows.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-4 py-12 text-center text-gray-400">Không có dữ liệu</td>
+                      <td colSpan={3} className="px-4 py-12 text-center text-gray-400">Không có dữ liệu</td>
                     </tr>
                   )}
+                  {nhomRows.flatMap((nhomRow, nhomIdx) => {
+                    const isExpanded = expandedNhoms.has(nhomRow.nhomId);
+                    const rows = [
+                      <tr key={nhomRow.nhomId} className="bg-blue-50 border-b border-gray-200">
+                        <td className="px-3 py-2.5">
+                          <div className="flex items-center justify-center gap-1.5">
+                            <button
+                              onClick={() => toggleNhom(nhomRow.nhomId)}
+                              className="w-5 h-5 rounded border border-gray-400 text-gray-600 flex items-center justify-center text-xs hover:bg-blue-100 font-mono shrink-0"
+                            >
+                              {isExpanded ? "−" : "+"}
+                            </button>
+                            <span className="text-xs text-gray-500 w-3 text-center">{nhomIdx + 1}</span>
+                          </div>
+                        </td>
+                        <td className="px-3 sm:px-4 py-2.5 font-semibold text-gray-800">
+                          <span className="mr-1">{nhomRow.nhomIcon}</span>
+                          {nhomRow.nhomLabel}
+                        </td>
+                        <td className="px-3 sm:px-4 py-2.5 text-right font-semibold text-gray-800">{nhomRow.count}</td>
+                      </tr>,
+                    ];
+
+                    if (isExpanded) {
+                      nhomRow.phanNhoms.forEach((pn, pnIdx) => {
+                        rows.push(
+                          <tr key={`${nhomRow.nhomId}-${pn.label}`} className={pnIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                            <td className="px-3 py-2 text-center text-xs text-gray-400">{pnIdx + 1}</td>
+                            <td className="pl-8 pr-3 sm:pr-4 py-2 text-gray-700 border-b border-gray-100">{pn.label}</td>
+                            <td className="px-3 sm:px-4 py-2 text-right text-gray-700 border-b border-gray-100">{pn.count}</td>
+                          </tr>
+                        );
+                      });
+                    }
+
+                    return rows;
+                  })}
                 </tbody>
+                {nhomRows.length > 0 && (
+                  <tfoot>
+                    <tr className="bg-gray-100 border-t-2 border-gray-300">
+                      <td colSpan={2} className="px-3 sm:px-4 py-2.5 font-semibold text-gray-700">Tổng</td>
+                      <td className="px-3 sm:px-4 py-2.5 text-right font-bold text-gray-800">{totalCount}</td>
+                    </tr>
+                  </tfoot>
+                )}
               </table>
             </div>
           )}
-        </div>
-
-        {/* Pagination — hidden in chart mode */}
-        <div className={`shrink-0 flex flex-wrap items-center justify-between gap-2 px-3 sm:px-6 py-2.5 bg-white border-t border-gray-200 ${reportType === "chart" ? "hidden" : ""}`}>
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm text-gray-600">
-            <select
-              value={pageSize}
-              onChange={(e) => { setPageSize(Number(e.target.value)); setPage(1); }}
-              className="border border-gray-300 rounded px-1.5 py-0.5 text-xs sm:text-sm focus:outline-none focus:border-green-500"
-            >
-              {PAGE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <span>/trang · <span className="hidden sm:inline">Tổng </span>{rows.length} đơn vị</span>
-          </div>
-
-          <div className="flex items-center gap-0.5 sm:gap-1">
-            <button onClick={() => changePage(page - 1)} disabled={page === 1} className="px-2 py-1 text-xs sm:text-sm rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors">‹</button>
-            {pageNums[0] > 1 && (
-              <>
-                <button onClick={() => changePage(1)} className="px-2 py-1 text-xs sm:text-sm rounded border border-gray-200 hover:bg-gray-50">1</button>
-                {pageNums[0] > 2 && <span className="px-0.5 text-gray-400 text-xs">…</span>}
-              </>
-            )}
-            {pageNums.map((p) => (
-              <button
-                key={p}
-                onClick={() => changePage(p)}
-                className={`px-2 py-1 text-xs sm:text-sm rounded border transition-colors ${p === page ? "bg-green-700 text-white border-green-700" : "border-gray-200 hover:bg-gray-50"}`}
-              >
-                {p}
-              </button>
-            ))}
-            {pageNums[pageNums.length - 1] < totalPages && (
-              <>
-                {pageNums[pageNums.length - 1] < totalPages - 1 && <span className="px-0.5 text-gray-400 text-xs">…</span>}
-                <button onClick={() => changePage(totalPages)} className="px-2 py-1 text-xs sm:text-sm rounded border border-gray-200 hover:bg-gray-50">{totalPages}</button>
-              </>
-            )}
-            <button onClick={() => changePage(page + 1)} disabled={page === totalPages} className="px-2 py-1 text-xs sm:text-sm rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50 transition-colors">›</button>
-          </div>
         </div>
       </div>
     </div>

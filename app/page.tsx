@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase";
 import { apiGetAll, apiGetForms, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
 import ThongKeTable from "@/components/ThongKeTable";
 import ThongKeDonViHC from "@/components/ThongKeDonViHC";
+import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -224,6 +225,8 @@ export default function Home() {
           <ThongKeTable data={data} />
         ) : activeStats === "tk-don-vi-hc" ? (
           <ThongKeDonViHC data={data} />
+        ) : activeStats === "tk-nhom" ? (
+          <ThongKeNhomNguonGen data={data} />
         ) : showTable && isAdmin ? (
           <DataTable
             data={data}
