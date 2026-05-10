@@ -18,6 +18,20 @@ interface Props {
 
 const PAGE_SIZES = [10, 20, 50];
 
+// Strip "Huyện / Thị xã / Thành phố / Quận / Xã / Phường / Thị trấn" prefixes so
+// free-text form values ("Thọ Xuân") match dropdown values ("Huyện Thọ Xuân").
+function normAdmin(val: string) {
+  return val
+    .replace(/^(Thành phố|Thị xã|Thị trấn|Huyện|Quận|Phường|Xã)\s+/i, "")
+    .trim()
+    .toLowerCase();
+}
+function adminMatch(stored: string, filter: string) {
+  if (!filter) return true;
+  if (!stored) return false;
+  return normAdmin(stored) === normAdmin(filter) || stored.toLowerCase() === filter.toLowerCase();
+}
+
 function FilterSection({ title, children, defaultOpen = true }: {
   title: string; children: React.ReactNode; defaultOpen?: boolean;
 }) {
@@ -274,8 +288,8 @@ export default function ThongKeTable({ data }: Props) {
       if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
       if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
       const loc = locationMap[item.ma];
-      if (filterDistrict && (loc?.huyen ?? "") !== filterDistrict) return false;
-      if (filterWard && (loc?.xa ?? "") !== filterWard) return false;
+      if (!adminMatch(loc?.huyen ?? "", filterDistrict)) return false;
+      if (!adminMatch(loc?.xa ?? "", filterWard)) return false;
       return true;
     });
   }, [data, filterNhomId, filterPhanNhom, filterDistrict, filterWard, locationMap]);
