@@ -161,6 +161,7 @@ export default function MapView({
       marker.on("click", (e) => {
         L.DomEvent.stopPropagation(e);
         const tool = activeToolRef.current;
+
         if (tool === "delete") {
           if (confirm(`Xóa nguồn gen "${item.ten}"?`)) {
             onDeleteItem?.(item.ma);
@@ -169,6 +170,29 @@ export default function MapView({
           }
           return;
         }
+
+        if (tool === "measure") {
+          const pt: [number, number] = [item.lat, item.lng];
+          measurePointsRef.current = [...measurePointsRef.current, pt];
+          const pts = measurePointsRef.current;
+          const ml = measureLayerRef.current;
+          if (!ml) return;
+          ml.clearLayers();
+          pts.forEach((p) =>
+            L.circleMarker(p, {
+              radius: 5, color: "#e53e3e", fillColor: "#fc8181", fillOpacity: 1, weight: 2,
+            }).addTo(ml)
+          );
+          if (pts.length >= 2) {
+            L.polyline(pts, { color: "#e53e3e", weight: 2, dashArray: "6 4" }).addTo(ml);
+            let total = 0;
+            for (let i = 1; i < pts.length; i++) total += haversineKm(pts[i - 1], pts[i]);
+            const display = total >= 1 ? `${total.toFixed(2)} km` : `${(total * 1000).toFixed(0)} m`;
+            setMeasureDisplay(display);
+          }
+          return;
+        }
+
         const containerEl = containerRef.current;
         if (!containerEl) return;
         const point = map.latLngToContainerPoint([item.lat, item.lng]);
