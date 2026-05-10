@@ -220,14 +220,14 @@ export default function TimDuongPage() {
 
   // ── Route detail panel ────────────────────────────────────────────────────
   const routePanel = selectedItem && (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col flex-1 overflow-hidden">
       {/* Transport mode selector */}
       <div className="flex items-center gap-3 px-4 pt-4 pb-2 shrink-0">
         {TRANSPORT_MODES.map((m) => (
           <button
             key={m.id}
             onClick={() => { setActiveTransport(m.id); setActiveRouteIdx(0); setExpandedRouteIdx(null); }}
-            className="w-11 h-11 rounded-full flex items-center justify-center text-xl transition-all"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-all touch-manipulation"
             style={activeTransport === m.id ? { backgroundColor: "#1a73e8" } : { backgroundColor: "#3c4043" }}
             title={m.label}
           >
@@ -237,7 +237,7 @@ export default function TimDuongPage() {
         <div className="flex-1" />
         <button
           onClick={() => { setSelectedItem(null); setRoutesByMode({}); setUserLoc(null); }}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 text-xl"
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-gray-100 active:bg-gray-200 text-gray-400 text-xl touch-manipulation"
         >✕</button>
       </div>
 
@@ -245,7 +245,7 @@ export default function TimDuongPage() {
       <div className="px-4 pb-3 flex items-stretch gap-2 shrink-0">
         <button
           onClick={() => { setSelectedItem(null); setRoutesByMode({}); setUserLoc(null); }}
-          className="w-8 flex items-start justify-center pt-2 text-gray-500 hover:text-gray-800 shrink-0"
+          className="w-10 flex items-start justify-center pt-2 text-gray-500 hover:text-gray-800 shrink-0 touch-manipulation"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -274,7 +274,7 @@ export default function TimDuongPage() {
         </div>
         <button
           onClick={() => setSwapped((v) => !v)}
-          className="w-8 flex items-center justify-center text-gray-400 hover:text-gray-700 shrink-0"
+          className="w-10 flex items-center justify-center text-gray-400 hover:text-gray-700 shrink-0 touch-manipulation"
           title="Đổi chiều"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -322,7 +322,7 @@ export default function TimDuongPage() {
                 tabIndex={0}
                 onClick={() => { setActiveRouteIdx(idx); setExpandedRouteIdx(expandedRouteIdx === idx ? null : idx); }}
                 onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setActiveRouteIdx(idx); setExpandedRouteIdx(expandedRouteIdx === idx ? null : idx); } }}
-                className={`w-full flex items-start gap-4 px-5 py-3 text-left cursor-pointer transition-colors ${activeRouteIdx === idx ? "bg-blue-50" : "hover:bg-gray-50"}`}
+                className={`w-full flex items-start gap-4 px-5 py-4 text-left cursor-pointer transition-colors touch-manipulation ${activeRouteIdx === idx ? "bg-blue-50" : "active:bg-gray-100"}`}
               >
                 <div className="w-8 h-8 flex items-center justify-center text-xl shrink-0 mt-0.5">
                   {modeConf.icon}
@@ -378,7 +378,7 @@ export default function TimDuongPage() {
 
   // ── List panel ─────────────────────────────────────────────────────────────
   const listPanel = !selectedItem && (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col flex-1 overflow-hidden">
       <div className="px-4 py-3 border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2">
           <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -415,7 +415,7 @@ export default function TimDuongPage() {
           return (
             <div key={item.ma}>
               <button onClick={() => handleSelect(item)}
-                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors">
+                className="w-full flex items-center gap-3 px-4 py-4 text-left active:bg-blue-100 hover:bg-blue-50 transition-colors touch-manipulation">
                 <div className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-3xl"
                   style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}>
                   {cat?.icon ?? "📍"}
@@ -451,20 +451,35 @@ export default function TimDuongPage() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left panel */}
-        <div className="w-full md:w-[380px] shrink-0 border-r border-gray-200 overflow-hidden flex flex-col">
-          {selectedItem && (
-            <div className="h-52 shrink-0 md:hidden relative">
-              <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} allCoords={allCoords} />
+        {/* ── Mobile layout ── */}
+        <div className="flex flex-col flex-1 overflow-hidden md:hidden">
+          {selectedItem ? (
+            <>
+              {/* Map takes ~45% of remaining height on mobile */}
+              <div className="shrink-0" style={{ height: "45%" }}>
+                <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} allCoords={allCoords} />
+              </div>
+              {/* Route panel scrolls in remaining space */}
+              <div className="flex-1 overflow-y-auto flex flex-col border-t border-gray-200">
+                {routePanel}
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 overflow-hidden flex flex-col">
+              {listPanel}
             </div>
           )}
-          {listPanel}
-          {routePanel}
         </div>
 
-        {/* Right: map (desktop) */}
-        <div className="hidden md:block flex-1 relative">
-          <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} allCoords={allCoords} />
+        {/* ── Desktop layout ── */}
+        <div className="hidden md:flex flex-1 overflow-hidden">
+          <div className="w-[380px] shrink-0 border-r border-gray-200 overflow-hidden flex flex-col">
+            {listPanel}
+            {routePanel}
+          </div>
+          <div className="flex-1 relative">
+            <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} allCoords={allCoords} />
+          </div>
         </div>
       </div>
     </div>
