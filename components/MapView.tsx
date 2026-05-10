@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { createPortal } from "react-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { NguonGen, CATEGORY_MAP, CATEGORIES } from "@/data/nguonGen";
@@ -65,23 +66,40 @@ function ToolButton({
   title: string; onClick: () => void; active?: boolean; children: React.ReactNode;
 }) {
   const [tip, setTip] = useState(false);
+  const [pos, setPos] = useState({ top: 0, right: 0 });
+  const btnRef = useRef<HTMLButtonElement>(null);
+
+  const handleMouseEnter = () => {
+    if (btnRef.current) {
+      const r = btnRef.current.getBoundingClientRect();
+      setPos({ top: r.top + r.height / 2, right: window.innerWidth - r.left });
+    }
+    setTip(true);
+  };
+
   return (
-    <div className="relative flex justify-center" onMouseLeave={() => setTip(false)}>
+    <div className="relative flex justify-center">
       <button
+        ref={btnRef}
         title={title}
         onClick={onClick}
-        onMouseEnter={() => setTip(true)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={() => setTip(false)}
         className={active ? BTN_ON : BTN}
       >
         {children}
       </button>
-      {tip && (
-        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2.5 z-[9999] pointer-events-none hidden sm:block">
+      {tip && typeof document !== "undefined" && createPortal(
+        <div
+          className="hidden sm:block"
+          style={{ position: "fixed", top: pos.top, right: pos.right + 10, transform: "translateY(-50%)", zIndex: 99999, pointerEvents: "none" }}
+        >
           <div className="bg-gray-900 text-white text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg leading-snug">
             {title}
           </div>
           <div className="absolute left-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-gray-900" />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
