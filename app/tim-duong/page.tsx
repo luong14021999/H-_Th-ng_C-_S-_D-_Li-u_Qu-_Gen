@@ -5,69 +5,86 @@ import { useRouter } from "next/navigation";
 import { apiGetAll } from "@/lib/api";
 import { NguonGen, CATEGORIES, CATEGORY_MAP } from "@/data/nguonGen";
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+// ── helpers ───────────────────────────────────────────────────────────────────
 function formatDuration(sec: number): string {
   if (sec < 60) return "< 1 phút";
   const h = Math.floor(sec / 3600);
   const m = Math.round((sec % 3600) / 60);
   if (h === 0) return `${m} phút`;
-  return `${h} giờ ${m > 0 ? ` ${m} phút` : ""}`;
+  return m > 0 ? `${h} giờ ${m} phút` : `${h} giờ`;
 }
-function formatKm(km: number): string {
-  return km < 1 ? `${(km * 1000).toFixed(0)} m` : `${km.toFixed(1)} km`;
+function formatKm(m: number): string {
+  const km = m / 1000;
+  return km < 1 ? `${m.toFixed(0)} m` : `${km.toFixed(1)} km`;
+}
+function extractRoadName(steps: { name: string; distance: number }[]): string {
+  const map: Record<string, number> = {};
+  for (const s of steps) {
+    if (s.name) map[s.name] = (map[s.name] ?? 0) + s.distance;
+  }
+  const top = Object.entries(map)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([n]) => n);
+  return top.join(", ") || "Tuyến đường";
 }
 
-interface RouteResult {
+interface OsrmRoute {
+  distance: number;       // metres
+  duration: number;       // seconds
   coords: [number, number][];
-  distanceKm: number;
-  durationSec: number;
+  roadName: string;
+  steps: { name: string; distance: number; maneuver: { type: string } }[];
 }
 
-const MODES = [
-  { id: "driving",   label: "Ô tô",    icon: "🚗", color: "#2563eb", osrm: "driving",  factor: 1.0 },
-  { id: "motorbike", label: "Xe máy",  icon: "🏍️", color: "#7c3aed", osrm: "driving",  factor: 0.85 },
-  { id: "cycling",   label: "Xe đạp",  icon: "🚲", color: "#059669", osrm: "cycling",  factor: 1.0 },
-  { id: "foot",      label: "Đi bộ",   icon: "🚶", color: "#d97706", osrm: "foot",     factor: 1.0 },
+const TRANSPORT_MODES = [
+  { id: "driving",   icon: "🚗", label: "Ô tô",   osrm: "driving",  factor: 1.00, color: "#1a73e8" },
+  { id: "motorbike", icon: "🏍️", label: "Xe máy", osrm: "driving",  factor: 0.85, color: "#1a73e8" },
+  { id: "foot",      icon: "🚶", label: "Đi bộ",  osrm: "foot",     factor: 1.00, color: "#1a73e8" },
 ];
 
-async function fetchOsrmRoute(
+async function fetchRoutes(
   from: [number, number],
   to: [number, number],
   profile: string
-): Promise<RouteResult | null> {
+): Promise<OsrmRoute[]> {
   try {
-    const url =
-      `https://router.project-osrm.org/route/v1/${profile}/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson&alternatives=true&steps=true`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(9000) });
     const json = await res.json();
-    if (!json.routes?.[0]) return null;
-    const r = json.routes[0];
-    const coords = (r.geometry.coordinates as [number, number][]).map(
-      ([lng, lat]) => [lat, lng] as [number, number]
-    );
-    return { coords, distanceKm: r.distance / 1000, durationSec: r.duration };
+    if (!json.routes?.length) return [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return json.routes.map((r: any) => {
+      const steps = r.legs?.[0]?.steps ?? [];
+      return {
+        distance: r.distance,
+        duration: r.duration,
+        coords: (r.geometry.coordinates as [number, number][]).map(([lng, lat]) => [lat, lng] as [number, number]),
+        roadName: extractRoadName(steps),
+        steps,
+      };
+    });
   } catch {
-    return null;
+    return [];
   }
 }
 
-// ── RouteMap (inline Leaflet, no toolbar) ────────────────────────────────────
+// ── Inline Leaflet map ────────────────────────────────────────────────────────
 function RouteMap({
   destItem,
   userLoc,
   routeCoords,
-  routeColor,
+  allCoords,
 }: {
   destItem: NguonGen | null;
   userLoc: [number, number] | null;
   routeCoords: [number, number][] | null;
-  routeColor: string;
+  allCoords: [number, number][][];
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<unknown>(null);
-  const routeLayerRef = useRef<unknown>(null);
+  const layerRef = useRef<unknown>(null);
 
-  // Init map once
   useEffect(() => {
     if (typeof window === "undefined" || mapRef.current) return;
     import("leaflet").then((Lm) => {
@@ -75,70 +92,60 @@ function RouteMap({
       if (!containerRef.current || mapRef.current) return;
       const map = L.map(containerRef.current, { zoomControl: false, center: [20.0, 105.5], zoom: 9 });
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-        maxZoom: 19,
+        attribution: "© OpenStreetMap", maxZoom: 19,
       }).addTo(map);
       L.control.zoom({ position: "bottomright" }).addTo(map);
-      routeLayerRef.current = L.layerGroup().addTo(map);
+      layerRef.current = L.layerGroup().addTo(map);
       mapRef.current = map;
     });
     return () => {
-      if (mapRef.current) {
-        (mapRef.current as { remove: () => void }).remove();
-        mapRef.current = null;
-        routeLayerRef.current = null;
-      }
+      if (mapRef.current) { (mapRef.current as { remove: () => void }).remove(); mapRef.current = null; layerRef.current = null; }
     };
   }, []);
 
-  // Draw route / markers whenever props change
   useEffect(() => {
-    if (!mapRef.current || !routeLayerRef.current) return;
+    if (!mapRef.current || !layerRef.current) return;
     import("leaflet").then((Lm) => {
       const L = Lm.default;
       const map = mapRef.current as L.Map;
-      const layer = routeLayerRef.current as L.LayerGroup;
+      const layer = layerRef.current as L.LayerGroup;
       layer.clearLayers();
+      const fitPts: L.LatLng[] = [];
 
-      const bounds: [number, number][] = [];
-
-      if (userLoc) {
-        L.circleMarker(userLoc, { radius: 9, color: "#fff", weight: 2, fillColor: "#2563eb", fillOpacity: 1 })
-          .bindTooltip("Vị trí của bạn")
-          .addTo(layer);
-        bounds.push(userLoc);
+      // Dimmed alternative routes
+      for (const alt of allCoords) {
+        if (alt !== routeCoords) {
+          L.polyline(alt, { color: "#bfdbfe", weight: 4, opacity: 0.7 }).addTo(layer);
+        }
       }
-
+      // Active route
+      if (routeCoords?.length) {
+        L.polyline(routeCoords, { color: "#1a73e8", weight: 5, opacity: 0.9 }).addTo(layer);
+        routeCoords.forEach((c) => fitPts.push(L.latLng(c[0], c[1])));
+      }
+      // User marker
+      if (userLoc) {
+        L.circleMarker(userLoc, { radius: 9, color: "#fff", weight: 2.5, fillColor: "#1a73e8", fillOpacity: 1 })
+          .bindTooltip("Vị trí của bạn").addTo(layer);
+        fitPts.push(L.latLng(userLoc[0], userLoc[1]));
+      }
+      // Dest marker
       if (destItem) {
         const cat = CATEGORY_MAP[destItem.nhom];
-        const icon = L.divIcon({
-          html: `<div style="font-size:26px;line-height:1">${cat?.icon ?? "📍"}</div>`,
-          className: "",
-          iconAnchor: [13, 13],
-        });
-        L.marker([destItem.lat, destItem.lng], { icon })
-          .bindTooltip(destItem.ten)
-          .addTo(layer);
-        bounds.push([destItem.lat, destItem.lng]);
+        const icon = L.divIcon({ html: `<div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px #0004)">${cat?.icon ?? "📍"}</div>`, className: "", iconAnchor: [14, 14] });
+        L.marker([destItem.lat, destItem.lng], { icon }).bindTooltip(destItem.ten).addTo(layer);
+        fitPts.push(L.latLng(destItem.lat, destItem.lng));
       }
 
-      if (routeCoords && routeCoords.length >= 2) {
-        L.polyline(routeCoords, { color: routeColor, weight: 5, opacity: 0.85 }).addTo(layer);
-        bounds.push(...routeCoords);
-        const ll = routeCoords.map((c) => L.latLng(c[0], c[1]));
-        map.fitBounds(L.latLngBounds(ll), { padding: [50, 60] });
-      } else if (bounds.length >= 2) {
-        map.fitBounds(L.latLngBounds(bounds.map((b) => L.latLng(b[0], b[1]))), { padding: [60, 80] });
-      } else if (bounds.length === 1) {
-        map.setView(bounds[0], 14);
-      }
+      if (fitPts.length >= 2) map.fitBounds(L.latLngBounds(fitPts), { padding: [50, 60] });
+      else if (fitPts.length === 1) map.setView(fitPts[0], 14);
     });
-  }, [destItem, userLoc, routeCoords, routeColor]);
+  }, [destItem, userLoc, routeCoords, allCoords]);
 
   return <div ref={containerRef} className="w-full h-full" />;
 }
 
-// ── Page ─────────────────────────────────────────────────────────────────────
+// ── Page ──────────────────────────────────────────────────────────────────────
 export default function TimDuongPage() {
   const router = useRouter();
   const [data, setData] = useState<NguonGen[]>([]);
@@ -146,192 +153,245 @@ export default function TimDuongPage() {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // Route state
   const [selectedItem, setSelectedItem] = useState<NguonGen | null>(null);
   const [userLoc, setUserLoc] = useState<[number, number] | null>(null);
-  const [routes, setRoutes] = useState<Record<string, RouteResult | null>>({});
-  const [activeMode, setActiveMode] = useState("driving");
+  const [userLocName, setUserLocName] = useState("Vị trí của bạn");
+  const [activeTransport, setActiveTransport] = useState("driving");
+  const [routesByMode, setRoutesByMode] = useState<Record<string, OsrmRoute[]>>({});
+  const [activeRouteIdx, setActiveRouteIdx] = useState(0);
+  const [expandedRouteIdx, setExpandedRouteIdx] = useState<number | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [geoError, setGeoError] = useState(false);
+  const [swapped, setSwapped] = useState(false);
 
   useEffect(() => {
-    apiGetAll()
-      .then(setData)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    apiGetAll().then(setData).catch(() => {}).finally(() => setLoading(false));
   }, []);
 
-  const filtered = useMemo(() => {
-    return data.filter((item) => {
-      const matchCat = !selectedCategory || item.nhom === selectedCategory;
-      const q = search.toLowerCase();
-      const matchSearch =
-        !q ||
-        item.ten.toLowerCase().includes(q) ||
-        item.phan_nhom.toLowerCase().includes(q) ||
-        item.don_vi.toLowerCase().includes(q);
-      return matchCat && matchSearch;
-    });
-  }, [data, search, selectedCategory]);
+  const filtered = useMemo(() => data.filter((item) => {
+    const matchCat = !selectedCategory || item.nhom === selectedCategory;
+    const q = search.toLowerCase();
+    return matchCat && (!q || item.ten.toLowerCase().includes(q) || item.phan_nhom.toLowerCase().includes(q) || item.don_vi.toLowerCase().includes(q));
+  }), [data, search, selectedCategory]);
+
+  const fetchAll = useCallback(async (from: [number, number], to: [number, number]) => {
+    const [driveRoutes, footRoutes] = await Promise.all([
+      fetchRoutes(from, to, "driving"),
+      fetchRoutes(from, to, "foot"),
+    ]);
+    setRoutesByMode({ driving: driveRoutes, motorbike: driveRoutes, foot: footRoutes });
+  }, []);
 
   const handleSelect = useCallback((item: NguonGen) => {
     setSelectedItem(item);
-    setRoutes({});
+    setRoutesByMode({});
     setGeoError(false);
-    setActiveMode("driving");
+    setActiveTransport("driving");
+    setActiveRouteIdx(0);
+    setExpandedRouteIdx(null);
+    setSwapped(false);
     setRouteLoading(true);
 
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const from: [number, number] = [pos.coords.latitude, pos.coords.longitude];
         setUserLoc(from);
-        const to: [number, number] = [item.lat, item.lng];
-
-        // Fetch driving + cycling + foot in parallel (motorbike reuses driving)
-        const [driveRes, cycleRes, footRes] = await Promise.all([
-          fetchOsrmRoute(from, to, "driving"),
-          fetchOsrmRoute(from, to, "cycling"),
-          fetchOsrmRoute(from, to, "foot"),
-        ]);
-        setRoutes({ driving: driveRes, motorbike: driveRes, cycling: cycleRes, foot: footRes });
+        // Reverse-geocode for display name (best-effort)
+        fetch(`https://nominatim.openstreetmap.org/reverse?lat=${from[0]}&lon=${from[1]}&format=json`)
+          .then((r) => r.json())
+          .then((j) => { if (j.address) setUserLocName(j.address.road ?? j.address.suburb ?? j.address.city ?? "Vị trí của bạn"); })
+          .catch(() => {});
+        await fetchAll(from, [item.lat, item.lng]);
         setRouteLoading(false);
       },
-      () => {
-        setGeoError(true);
-        setRouteLoading(false);
-      },
+      () => { setGeoError(true); setRouteLoading(false); },
       { timeout: 8000 }
     );
-  }, []);
+  }, [fetchAll]);
 
-  const activeRoute = routes[activeMode] ?? null;
-  const activeModeConf = MODES.find((m) => m.id === activeMode)!;
+  const modeConf = TRANSPORT_MODES.find((m) => m.id === activeTransport)!;
+  const currentRoutes = routesByMode[activeTransport] ?? [];
+  const activeRoute = currentRoutes[activeRouteIdx] ?? null;
+  const allCoords = currentRoutes.map((r) => r.coords);
   const routeCoords = activeRoute?.coords ?? null;
-  const routeColor = activeModeConf.color;
 
-  // ── Route panel (left when item selected) ──
+  // ── Route detail panel ────────────────────────────────────────────────────
   const routePanel = selectedItem && (
-    <div className="flex flex-col h-full">
-      {/* Back */}
-      <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100 shrink-0">
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Transport mode selector */}
+      <div className="flex items-center gap-3 px-4 pt-4 pb-2 shrink-0">
+        {TRANSPORT_MODES.map((m) => (
+          <button
+            key={m.id}
+            onClick={() => { setActiveTransport(m.id); setActiveRouteIdx(0); setExpandedRouteIdx(null); }}
+            className="w-11 h-11 rounded-full flex items-center justify-center text-xl transition-all"
+            style={activeTransport === m.id ? { backgroundColor: "#1a73e8" } : { backgroundColor: "#3c4043" }}
+            title={m.label}
+          >
+            {m.icon}
+          </button>
+        ))}
+        <div className="flex-1" />
         <button
-          onClick={() => { setSelectedItem(null); setRoutes({}); setUserLoc(null); }}
-          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500"
+          onClick={() => { setSelectedItem(null); setRoutesByMode({}); setUserLoc(null); }}
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-400 text-xl"
+        >✕</button>
+      </div>
+
+      {/* Origin / destination */}
+      <div className="px-4 pb-3 flex items-stretch gap-2 shrink-0">
+        <button
+          onClick={() => { setSelectedItem(null); setRoutesByMode({}); setUserLoc(null); }}
+          className="w-8 flex items-start justify-center pt-2 text-gray-500 hover:text-gray-800 shrink-0"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <div className="flex-1 min-w-0">
-          <p className="font-semibold text-sm text-gray-900 truncate">{selectedItem.ten}</p>
-          {selectedItem.phan_nhom && <p className="text-xs text-gray-400 truncate">{selectedItem.phan_nhom}</p>}
+        <div className="flex-1 flex flex-col gap-0">
+          {/* Dot connector */}
+          <div className="relative flex items-center gap-2 py-2 px-3 bg-gray-100 rounded-xl">
+            <svg className="w-4 h-4 text-blue-600 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="5" />
+              <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+            </svg>
+            <span className="text-sm text-gray-700 truncate">{swapped ? selectedItem.ten : userLocName}</span>
+          </div>
+          <div className="ml-4 flex flex-col items-center gap-0.5 py-0.5">
+            <div className="w-0.5 h-1 bg-gray-400" />
+            <div className="w-0.5 h-1 bg-gray-400" />
+            <div className="w-0.5 h-1 bg-gray-400" />
+          </div>
+          <div className="relative flex items-center gap-2 py-2 px-3 bg-gray-100 rounded-xl">
+            <svg className="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+            </svg>
+            <span className="text-sm text-gray-700 truncate">{swapped ? userLocName : selectedItem.ten}</span>
+          </div>
         </div>
+        <button
+          onClick={() => setSwapped((v) => !v)}
+          className="w-8 flex items-center justify-center text-gray-400 hover:text-gray-700 shrink-0"
+          title="Đổi chiều"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4M17 8v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+        </button>
       </div>
 
-      {/* Status */}
+      <div className="h-px bg-gray-200 shrink-0" />
+
+      {/* Route loading / error */}
       {routeLoading && (
-        <div className="flex items-center gap-2 px-4 py-3 text-sm text-gray-500">
-          <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
+        <div className="flex items-center gap-3 px-5 py-4 text-sm text-gray-500">
+          <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin shrink-0" />
           Đang tính toán tuyến đường...
         </div>
       )}
       {geoError && (
-        <div className="px-4 py-3 text-sm text-red-500">
-          Không thể lấy vị trí. Hãy cho phép quyền truy cập GPS.
+        <p className="px-5 py-4 text-sm text-red-500">Không lấy được vị trí. Hãy cho phép truy cập GPS.</p>
+      )}
+
+      {/* Route summary + alternatives */}
+      {!routeLoading && !geoError && currentRoutes.length > 0 && (
+        <div className="flex-1 overflow-y-auto">
+          {/* Best route summary */}
+          <div className="px-5 py-4">
+            <p className="text-2xl font-bold text-red-500">
+              {formatDuration(currentRoutes[0].duration * modeConf.factor)}
+              <span className="text-base font-normal text-gray-500 ml-2">({formatKm(currentRoutes[0].distance)})</span>
+            </p>
+            <p className="text-sm text-gray-500 mt-0.5">Tuyến đường nhanh nhất</p>
+          </div>
+
+          <div className="h-px bg-gray-200" />
+
+          {/* Route list */}
+          <p className="px-5 pt-4 pb-2 font-bold text-base text-gray-900">Danh sách chặng</p>
+
+          {currentRoutes.map((route, idx) => (
+            <div key={idx}>
+              <div className="h-px bg-gray-100 mx-5" />
+              <button
+                onClick={() => { setActiveRouteIdx(idx); setExpandedRouteIdx(expandedRouteIdx === idx ? null : idx); }}
+                className={`w-full flex items-start gap-4 px-5 py-3 text-left transition-colors ${activeRouteIdx === idx ? "bg-blue-50" : "hover:bg-gray-50"}`}
+              >
+                {/* Car icon */}
+                <div className="w-8 h-8 flex items-center justify-center text-xl shrink-0 mt-0.5">
+                  {modeConf.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-gray-900 truncate">{route.roadName}</p>
+                  {expandedRouteIdx !== idx && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setActiveRouteIdx(idx); setExpandedRouteIdx(idx); }}
+                      className="text-xs font-semibold text-blue-600 mt-0.5"
+                    >
+                      CHI TIẾT
+                    </button>
+                  )}
+                  {/* Expanded steps */}
+                  {expandedRouteIdx === idx && (
+                    <div className="mt-2 flex flex-col gap-1">
+                      {route.steps
+                        .filter((s) => s.maneuver?.type !== "arrive" && s.name)
+                        .slice(0, 8)
+                        .map((s, si) => (
+                          <p key={si} className="text-xs text-gray-500 truncate">• {s.name} ({formatKm(s.distance)})</p>
+                        ))}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setExpandedRouteIdx(null); }}
+                        className="text-xs font-semibold text-blue-600 mt-0.5 text-left"
+                      >
+                        THU GỌN
+                      </button>
+                    </div>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="text-sm font-semibold text-red-500">{formatDuration(route.duration * modeConf.factor)}</p>
+                  <p className="text-xs text-gray-400">{formatKm(route.distance)}</p>
+                </div>
+              </button>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Mode cards */}
-      {!routeLoading && !geoError && (
-        <div className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-2">
-          {MODES.map((mode) => {
-            const r = routes[mode.id];
-            const dur = r ? formatDuration(r.durationSec * mode.factor) : null;
-            const km = r ? formatKm(r.distanceKm) : null;
-            const isActive = activeMode === mode.id;
-            return (
-              <button
-                key={mode.id}
-                onClick={() => setActiveMode(mode.id)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-all ${
-                  isActive
-                    ? "border-transparent text-white"
-                    : "border-gray-200 bg-white text-gray-800 hover:border-gray-300"
-                }`}
-                style={isActive ? { backgroundColor: mode.color } : {}}
-              >
-                <span className="text-2xl leading-none">{mode.icon}</span>
-                <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm">{mode.label}</p>
-                  {r ? (
-                    <p className={`text-xs mt-0.5 ${isActive ? "text-white/80" : "text-gray-500"}`}>
-                      {km} • {dur}
-                    </p>
-                  ) : (
-                    <p className={`text-xs mt-0.5 ${isActive ? "text-white/60" : "text-gray-400"}`}>Không có tuyến đường</p>
-                  )}
-                </div>
-                {isActive && (
-                  <svg className="w-4 h-4 text-white/80 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-            );
-          })}
-        </div>
+      {!routeLoading && !geoError && currentRoutes.length === 0 && (
+        <p className="px-5 py-4 text-sm text-gray-400">Không tìm được tuyến đường phù hợp.</p>
       )}
     </div>
   );
 
-  // ── List panel ──
+  // ── List panel ─────────────────────────────────────────────────────────────
   const listPanel = !selectedItem && (
     <div className="flex flex-col h-full">
-      {/* Search */}
       <div className="px-4 py-3 border-b border-gray-100 shrink-0">
         <div className="flex items-center gap-2 bg-gray-100 rounded-xl px-3 py-2">
           <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" />
           </svg>
-          <input
-            autoFocus
-            type="text"
-            placeholder="Tìm kiếm nguồn gen..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent text-sm outline-none placeholder-gray-400 text-gray-800"
-          />
-          {search && (
-            <button onClick={() => setSearch("")} className="text-gray-400 hover:text-gray-600 text-lg leading-none">×</button>
-          )}
+          <input autoFocus type="text" placeholder="Tìm kiếm nguồn gen..."
+            value={search} onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent text-sm outline-none placeholder-gray-400 text-gray-800" />
+          {search && <button onClick={() => setSearch("")} className="text-gray-400 hover:text-gray-600 text-lg">×</button>}
         </div>
       </div>
-
-      {/* Category pills */}
       <div className="flex gap-2 px-4 py-2 overflow-x-auto shrink-0 border-b border-gray-100">
-        <button
-          onClick={() => setSelectedCategory(null)}
-          className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-colors ${
-            !selectedCategory ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
-        >
+        <button onClick={() => setSelectedCategory(null)}
+          className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap shrink-0 ${!selectedCategory ? "bg-gray-800 text-white" : "bg-gray-100 text-gray-600"}`}>
           Tất cả
         </button>
         {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
-            className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap shrink-0 transition-colors ${
-              selectedCategory === cat.id ? "text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
-            style={selectedCategory === cat.id ? { backgroundColor: cat.color } : {}}
-          >
+          <button key={cat.id} onClick={() => setSelectedCategory(selectedCategory === cat.id ? null : cat.id)}
+            className={`flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap shrink-0 ${selectedCategory === cat.id ? "text-white" : "bg-gray-100 text-gray-600"}`}
+            style={selectedCategory === cat.id ? { backgroundColor: cat.color } : {}}>
             {cat.icon} {cat.label}
           </button>
         ))}
       </div>
-
-      {/* Items */}
       <div className="flex-1 overflow-y-auto">
         {loading ? (
           <div className="flex items-center justify-center h-32">
@@ -339,35 +399,29 @@ export default function TimDuongPage() {
           </div>
         ) : filtered.length === 0 ? (
           <p className="text-sm text-gray-400 text-center py-10">Không có kết quả</p>
-        ) : (
-          filtered.map((item, i) => {
-            const cat = CATEGORY_MAP[item.nhom];
-            return (
-              <div key={item.ma}>
-                <button
-                  onClick={() => handleSelect(item)}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 active:bg-blue-100 transition-colors"
-                >
-                  <div
-                    className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-3xl"
-                    style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}
-                  >
-                    {cat?.icon ?? "📍"}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm text-gray-900 truncate">{item.ten}</p>
-                    {item.phan_nhom && <p className="text-xs text-gray-500 mt-0.5 truncate">{item.phan_nhom}</p>}
-                    {item.don_vi && <p className="text-xs text-gray-400 mt-0.5 truncate">{item.don_vi}</p>}
-                  </div>
-                  <svg className="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-                {i < filtered.length - 1 && <div className="h-px bg-gray-100 mx-4" />}
-              </div>
-            );
-          })
-        )}
+        ) : filtered.map((item, i) => {
+          const cat = CATEGORY_MAP[item.nhom];
+          return (
+            <div key={item.ma}>
+              <button onClick={() => handleSelect(item)}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-blue-50 transition-colors">
+                <div className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-3xl"
+                  style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}>
+                  {cat?.icon ?? "📍"}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm text-gray-900 truncate">{item.ten}</p>
+                  {item.phan_nhom && <p className="text-xs text-gray-500 mt-0.5 truncate">{item.phan_nhom}</p>}
+                  {item.don_vi && <p className="text-xs text-gray-400 mt-0.5 truncate">{item.don_vi}</p>}
+                </div>
+                <svg className="w-4 h-4 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+              {i < filtered.length - 1 && <div className="h-px bg-gray-100 mx-4" />}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -376,10 +430,8 @@ export default function TimDuongPage() {
     <div className="h-dvh flex flex-col bg-white overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-200 bg-white shrink-0">
-        <button
-          onClick={() => router.back()}
-          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 shrink-0"
-        >
+        <button onClick={() => router.back()}
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-600 shrink-0">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
@@ -387,23 +439,21 @@ export default function TimDuongPage() {
         <h1 className="font-bold text-base text-gray-900">Tìm đường đến nguồn gen</h1>
       </div>
 
-      {/* Body */}
       <div className="flex flex-1 overflow-hidden">
-        {/* ── Left panel (full on mobile, 360px on desktop) ── */}
-        <div className="w-full md:w-[360px] shrink-0 border-r border-gray-200 overflow-hidden flex flex-col">
-          {/* Mobile: map above route panel when item selected */}
+        {/* Left panel */}
+        <div className="w-full md:w-[380px] shrink-0 border-r border-gray-200 overflow-hidden flex flex-col">
           {selectedItem && (
-            <div className="h-56 shrink-0 md:hidden relative">
-              <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} routeColor={routeColor} />
+            <div className="h-52 shrink-0 md:hidden relative">
+              <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} allCoords={allCoords} />
             </div>
           )}
           {listPanel}
           {routePanel}
         </div>
 
-        {/* ── Right: map (desktop) ── */}
+        {/* Right: map (desktop) */}
         <div className="hidden md:block flex-1 relative">
-          <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} routeColor={routeColor} />
+          <RouteMap destItem={selectedItem} userLoc={userLoc} routeCoords={routeCoords} allCoords={allCoords} />
         </div>
       </div>
     </div>
