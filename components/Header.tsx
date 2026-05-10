@@ -81,6 +81,7 @@ export default function Header({
   const [thongKeOpen, setThongKeOpen] = useState(false);
   const [thongKePos, setThongKePos] = useState({ top: 0, left: 0 });
   const [mobileGenSheetOpen, setMobileGenSheetOpen] = useState(false);
+  const [mobileThongKeSheetOpen, setMobileThongKeSheetOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const userTriggerRef = useRef<HTMLButtonElement>(null);
@@ -147,12 +148,12 @@ export default function Header({
   const adminTabs = [
     { id: "trang-chu", label: "Trang chủ", icon: <IconHome />, action: () => onTabChange("trang-chu") },
     { id: "danh-muc", label: "Danh mục", icon: <IconFolder />, action: () => onTabChange("danh-muc") },
-    { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => onTabChange("thong-ke") },
+    { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => setMobileThongKeSheetOpen(true) },
     { id: "nguon-gen", label: "Nguồn gen", icon: <IconShield />, action: () => setMobileGenSheetOpen(true) },
   ];
   const guestTabs = [
     { id: "trang-chu", label: "Bản đồ", icon: <IconHome />, action: () => onTabChange("trang-chu") },
-    { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => onTabChange("thong-ke") },
+    { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => setMobileThongKeSheetOpen(true) },
     { id: "nguon-gen", label: "Nguồn gen", icon: <IconShield />, action: () => setMobileGenSheetOpen(true) },
     { id: "login", label: "Đăng nhập", icon: <IconPerson />, action: onAdminClick },
   ];
@@ -328,6 +329,39 @@ export default function Header({
                 >
                   <span className="text-xl">{cat.icon}</span>
                   <span className="font-medium">{cat.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="h-4" />
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* ── Mobile Thống kê bottom sheet ── */}
+      {mounted && mobileThongKeSheetOpen && createPortal(
+        <>
+          <div className="fixed inset-0 bg-black/40 z-[9998]" onClick={() => setMobileThongKeSheetOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white rounded-t-2xl overflow-hidden">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            </div>
+            <div className="px-4 py-2.5 border-b border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Thống kê</p>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh]">
+              {THONG_KE_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setMobileThongKeSheetOpen(false);
+                    onTabChange("thong-ke");
+                    onThongKeSelect?.(item.id);
+                  }}
+                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700"
+                >
+                  <IconChart cls="w-5 h-5 text-green-600 shrink-0" />
+                  <span className="font-medium">{item.label}</span>
                 </button>
               ))}
             </div>
