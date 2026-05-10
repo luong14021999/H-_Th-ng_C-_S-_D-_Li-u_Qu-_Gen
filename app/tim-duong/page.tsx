@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiGetAll } from "@/lib/api";
 import { NguonGen, CATEGORIES, CATEGORY_MAP } from "@/data/nguonGen";
@@ -151,7 +151,7 @@ function RouteMap({
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
-export default function TimDuongPage() {
+function TimDuongInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [data, setData] = useState<NguonGen[]>([]);
@@ -493,5 +493,13 @@ export default function TimDuongPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function TimDuongPage() {
+  return (
+    <Suspense>
+      <TimDuongInner />
+    </Suspense>
   );
 }
