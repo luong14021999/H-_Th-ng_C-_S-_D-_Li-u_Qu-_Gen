@@ -49,10 +49,9 @@ function polygonAreaKm2(pts: [number, number][]): number {
 }
 
 function formatArea(km2: number): string {
-  const m2 = km2 * 1e6;
-  if (m2 < 10000) return `${m2.toFixed(0)} m²`;
-  if (m2 < 1e6) return `${(m2 / 10000).toFixed(2)} ha`;
-  return `${km2.toFixed(2)} km²`;
+  const ha = km2 * 100;
+  if (ha < 0.01) return `${(km2 * 1e6).toFixed(0)} m²`;
+  return `${ha.toFixed(2)} ha`;
 }
 
 // ── ToolButton with hover tooltip ─────────────────────────────────────────────
