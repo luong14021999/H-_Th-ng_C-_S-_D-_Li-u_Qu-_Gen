@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { NguonGen } from "@/data/nguonGen";
-import { DISTRICTS_THANH_HOA } from "@/data/thanhHoaAdmin";
+import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
+import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
 
 interface HCRow {
   district: string;
@@ -196,14 +196,99 @@ function SearchableDropdown({ placeholder, options, value, onChange }: {
   );
 }
 
+// ── Nhóm nguồn gen tree dropdown ─────────────────────────────────────────────
+function NhomTreeDropdown({ nhomId, phanNhom, onSelect }: {
+  nhomId: string; phanNhom: string;
+  onSelect: (nhomId: string, phanNhom: string) => void;
+}) {
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(
+    () => Object.fromEntries(CATEGORIES.map((c) => [c.id, true]))
+  );
+  const [dropOpen, setDropOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setDropOpen(false);
+    };
+    document.addEventListener("mousedown", h);
+    return () => document.removeEventListener("mousedown", h);
+  }, []);
+
+  const label = phanNhom || (nhomId ? CATEGORIES.find((c) => c.id === nhomId)?.label : "");
+
+  return (
+    <div className="relative" ref={ref}>
+      <div
+        onClick={() => setDropOpen((v) => !v)}
+        className="flex items-center border-b border-gray-300 cursor-pointer hover:border-green-500 transition-colors py-1"
+      >
+        <span className={`flex-1 text-sm ${label ? "text-gray-700" : "text-gray-400"}`}>
+          {label || "Tìm kiếm theo nhóm nguồn gen"}
+        </span>
+        {(nhomId || phanNhom) ? (
+          <button
+            onMouseDown={(e) => { e.stopPropagation(); onSelect("", ""); }}
+            className="text-gray-400 hover:text-gray-600 p-0.5 shrink-0"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        ) : (
+          <svg className="w-4 h-4 text-gray-400 shrink-0 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        )}
+      </div>
+      {dropOpen && (
+        <div className="absolute z-50 left-0 right-0 bg-white border border-gray-200 rounded shadow-lg mt-1 max-h-72 overflow-y-auto">
+          {CATEGORIES.map((cat) => {
+            const items = PHAN_NHOM_BY_NHOM[cat.id] ?? [];
+            const isOpen = openGroups[cat.id];
+            return (
+              <div key={cat.id}>
+                <div
+                  onClick={() => setOpenGroups((p) => ({ ...p, [cat.id]: !p[cat.id] }))}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-800 cursor-pointer hover:bg-gray-50 select-none"
+                >
+                  <span className="text-gray-400 text-[10px] w-3">{isOpen ? "▼" : "▶"}</span>
+                  {cat.label}
+                </div>
+                {isOpen && items.map((pn) => (
+                  <div
+                    key={pn}
+                    onMouseDown={() => { onSelect(cat.id, pn); setDropOpen(false); }}
+                    className={`pl-8 pr-3 py-2.5 text-sm cursor-pointer ${phanNhom === pn ? "bg-[#2d5fa3] text-white" : "text-gray-700 hover:bg-gray-100"}`}
+                  >
+                    {pn}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Sidebar content ───────────────────────────────────────────────────────────
 function SidebarContent({
-  filterDistrict, setFilterDistrict, setPage, reportType, setReportType, districtOptions,
+  filterDistrict, filterWard, filterNhomId, filterPhanNhom,
+  setFilterDistrict, setFilterWard, setFilterNhomId, setFilterPhanNhom,
+  setPage, reportType, setReportType, districtOptions,
 }: {
-  filterDistrict: string; setFilterDistrict: (v: string) => void;
+  filterDistrict: string; filterWard: string; filterNhomId: string; filterPhanNhom: string;
+  setFilterDistrict: (v: string) => void; setFilterWard: (v: string) => void;
+  setFilterNhomId: (v: string) => void; setFilterPhanNhom: (v: string) => void;
   setPage: (p: number) => void; reportType: "list" | "chart";
   setReportType: (v: "list" | "chart") => void; districtOptions: string[];
 }) {
+  const wardOptions = filterDistrict
+    ? (WARDS_BY_DISTRICT[filterDistrict] ?? [])
+    : Object.values(WARDS_BY_DISTRICT).flat();
+
   return (
     <>
       <FilterSection title="Loại báo cáo">
@@ -228,7 +313,24 @@ function SidebarContent({
           placeholder="Tìm kiếm Quận/huyện"
           options={districtOptions}
           value={filterDistrict}
-          onChange={(v) => { setFilterDistrict(v); setPage(1); }}
+          onChange={(v) => { setFilterDistrict(v); setFilterWard(""); setPage(1); }}
+        />
+      </FilterSection>
+
+      <FilterSection title="Xã/Phường">
+        <SearchableDropdown
+          placeholder="Tìm kiếm Xã/Phường"
+          options={wardOptions}
+          value={filterWard}
+          onChange={(v) => { setFilterWard(v); setPage(1); }}
+        />
+      </FilterSection>
+
+      <FilterSection title="Nhóm nguồn gen">
+        <NhomTreeDropdown
+          nhomId={filterNhomId}
+          phanNhom={filterPhanNhom}
+          onSelect={(nid, pn) => { setFilterNhomId(nid); setFilterPhanNhom(pn); setPage(1); }}
         />
       </FilterSection>
     </>
@@ -243,33 +345,46 @@ export default function ThongKeDonViHC({ data }: Props) {
   const [exporting, setExporting] = useState(false);
   const [reportType, setReportType] = useState<"list" | "chart">("list");
   const [filterDistrict, setFilterDistrict] = useState("");
+  const [filterWard, setFilterWard] = useState("");
+  const [filterNhomId, setFilterNhomId] = useState("");
+  const [filterPhanNhom, setFilterPhanNhom] = useState("");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
-  // Group by extracted district, then filter + sort
+  // Step 1: filter individual records by nhom/phan_nhom and ward
+  const filteredRecords = useMemo(() => {
+    return data.filter((item) => {
+      if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
+      if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
+      if (filterWard && !(item.don_vi ?? "").toLowerCase().includes(filterWard.toLowerCase())) return false;
+      return true;
+    });
+  }, [data, filterNhomId, filterPhanNhom, filterWard]);
+
+  // Step 2: group by district
   const allRows = useMemo<HCRow[]>(() => {
     const map = new Map<string, number>();
-    for (const item of data) {
+    for (const item of filteredRecords) {
       const d = extractDistrict(item.don_vi ?? "");
       map.set(d, (map.get(d) ?? 0) + 1);
     }
     return Array.from(map.entries()).map(([district, count]) => ({ district, count }));
+  }, [filteredRecords]);
+
+  // Distinct district options (only those that appear in unfiltered data)
+  const districtOptions = useMemo(() => {
+    const fromData = new Set(data.map((item) => extractDistrict(item.don_vi ?? "")).filter(Boolean));
+    return DISTRICTS_THANH_HOA.filter((d) => fromData.has(d));
   }, [data]);
 
-  // Distinct district options (only those that appear in data, sorted)
-  const districtOptions = useMemo(
-    () => DISTRICTS_THANH_HOA.filter((d) => allRows.some((r) => r.district === d)),
-    [allRows]
-  );
-
+  // Step 3: filter rows by district, then sort
   const rows = useMemo<HCRow[]>(() => {
     let result = filterDistrict
       ? allRows.filter((r) => r.district === filterDistrict)
       : allRows;
-    result = [...result].sort((a, b) => sortAsc ? a.count - b.count : b.count - a.count);
-    return result;
+    return [...result].sort((a, b) => sortAsc ? a.count - b.count : b.count - a.count);
   }, [allRows, filterDistrict, sortAsc]);
 
   const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
@@ -294,9 +409,13 @@ export default function ThongKeDonViHC({ data }: Props) {
     }
   };
 
-  const activeFilterCount = filterDistrict ? 1 : 0;
+  const activeFilterCount = [filterDistrict, filterWard, filterNhomId || filterPhanNhom].filter(Boolean).length;
 
-  const sidebarProps = { filterDistrict, setFilterDistrict, setPage, reportType, setReportType, districtOptions };
+  const sidebarProps = {
+    filterDistrict, filterWard, filterNhomId, filterPhanNhom,
+    setFilterDistrict, setFilterWard, setFilterNhomId, setFilterPhanNhom,
+    setPage, reportType, setReportType, districtOptions,
+  };
 
   return (
     <div className="flex-1 flex overflow-hidden bg-gray-100">
