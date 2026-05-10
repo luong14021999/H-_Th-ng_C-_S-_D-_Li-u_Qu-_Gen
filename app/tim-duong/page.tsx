@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { apiGetAll } from "@/lib/api";
 import { NguonGen, CATEGORIES, CATEGORY_MAP } from "@/data/nguonGen";
 
@@ -153,6 +153,7 @@ function RouteMap({
 // ── Page ──────────────────────────────────────────────────────────────────────
 export default function TimDuongPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [data, setData] = useState<NguonGen[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -211,6 +212,15 @@ export default function TimDuongPage() {
       { timeout: 8000 }
     );
   }, [fetchAll]);
+
+  // Auto-select item when navigated from map popup via ?ma=
+  useEffect(() => {
+    const ma = searchParams.get("ma");
+    if (!ma || loading || data.length === 0) return;
+    const item = data.find((d) => d.ma === ma);
+    if (item) handleSelect(item);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, loading]); // intentionally omit searchParams/handleSelect — run once when data ready
 
   const modeConf = TRANSPORT_MODES.find((m) => m.id === activeTransport)!;
   const currentRoutes = routesByMode[activeTransport] ?? [];

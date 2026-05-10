@@ -14,6 +14,7 @@ interface MapViewProps {
   isAdmin?: boolean;
   onAddNewAtPoint?: (lat: number, lng: number) => void;
   onDeleteItem?: (ma: string) => void;
+  onViewDetail?: (item: NguonGen) => void;
 }
 
 interface PopupInfo {
@@ -108,7 +109,7 @@ function ToolButton({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }: MapViewProps) {
+export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, onViewDetail }: MapViewProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -537,49 +538,65 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }
       )}
 
       {/* ── Marker popup ── */}
-      {popup && (
-        <>
-          <div className="sm:hidden absolute bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-2xl shadow-2xl border-t border-gray-200 p-4">
-            <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <div className="min-w-0">
-                <p className="font-bold text-gray-900 text-base leading-tight">{popup.item.ten}</p>
-                <p className="text-gray-400 font-mono text-xs mt-0.5">{popup.item.ma}</p>
-              </div>
-              <button onClick={() => setPopup(null)} className="text-gray-400 hover:text-gray-600 shrink-0 text-xl leading-none">✕</button>
-            </div>
-            {popup.item.khoa_hoc && <p className="italic text-gray-500 text-sm mb-1">{popup.item.khoa_hoc}</p>}
-            {popup.item.don_vi && <p className="text-gray-600 text-sm mb-2"><span className="font-medium">Đơn vị:</span> {popup.item.don_vi}</p>}
-            {(() => {
-              const cat = CATEGORY_MAP[popup.item.nhom];
-              return cat ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-sm" style={{ backgroundColor: cat.color }}>{cat.icon} {cat.label}</span> : null;
-            })()}
+      {popup && (() => {
+        const item = popup.item;
+        const closeBtn = (
+          <button onClick={() => setPopup(null)} className="text-gray-400 hover:text-gray-600 shrink-0 text-lg leading-none">✕</button>
+        );
+        const rows = (
+          <div className="space-y-1 text-sm text-gray-700">
+            <p><span className="text-gray-500">Mã nguồn gen: </span><span className="font-bold">{item.ma}</span></p>
+            <p><span className="text-gray-500">Tên Việt Nam: </span><span className="font-bold">{item.ten}</span></p>
+            {item.khoa_hoc && <p><span className="text-gray-500">Tên khoa học: </span><em>{item.khoa_hoc}</em></p>}
+            {item.don_vi && <p><span className="text-gray-500">Địa chỉ: </span><span className="font-bold">{item.don_vi}</span></p>}
           </div>
+        );
+        const actions = (
+          <div className="flex gap-3 pt-1">
+            <button
+              onClick={() => { setPopup(null); onViewDetail?.(item); }}
+              className="flex-1 text-center text-sm font-medium text-green-700 border border-green-600 rounded-lg py-1.5 hover:bg-green-50 transition-colors"
+            >
+              Xem thêm
+            </button>
+            <button
+              onClick={() => { const it = popup!.item; setPopup(null); router.push(`/tim-duong?ma=${encodeURIComponent(it.ma)}`); }}
+              className="flex-1 text-center text-sm font-medium text-blue-700 border border-blue-500 rounded-lg py-1.5 hover:bg-blue-50 transition-colors"
+            >
+              Chỉ đường
+            </button>
+          </div>
+        );
+        return (
+          <>
+            {/* Mobile bottom sheet */}
+            <div className="sm:hidden absolute bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-2xl shadow-2xl border-t border-gray-200 p-4">
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="flex-1 min-w-0">{rows}</div>
+                {closeBtn}
+              </div>
+              {actions}
+            </div>
 
-          <div
-            className="hidden sm:block absolute z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 text-xs"
-            style={{
-              left: Math.min(Math.max(popup.x - 115, 8), (containerRef.current?.clientWidth ?? 600) - 248),
-              top: Math.max(popup.y - 180, 8),
-              width: 230,
-            }}
-          >
-            <div className="flex items-start justify-between gap-2 mb-2">
-              <div>
-                <p className="font-bold text-gray-900 text-sm leading-tight">{popup.item.ten}</p>
-                <p className="text-gray-400 font-mono mt-0.5">{popup.item.ma}</p>
+            {/* Desktop floating card */}
+            <div
+              className="hidden sm:block absolute z-[1000] bg-white rounded-xl shadow-xl border border-gray-200 p-4"
+              style={{
+                left: Math.min(Math.max(popup.x - 130, 8), (containerRef.current?.clientWidth ?? 600) - 276),
+                top: Math.max(popup.y - 200, 8),
+                width: 260,
+              }}
+            >
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="flex-1 min-w-0">{rows}</div>
+                {closeBtn}
               </div>
-              <button onClick={() => setPopup(null)} className="text-gray-400 hover:text-gray-600 shrink-0 text-base leading-none">✕</button>
+              {actions}
             </div>
-            {popup.item.khoa_hoc && <p className="italic text-gray-500 mb-1">{popup.item.khoa_hoc}</p>}
-            {popup.item.don_vi && <p className="text-gray-600 mb-2"><span className="font-medium">Đơn vị:</span> {popup.item.don_vi}</p>}
-            {(() => {
-              const cat = CATEGORY_MAP[popup.item.nhom];
-              return cat ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs" style={{ backgroundColor: cat.color }}>{cat.icon} {cat.label}</span> : null;
-            })()}
-          </div>
-        </>
-      )}
+          </>
+        );
+      })()}
 
       <div className="absolute bottom-4 left-3 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-md px-3 py-1.5 text-xs text-gray-600 pointer-events-none">
         Hiển thị <span className="font-bold text-teal-700">{data.length}</span> điểm

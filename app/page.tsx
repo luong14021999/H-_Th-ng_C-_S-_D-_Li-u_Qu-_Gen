@@ -294,6 +294,10 @@ export default function Home() {
                   setSidebarEditItem(template);
                 }}
                 onDeleteItem={handleDelete}
+                onViewDetail={async (item) => {
+                  await handleOpenEdit(item.ma);
+                  setSidebarEditItem(item);
+                }}
               />
             </main>
           </>
