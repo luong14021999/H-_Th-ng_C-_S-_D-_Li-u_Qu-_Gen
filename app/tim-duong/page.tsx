@@ -313,25 +313,30 @@ export default function TimDuongPage() {
           {currentRoutes.map((route, idx) => (
             <div key={idx}>
               <div className="h-px bg-gray-100 mx-5" />
-              <button
+              {/* div instead of button to avoid nested <button> */}
+              <div
+                role="button"
+                tabIndex={0}
                 onClick={() => { setActiveRouteIdx(idx); setExpandedRouteIdx(expandedRouteIdx === idx ? null : idx); }}
-                className={`w-full flex items-start gap-4 px-5 py-3 text-left transition-colors ${activeRouteIdx === idx ? "bg-blue-50" : "hover:bg-gray-50"}`}
+                onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { setActiveRouteIdx(idx); setExpandedRouteIdx(expandedRouteIdx === idx ? null : idx); } }}
+                className={`w-full flex items-start gap-4 px-5 py-3 text-left cursor-pointer transition-colors ${activeRouteIdx === idx ? "bg-blue-50" : "hover:bg-gray-50"}`}
               >
-                {/* Car icon */}
                 <div className="w-8 h-8 flex items-center justify-center text-xl shrink-0 mt-0.5">
                   {modeConf.icon}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-900 truncate">{route.roadName}</p>
                   {expandedRouteIdx !== idx && (
-                    <button
+                    <span
+                      role="button"
+                      tabIndex={0}
                       onClick={(e) => { e.stopPropagation(); setActiveRouteIdx(idx); setExpandedRouteIdx(idx); }}
-                      className="text-xs font-semibold text-blue-600 mt-0.5"
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setExpandedRouteIdx(idx); } }}
+                      className="text-xs font-semibold text-blue-600 mt-0.5 cursor-pointer"
                     >
                       CHI TIẾT
-                    </button>
+                    </span>
                   )}
-                  {/* Expanded steps */}
                   {expandedRouteIdx === idx && (
                     <div className="mt-2 flex flex-col gap-1">
                       {route.steps
@@ -340,12 +345,15 @@ export default function TimDuongPage() {
                         .map((s, si) => (
                           <p key={si} className="text-xs text-gray-500 truncate">• {s.name} ({formatKm(s.distance)})</p>
                         ))}
-                      <button
+                      <span
+                        role="button"
+                        tabIndex={0}
                         onClick={(e) => { e.stopPropagation(); setExpandedRouteIdx(null); }}
-                        className="text-xs font-semibold text-blue-600 mt-0.5 text-left"
+                        onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setExpandedRouteIdx(null); } }}
+                        className="text-xs font-semibold text-blue-600 mt-0.5 cursor-pointer"
                       >
                         THU GỌN
-                      </button>
+                      </span>
                     </div>
                   )}
                 </div>
@@ -353,7 +361,7 @@ export default function TimDuongPage() {
                   <p className="text-sm font-semibold text-red-500">{formatDuration(route.duration * modeConf.factor)}</p>
                   <p className="text-xs text-gray-400">{formatKm(route.distance)}</p>
                 </div>
-              </button>
+              </div>
             </div>
           ))}
         </div>
