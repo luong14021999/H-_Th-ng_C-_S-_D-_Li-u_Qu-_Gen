@@ -13,6 +13,7 @@ import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
 import { apiGetAll, apiGetForms, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
 import ThongKeTable from "@/components/ThongKeTable";
+import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -221,6 +222,8 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden pb-16 md:pb-0">
         {activeStats === "tk-don-vi-quan-ly" ? (
           <ThongKeTable data={data} />
+        ) : activeStats === "tk-don-vi-hc" ? (
+          <ThongKeDonViHC data={data} />
         ) : showTable && isAdmin ? (
           <DataTable
             data={data}
