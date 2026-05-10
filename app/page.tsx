@@ -193,14 +193,17 @@ export default function Home() {
     <div className="h-full flex flex-col">
       <Header
         isAdmin={isAdmin}
-        showNav={isAdmin && (showTable || activeStats !== null)}
+        showNav={true}
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
           if (tab === "trang-chu") { setShowTable(false); setActiveStats(null); }
           else if (tab === "thong-ke") { setShowTable(false); }
-          else if (tab === "danh-muc" && isAdmin) { setShowTable(true); setTableCategory("all"); setActiveStats(null); }
-          else if (tab === "nguon-gen") { setActiveStats(null); }
+          else if (tab === "danh-muc") {
+            if (isAdmin) { setShowTable(true); setTableCategory("all"); setActiveStats(null); }
+            else setShowLogin(true);
+          }
+          else if (tab === "nguon-gen") { setActiveStats(null); setShowTable(false); }
         }}
         onAdminClick={handleAdminClick}
         onLogout={handleLogout}
