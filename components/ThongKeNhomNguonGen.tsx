@@ -408,13 +408,15 @@ export default function ThongKeTable({ data }: Props) {
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr style={{ backgroundColor: "#5b8fa8" }} className="text-white">
-                    <th className="px-3 py-3 text-center font-semibold w-14">#</th>
+                    <th className="px-2 sm:px-3 py-3 text-center font-semibold w-12 sm:w-14">#</th>
                     <th className="px-3 sm:px-4 py-3 text-left font-semibold">Tên nhóm nguồn gen</th>
                     <th
-                      className="px-3 sm:px-4 py-3 text-right font-semibold cursor-pointer select-none whitespace-nowrap"
+                      className="px-2 sm:px-4 py-3 text-right font-semibold cursor-pointer select-none whitespace-nowrap"
                       onClick={() => setSortAsc((v) => !v)}
                     >
-                      Số lượng nguồn gen <span className="opacity-80">{sortAsc ? "↑" : "↓"}</span>
+                      <span className="hidden sm:inline">Số lượng nguồn gen </span>
+                      <span className="sm:hidden">SL </span>
+                      <span className="opacity-80">{sortAsc ? "↑" : "↓"}</span>
                     </th>
                   </tr>
                 </thead>
@@ -428,22 +430,22 @@ export default function ThongKeTable({ data }: Props) {
                     const isExpanded = expandedNhoms.has(nhomRow.nhomId);
                     const rows = [
                       <tr key={nhomRow.nhomId} className="bg-blue-50 border-b border-gray-200">
-                        <td className="px-3 py-2.5">
-                          <div className="flex items-center justify-center gap-1.5">
+                        <td className="px-1 sm:px-3 py-1.5">
+                          <div className="flex items-center justify-center gap-1">
                             <button
                               onClick={() => toggleNhom(nhomRow.nhomId)}
-                              className="w-5 h-5 rounded border border-gray-400 text-gray-600 flex items-center justify-center text-xs hover:bg-blue-100 font-mono shrink-0"
+                              className="w-7 h-7 rounded border border-gray-400 text-gray-600 flex items-center justify-center text-sm hover:bg-blue-100 font-mono shrink-0 touch-manipulation"
                             >
                               {isExpanded ? "−" : "+"}
                             </button>
-                            <span className="text-xs text-gray-500 w-3 text-center">{nhomIdx + 1}</span>
+                            <span className="text-xs text-gray-500 w-4 text-center hidden sm:inline">{nhomIdx + 1}</span>
                           </div>
                         </td>
-                        <td className="px-3 sm:px-4 py-2.5 font-semibold text-gray-800">
+                        <td className="px-2 sm:px-4 py-2.5 font-semibold text-gray-800 text-sm">
                           <span className="mr-1">{nhomRow.nhomIcon}</span>
                           {nhomRow.nhomLabel}
                         </td>
-                        <td className="px-3 sm:px-4 py-2.5 text-right font-semibold text-gray-800">{nhomRow.count}</td>
+                        <td className="px-2 sm:px-4 py-2.5 text-right font-semibold text-gray-800 text-sm">{nhomRow.count}</td>
                       </tr>,
                     ];
 
@@ -451,9 +453,9 @@ export default function ThongKeTable({ data }: Props) {
                       nhomRow.phanNhoms.forEach((pn, pnIdx) => {
                         rows.push(
                           <tr key={`${nhomRow.nhomId}-${pn.label}`} className={pnIdx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                            <td className="px-3 py-2 text-center text-xs text-gray-400">{pnIdx + 1}</td>
-                            <td className="pl-8 pr-3 sm:pr-4 py-2 text-gray-700 border-b border-gray-100">{pn.label}</td>
-                            <td className="px-3 sm:px-4 py-2 text-right text-gray-700 border-b border-gray-100">{pn.count}</td>
+                            <td className="px-1 sm:px-3 py-2 text-center text-xs text-gray-400">{pnIdx + 1}</td>
+                            <td className="pl-5 sm:pl-8 pr-2 sm:pr-4 py-2 text-sm text-gray-700 border-b border-gray-100">{pn.label}</td>
+                            <td className="px-2 sm:px-4 py-2 text-right text-sm text-gray-700 border-b border-gray-100">{pn.count}</td>
                           </tr>
                         );
                       });
@@ -465,8 +467,8 @@ export default function ThongKeTable({ data }: Props) {
                 {nhomRows.length > 0 && (
                   <tfoot>
                     <tr className="bg-gray-100 border-t-2 border-gray-300">
-                      <td colSpan={2} className="px-3 sm:px-4 py-2.5 font-semibold text-gray-700">Tổng</td>
-                      <td className="px-3 sm:px-4 py-2.5 text-right font-bold text-gray-800">{totalCount}</td>
+                      <td colSpan={2} className="px-2 sm:px-4 py-2.5 font-semibold text-gray-700 text-sm">Tổng</td>
+                      <td className="px-2 sm:px-4 py-2.5 text-right font-bold text-gray-800 text-sm">{totalCount}</td>
                     </tr>
                   </tfoot>
                 )}

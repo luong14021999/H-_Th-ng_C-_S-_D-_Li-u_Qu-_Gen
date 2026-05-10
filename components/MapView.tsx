@@ -196,7 +196,10 @@ export default function MapView({
       <div ref={containerRef} className="w-full h-full" />
 
       {/* ── Right toolbar ── */}
-      <div className="absolute top-3 right-3 z-[1000] flex flex-col items-center gap-0.5 rounded-lg shadow-lg overflow-hidden" style={{ backgroundColor: "#1e3a4c" }}>
+      <div
+        className="absolute top-3 right-3 z-[1000] flex flex-col items-center gap-0.5 rounded-lg shadow-lg overflow-y-auto overflow-x-hidden"
+        style={{ backgroundColor: "#1e3a4c", maxHeight: "calc(100% - 1.5rem)" }}
+      >
         {/* Zoom in */}
         <button
           title="Phóng to"
@@ -340,7 +343,7 @@ export default function MapView({
 
       {/* ── Legend panel ── */}
       {showLegend && (
-        <div className="absolute top-3 right-14 z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[180px]">
+        <div className="absolute top-3 z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[160px]" style={{ right: "3.25rem", maxWidth: "calc(100vw - 4rem)" }}>
           <p className="font-semibold text-xs text-gray-700 mb-2 uppercase tracking-wide">Chú giải</p>
           <div className="flex flex-col gap-1.5">
             {CATEGORIES.map((cat) => (
@@ -355,10 +358,10 @@ export default function MapView({
 
       {/* ── Measure distance display ── */}
       {activeTool === "measure" && measureDisplay && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg">
-          📏 {measureDisplay}
+        <div className="absolute top-3 left-3 z-[1000] bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 max-w-[calc(100%-5rem)]">
+          <span>📏 {measureDisplay}</span>
           <button
-            className="ml-2 opacity-80 hover:opacity-100"
+            className="opacity-80 hover:opacity-100 shrink-0"
             onClick={() => {
               measureLayerRef.current?.clearLayers();
               measurePointsRef.current = [];
@@ -372,16 +375,18 @@ export default function MapView({
 
       {/* ── Active tool indicator ── */}
       {activeTool !== "none" && activeTool !== "measure" && (
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2">
-          {activeTool === "add" && "➕ Nhấn vào bản đồ để đặt vị trí mới"}
-          {activeTool === "delete" && "🗑️ Nhấn vào marker để xóa"}
-          <button className="opacity-80 hover:opacity-100" onClick={() => { activeToolRef.current = "none"; setActiveTool("none"); }}>✕</button>
+        <div className="absolute top-3 left-3 z-[1000] bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 max-w-[calc(100%-5rem)]">
+          <span className="truncate">
+            {activeTool === "add" && "➕ Nhấn vào bản đồ để đặt vị trí mới"}
+            {activeTool === "delete" && "🗑️ Nhấn vào marker để xóa"}
+          </span>
+          <button className="opacity-80 hover:opacity-100 shrink-0" onClick={() => { activeToolRef.current = "none"; setActiveTool("none"); }}>✕</button>
         </div>
       )}
 
       {/* ── Toast ── */}
       {toast && (
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-[1000] bg-gray-800/90 text-white text-xs px-4 py-2 rounded-full shadow-lg pointer-events-none">
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-[1000] bg-gray-800/90 text-white text-xs px-4 py-2 rounded-full shadow-lg pointer-events-none text-center max-w-[90vw]">
           {toast}
         </div>
       )}
@@ -441,7 +446,7 @@ export default function MapView({
         </>
       )}
 
-      <div className="absolute bottom-6 right-14 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-md px-3 py-2 text-xs text-gray-600 pointer-events-none">
+      <div className="absolute bottom-4 left-3 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-md px-3 py-1.5 text-xs text-gray-600 pointer-events-none">
         Hiển thị <span className="font-bold text-teal-700">{data.length}</span> điểm
       </div>
     </div>
