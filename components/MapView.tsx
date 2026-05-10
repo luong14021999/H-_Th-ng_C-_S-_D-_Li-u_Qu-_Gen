@@ -20,29 +20,77 @@ interface PopupInfo {
   y: number;
 }
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
 function haversineKm(a: [number, number], b: [number, number]): number {
   const R = 6371;
   const φ1 = (a[0] * Math.PI) / 180;
   const φ2 = (b[0] * Math.PI) / 180;
   const Δφ = ((b[0] - a[0]) * Math.PI) / 180;
   const Δλ = ((b[1] - a[1]) * Math.PI) / 180;
-  const x =
-    Math.sin(Δφ / 2) ** 2 +
-    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  const x = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
 }
 
-const TOOL_STYLE =
-  "w-9 h-9 flex items-center justify-center rounded transition-colors text-white/90 hover:text-white hover:bg-white/15 active:bg-white/25";
-const TOOL_ACTIVE =
-  "w-9 h-9 flex items-center justify-center rounded text-white bg-white/25";
+function polygonAreaKm2(pts: [number, number][]): number {
+  if (pts.length < 3) return 0;
+  const centLat = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+  const deg = Math.PI / 180;
+  const R = 6371;
+  const latS = deg * R;
+  const lngS = deg * R * Math.cos(centLat * deg);
+  const xy = pts.map(([lat, lng]): [number, number] => [(lat - centLat) * latS, lng * lngS]);
+  let area = 0;
+  for (let i = 0; i < xy.length; i++) {
+    const j = (i + 1) % xy.length;
+    area += xy[i][0] * xy[j][1] - xy[j][0] * xy[i][1];
+  }
+  return Math.abs(area / 2);
+}
 
-export default function MapView({
-  data,
-  isAdmin,
-  onAddNewAtPoint,
-  onDeleteItem,
-}: MapViewProps) {
+function formatArea(km2: number): string {
+  const m2 = km2 * 1e6;
+  if (m2 < 10000) return `${m2.toFixed(0)} m²`;
+  if (m2 < 1e6) return `${(m2 / 10000).toFixed(2)} ha`;
+  return `${km2.toFixed(2)} km²`;
+}
+
+// ── ToolButton with hover tooltip ─────────────────────────────────────────────
+
+const BTN = "w-9 h-9 flex items-center justify-center rounded transition-colors text-white/90 hover:text-white hover:bg-white/15 active:bg-white/25 touch-manipulation";
+const BTN_ON = "w-9 h-9 flex items-center justify-center rounded text-white bg-white/25 touch-manipulation";
+
+function ToolButton({
+  title, onClick, active, children,
+}: {
+  title: string; onClick: () => void; active?: boolean; children: React.ReactNode;
+}) {
+  const [tip, setTip] = useState(false);
+  return (
+    <div className="relative flex justify-center" onMouseLeave={() => setTip(false)}>
+      <button
+        title={title}
+        onClick={onClick}
+        onMouseEnter={() => setTip(true)}
+        className={active ? BTN_ON : BTN}
+      >
+        {children}
+      </button>
+      {tip && (
+        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2.5 z-[9999] pointer-events-none hidden sm:block">
+          <div className="bg-gray-900 text-white text-xs px-2.5 py-1.5 rounded-md whitespace-nowrap shadow-lg leading-snug">
+            {title}
+          </div>
+          <div className="absolute left-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-l-gray-900" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
+export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
@@ -52,27 +100,85 @@ export default function MapView({
 
   const [popup, setPopup] = useState<PopupInfo | null>(null);
   const [activeTool, setActiveTool] = useState<string>("none");
+  const [measureSubOpen, setMeasureSubOpen] = useState(false);
   const [measureDisplay, setMeasureDisplay] = useState<string | null>(null);
   const [showLegend, setShowLegend] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
-  const showToast = useCallback((msg: string, duration = 2500) => {
+  const showToast = useCallback((msg: string, duration = 2800) => {
     setToast(msg);
     setTimeout(() => setToast(null), duration);
   }, []);
 
-  const setTool = (id: string) => {
-    const next = activeTool === id ? "none" : id;
-    activeToolRef.current = next;
-    setActiveTool(next);
-    if (next !== "measure") {
-      measureLayerRef.current?.clearLayers();
-      measurePointsRef.current = [];
-      setMeasureDisplay(null);
+  // Stable ref to setMeasureDisplay so event handlers always see latest setter
+  const setMeasureDisplayRef = useRef(setMeasureDisplay);
+  setMeasureDisplayRef.current = setMeasureDisplay;
+
+  // Shared measure logic — called from both map click and marker click
+  const doMeasure = useCallback((lat: number, lng: number) => {
+    const tool = activeToolRef.current;
+    const isArea = tool === "measure-area";
+    const pt: [number, number] = [lat, lng];
+    measurePointsRef.current = [...measurePointsRef.current, pt];
+    const pts = measurePointsRef.current;
+    const ml = measureLayerRef.current;
+    if (!ml) return;
+
+    ml.clearLayers();
+    pts.forEach((p) =>
+      L.circleMarker(p, { radius: 5, color: "#e53e3e", fillColor: "#fc8181", fillOpacity: 1, weight: 2 }).addTo(ml)
+    );
+
+    if (isArea) {
+      if (pts.length >= 3) {
+        L.polygon(pts, { color: "#e53e3e", weight: 2, fillColor: "#e53e3e", fillOpacity: 0.15 }).addTo(ml);
+        setMeasureDisplayRef.current(formatArea(polygonAreaKm2(pts)));
+      } else if (pts.length === 2) {
+        L.polyline(pts, { color: "#e53e3e", weight: 2, dashArray: "4 4" }).addTo(ml);
+      }
+    } else {
+      if (pts.length >= 2) {
+        L.polyline(pts, { color: "#e53e3e", weight: 2, dashArray: "6 4" }).addTo(ml);
+        let total = 0;
+        for (let i = 1; i < pts.length; i++) total += haversineKm(pts[i - 1], pts[i]);
+        setMeasureDisplayRef.current(
+          total >= 1 ? `${total.toFixed(2)} km` : `${(total * 1000).toFixed(0)} m`
+        );
+      }
     }
-    if (next === "add") showToast("Nhấn vào bản đồ để đặt vị trí nguồn gen mới", 4000);
-    if (next === "delete") showToast("Nhấn vào marker để xóa nguồn gen", 4000);
-    if (next === "measure") showToast("Nhấn 2 điểm trên bản đồ để đo khoảng cách", 4000);
+  }, []);
+
+  const clearMeasure = useCallback(() => {
+    measureLayerRef.current?.clearLayers();
+    measurePointsRef.current = [];
+    setMeasureDisplay(null);
+  }, []);
+
+  const activateTool = useCallback((id: string) => {
+    activeToolRef.current = id;
+    setActiveTool(id);
+    setMeasureSubOpen(false);
+    if (!id.startsWith("measure")) clearMeasure();
+  }, [clearMeasure]);
+
+  const activateMeasure = useCallback((mode: "distance" | "area") => {
+    activateTool(`measure-${mode}`);
+    clearMeasure();
+    showToast(
+      mode === "distance"
+        ? "Nhấn các điểm trên bản đồ để đo khoảng cách"
+        : "Nhấn 3+ điểm để đo diện tích vùng",
+      4000
+    );
+  }, [activateTool, clearMeasure, showToast]);
+
+  const handleMeasureButtonClick = () => {
+    const isMeasureActive = activeTool.startsWith("measure-");
+    if (isMeasureActive) {
+      activateTool("none");
+    } else {
+      setMeasureSubOpen((v) => !v);
+    }
   };
 
   // Initialize map once
@@ -82,7 +188,7 @@ export default function MapView({
     const map = L.map(containerRef.current, {
       center: MAP_CENTER,
       zoom: 9,
-      zoomControl: false, // we use custom buttons
+      zoomControl: false,
     });
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -90,32 +196,12 @@ export default function MapView({
       maxZoom: 19,
     }).addTo(map);
 
-    const measureLayer = L.layerGroup().addTo(map);
-    measureLayerRef.current = measureLayer;
+    measureLayerRef.current = L.layerGroup().addTo(map);
 
     map.on("click", (e) => {
       const tool = activeToolRef.current;
-      if (tool === "measure") {
-        const pt: [number, number] = [e.latlng.lat, e.latlng.lng];
-        measurePointsRef.current = [...measurePointsRef.current, pt];
-        const pts = measurePointsRef.current;
-
-        measureLayer.clearLayers();
-        pts.forEach((p) =>
-          L.circleMarker(p, {
-            radius: 5, color: "#e53e3e", fillColor: "#fc8181", fillOpacity: 1, weight: 2,
-          }).addTo(measureLayer)
-        );
-
-        if (pts.length >= 2) {
-          L.polyline(pts, { color: "#e53e3e", weight: 2, dashArray: "6 4" }).addTo(measureLayer);
-          let total = 0;
-          for (let i = 1; i < pts.length; i++) total += haversineKm(pts[i - 1], pts[i]);
-          const display = total >= 1 ? `${total.toFixed(2)} km` : `${(total * 1000).toFixed(0)} m`;
-          setMeasureDisplay(display);
-        } else {
-          setMeasureDisplay(null);
-        }
+      if (tool === "measure-distance" || tool === "measure-area") {
+        doMeasure(e.latlng.lat, e.latlng.lng);
         return;
       }
       if (tool === "add") {
@@ -136,7 +222,7 @@ export default function MapView({
       layerGroupRef.current = null;
       measureLayerRef.current = null;
     };
-  }, [onAddNewAtPoint]);
+  }, [onAddNewAtPoint, doMeasure]);
 
   // Sync markers whenever data changes
   useEffect(() => {
@@ -171,25 +257,8 @@ export default function MapView({
           return;
         }
 
-        if (tool === "measure") {
-          const pt: [number, number] = [item.lat, item.lng];
-          measurePointsRef.current = [...measurePointsRef.current, pt];
-          const pts = measurePointsRef.current;
-          const ml = measureLayerRef.current;
-          if (!ml) return;
-          ml.clearLayers();
-          pts.forEach((p) =>
-            L.circleMarker(p, {
-              radius: 5, color: "#e53e3e", fillColor: "#fc8181", fillOpacity: 1, weight: 2,
-            }).addTo(ml)
-          );
-          if (pts.length >= 2) {
-            L.polyline(pts, { color: "#e53e3e", weight: 2, dashArray: "6 4" }).addTo(ml);
-            let total = 0;
-            for (let i = 1; i < pts.length; i++) total += haversineKm(pts[i - 1], pts[i]);
-            const display = total >= 1 ? `${total.toFixed(2)} km` : `${(total * 1000).toFixed(0)} m`;
-            setMeasureDisplay(display);
-          }
+        if (tool === "measure-distance" || tool === "measure-area") {
+          doMeasure(item.lat, item.lng);
           return;
         }
 
@@ -203,17 +272,12 @@ export default function MapView({
       bounds.push([item.lat, item.lng]);
     });
 
-    if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: [40, 40] });
-    }
-  }, [data, onDeleteItem]);
+    if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40] });
+  }, [data, onDeleteItem, doMeasure]);
 
-  // Cursor style based on active tool
+  const isMeasureActive = activeTool.startsWith("measure-");
   const cursorClass =
-    activeTool === "measure" || activeTool === "add" ? "[&_.leaflet-container]:!cursor-crosshair" : "";
-
-  const btnCls = (id: string) =>
-    activeTool === id ? TOOL_ACTIVE : TOOL_STYLE;
+    isMeasureActive || activeTool === "add" ? "[&_.leaflet-container]:!cursor-crosshair" : "";
 
   return (
     <div className={`w-full h-full relative ${cursorClass}`}>
@@ -224,150 +288,125 @@ export default function MapView({
         className="absolute top-3 right-3 z-[1000] flex flex-col items-center gap-0.5 rounded-lg shadow-lg overflow-y-auto overflow-x-hidden"
         style={{ backgroundColor: "#1e3a4c", maxHeight: "calc(100% - 1.5rem)" }}
       >
-        {/* Zoom in */}
-        <button
-          title="Phóng to"
-          onClick={() => mapRef.current?.zoomIn()}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Phóng to" onClick={() => mapRef.current?.zoomIn()}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Zoom out */}
-        <button
-          title="Thu nhỏ"
-          onClick={() => mapRef.current?.zoomOut()}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Thu nhỏ" onClick={() => mapRef.current?.zoomOut()}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Separator */}
         <div className="w-6 h-px bg-white/20 my-0.5" />
 
-        {/* Measure distance */}
-        <button
-          title="Thước đo khoảng cách"
-          onClick={() => setTool("measure")}
-          className={btnCls("measure")}
+        {/* Measure — opens sub-menu */}
+        <ToolButton
+          title="Đo khoảng cách / Diện tích"
+          onClick={handleMeasureButtonClick}
+          active={isMeasureActive || measureSubOpen}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 7l3-3M3 7l3 3M21 7l-3-3M21 7l-3 3M7 7v10M17 7v10M3 17h18M3 17l3-3M3 17l3 3M21 17l-3-3M21 17l-3 3" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Delete — admin only */}
         {isAdmin && (
-          <button
-            title="Xóa"
-            onClick={() => setTool("delete")}
-            className={btnCls("delete")}
-          >
+          <ToolButton title="Xóa nguồn gen" onClick={() => { activateTool(activeTool === "delete" ? "none" : "delete"); showToast("Nhấn vào marker để xóa nguồn gen", 4000); }} active={activeTool === "delete"}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-          </button>
+          </ToolButton>
         )}
 
-        {/* Add new — admin only */}
         {isAdmin && onAddNewAtPoint && (
-          <button
-            title="Thêm mới nguồn gen"
-            onClick={() => setTool("add")}
-            className={btnCls("add")}
-          >
+          <ToolButton title="Thêm mới nguồn gen" onClick={() => { activateTool(activeTool === "add" ? "none" : "add"); showToast("Nhấn vào bản đồ để đặt vị trí nguồn gen mới", 4000); }} active={activeTool === "add"}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-          </button>
+          </ToolButton>
         )}
 
-        {/* Export image */}
-        <button
-          title="Xuất ảnh"
-          onClick={() => showToast("Tính năng đang phát triển")}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Xuất ảnh bản đồ" onClick={() => showToast("Tính năng đang phát triển")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Export PDF */}
-        <button
-          title="Xuất PDF"
-          onClick={() => showToast("Tính năng đang phát triển")}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Xuất PDF" onClick={() => showToast("Tính năng đang phát triển")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Chú giải / Legend */}
-        <button
-          title="Chú giải"
-          onClick={() => { setShowLegend((v) => !v); }}
-          className={showLegend ? TOOL_ACTIVE : TOOL_STYLE}
-        >
+        <ToolButton title="Chú giải" onClick={() => setShowLegend((v) => !v)} active={showLegend}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Khai thác dữ liệu theo lĩnh vực */}
-        <button
-          title="Khai thác dữ liệu theo lĩnh vực"
-          onClick={() => showToast("Tính năng đang phát triển")}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Khai thác dữ liệu theo lĩnh vực" onClick={() => showToast("Tính năng đang phát triển")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Xem chi tiết */}
-        <button
-          title="Xem chi tiết"
-          onClick={() => showToast("Nhấn vào marker để xem chi tiết")}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Xem chi tiết nguồn gen" onClick={() => showToast("Nhấn vào marker để xem chi tiết")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Tìm đường */}
-        <button
-          title="Tìm đường"
-          onClick={() => showToast("Tính năng đang phát triển")}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Tìm đường" onClick={() => showToast("Tính năng đang phát triển")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-        </button>
+        </ToolButton>
 
-        {/* Danh mục hiện trạng bảo tồn */}
-        <button
-          title="Danh mục hiện trạng bảo tồn"
-          onClick={() => showToast("Tính năng đang phát triển")}
-          className={TOOL_STYLE}
-        >
+        <ToolButton title="Danh mục hiện trạng bảo tồn" onClick={() => showToast("Tính năng đang phát triển")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-        </button>
+        </ToolButton>
       </div>
+
+      {/* ── Measure sub-menu (distance / area) ── */}
+      {measureSubOpen && (
+        <div
+          className="absolute z-[1001] rounded-lg shadow-xl overflow-hidden"
+          style={{ backgroundColor: "#1e3a4c", right: "3.25rem", top: "5.5rem" }}
+        >
+          <button
+            onClick={() => activateMeasure("distance")}
+            className="flex items-center gap-2.5 px-4 py-3 text-white hover:bg-white/10 w-full text-left text-sm whitespace-nowrap transition-colors"
+          >
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 7l3-3M3 7l3 3M21 7l-3-3M21 7l-3 3" />
+            </svg>
+            Đo khoảng cách
+          </button>
+          <div className="h-px bg-white/15" />
+          <button
+            onClick={() => activateMeasure("area")}
+            className="flex items-center gap-2.5 px-4 py-3 text-white hover:bg-white/10 w-full text-left text-sm whitespace-nowrap transition-colors"
+          >
+            <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3L3 5v14l2 2h14l2-2V5l-2-2H5zm7 4v10M8 7v10m8-10v10" />
+            </svg>
+            Đo diện tích
+          </button>
+        </div>
+      )}
 
       {/* ── Legend panel ── */}
       {showLegend && (
-        <div className="absolute top-3 z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[160px]" style={{ right: "3.25rem", maxWidth: "calc(100vw - 4rem)" }}>
+        <div
+          className="absolute top-3 z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 min-w-[160px]"
+          style={{ right: "3.25rem", maxWidth: "calc(100vw - 4rem)" }}
+        >
           <p className="font-semibold text-xs text-gray-700 mb-2 uppercase tracking-wide">Chú giải</p>
           <div className="flex flex-col gap-1.5">
             {CATEGORIES.map((cat) => (
@@ -380,31 +419,30 @@ export default function MapView({
         </div>
       )}
 
-      {/* ── Measure distance display ── */}
-      {activeTool === "measure" && measureDisplay && (
+      {/* ── Measure display ── */}
+      {isMeasureActive && measureDisplay && (
         <div className="absolute top-3 left-3 z-[1000] bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 max-w-[calc(100%-5rem)]">
-          <span>📏 {measureDisplay}</span>
+          <span>{activeTool === "measure-area" ? "⬡" : "📏"} {measureDisplay}</span>
           <button
             className="opacity-80 hover:opacity-100 shrink-0"
-            onClick={() => {
-              measureLayerRef.current?.clearLayers();
-              measurePointsRef.current = [];
-              setMeasureDisplay(null);
-            }}
-          >
-            ✕
-          </button>
+            onClick={() => { clearMeasure(); }}
+          >✕</button>
         </div>
       )}
 
       {/* ── Active tool indicator ── */}
-      {activeTool !== "none" && activeTool !== "measure" && (
+      {(activeTool === "add" || activeTool === "delete" || (isMeasureActive && !measureDisplay)) && (
         <div className="absolute top-3 left-3 z-[1000] bg-amber-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 max-w-[calc(100%-5rem)]">
           <span className="truncate">
             {activeTool === "add" && "➕ Nhấn vào bản đồ để đặt vị trí mới"}
             {activeTool === "delete" && "🗑️ Nhấn vào marker để xóa"}
+            {activeTool === "measure-distance" && "📏 Nhấn các điểm để đo khoảng cách"}
+            {activeTool === "measure-area" && "⬡ Nhấn 3+ điểm để đo diện tích"}
           </span>
-          <button className="opacity-80 hover:opacity-100 shrink-0" onClick={() => { activeToolRef.current = "none"; setActiveTool("none"); }}>✕</button>
+          <button
+            className="opacity-80 hover:opacity-100 shrink-0"
+            onClick={() => { activeToolRef.current = "none"; setActiveTool("none"); clearMeasure(); }}
+          >✕</button>
         </div>
       )}
 
@@ -415,10 +453,9 @@ export default function MapView({
         </div>
       )}
 
-      {/* ── Popup ── */}
+      {/* ── Marker popup ── */}
       {popup && (
         <>
-          {/* Mobile: bottom sheet */}
           <div className="sm:hidden absolute bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-2xl shadow-2xl border-t border-gray-200 p-4">
             <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
             <div className="flex items-start justify-between gap-2 mb-2">
@@ -432,15 +469,10 @@ export default function MapView({
             {popup.item.don_vi && <p className="text-gray-600 text-sm mb-2"><span className="font-medium">Đơn vị:</span> {popup.item.don_vi}</p>}
             {(() => {
               const cat = CATEGORY_MAP[popup.item.nhom];
-              return cat ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-sm" style={{ backgroundColor: cat.color }}>
-                  {cat.icon} {cat.label}
-                </span>
-              ) : null;
+              return cat ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-sm" style={{ backgroundColor: cat.color }}>{cat.icon} {cat.label}</span> : null;
             })()}
           </div>
 
-          {/* Desktop: floating card */}
           <div
             className="hidden sm:block absolute z-[1000] bg-white rounded-lg shadow-xl border border-gray-200 p-3 text-xs"
             style={{
@@ -460,11 +492,7 @@ export default function MapView({
             {popup.item.don_vi && <p className="text-gray-600 mb-2"><span className="font-medium">Đơn vị:</span> {popup.item.don_vi}</p>}
             {(() => {
               const cat = CATEGORY_MAP[popup.item.nhom];
-              return cat ? (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs" style={{ backgroundColor: cat.color }}>
-                  {cat.icon} {cat.label}
-                </span>
-              ) : null;
+              return cat ? <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-white text-xs" style={{ backgroundColor: cat.color }}>{cat.icon} {cat.label}</span> : null;
             })()}
           </div>
         </>
