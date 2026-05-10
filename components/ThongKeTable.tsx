@@ -26,11 +26,6 @@ function normAdmin(val: string) {
     .trim()
     .toLowerCase();
 }
-function adminMatch(stored: string, filter: string) {
-  if (!filter) return true;
-  if (!stored) return false;
-  return normAdmin(stored) === normAdmin(filter) || stored.toLowerCase() === filter.toLowerCase();
-}
 
 function FilterSection({ title, children, defaultOpen = true }: {
   title: string; children: React.ReactNode; defaultOpen?: boolean;
@@ -287,9 +282,23 @@ export default function ThongKeTable({ data }: Props) {
     return data.filter((item) => {
       if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
       if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
-      const loc = locationMap[item.ma];
-      if (!adminMatch(loc?.huyen ?? "", filterDistrict)) return false;
-      if (!adminMatch(loc?.xa ?? "", filterWard)) return false;
+
+      if (filterDistrict) {
+        const loc = locationMap[item.ma];
+        const normFilter = normAdmin(filterDistrict);
+        const form1Match = loc?.huyen ? normAdmin(loc.huyen) === normFilter : false;
+        const donViMatch = normAdmin(item.don_vi ?? "").includes(normFilter);
+        if (!form1Match && !donViMatch) return false;
+      }
+
+      if (filterWard) {
+        const loc = locationMap[item.ma];
+        const normFilter = normAdmin(filterWard);
+        const form1Match = loc?.xa ? normAdmin(loc.xa) === normFilter : false;
+        const donViMatch = normAdmin(item.don_vi ?? "").includes(normFilter);
+        if (!form1Match && !donViMatch) return false;
+      }
+
       return true;
     });
   }, [data, filterNhomId, filterPhanNhom, filterDistrict, filterWard, locationMap]);
