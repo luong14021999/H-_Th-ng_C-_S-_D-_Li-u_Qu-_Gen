@@ -373,11 +373,7 @@ export default function ThongKeDonViHC({ data }: Props) {
     return Array.from(map.entries()).map(([district, count]) => ({ district, count }));
   }, [filteredRecords]);
 
-  // Distinct district options (only those that appear in unfiltered data)
-  const districtOptions = useMemo(() => {
-    const fromData = new Set(data.map((item) => extractDistrict(item.don_vi ?? "")).filter(Boolean));
-    return DISTRICTS_THANH_HOA.filter((d) => fromData.has(d));
-  }, [data]);
+  const districtOptions = DISTRICTS_THANH_HOA;
 
   // Step 3: filter rows by district, then sort
   const rows = useMemo<HCRow[]>(() => {
