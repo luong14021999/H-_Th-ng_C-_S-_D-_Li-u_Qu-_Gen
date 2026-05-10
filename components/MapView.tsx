@@ -598,9 +598,6 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
         );
       })()}
 
-      <div className="absolute bottom-4 left-3 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-md px-3 py-1.5 text-xs text-gray-600 pointer-events-none">
-        Hiển thị <span className="font-bold text-teal-700">{data.length}</span> điểm
-      </div>
     </div>
   );
 }
