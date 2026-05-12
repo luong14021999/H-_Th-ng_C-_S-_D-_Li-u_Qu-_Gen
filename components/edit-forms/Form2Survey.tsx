@@ -17,9 +17,9 @@ const TextRow = ({ label, value, onChange }: {
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
-    <div className="col-span-2">
+    <div className="sm:col-span-2">
       <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
+        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
     </div>
   </div>
 );
@@ -30,7 +30,7 @@ const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherCh
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1">{label}</label>
-    <div className="col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
+    <div className="sm:col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
       {options.map((opt) => (
         <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap">
           <input type="radio" name={name} value={opt} checked={value === opt}
@@ -39,7 +39,7 @@ const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherCh
           {opt === 'Khác' && value === 'Khác' && onOtherChange && (
             <input type="text" value={otherValue ?? ''} onChange={(e) => onOtherChange(e.target.value)}
               placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()}
-              className="ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0 text-sm bg-transparent w-28" />
+              className="ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0 text-base sm:text-sm bg-transparent w-28" />
           )}
         </label>
       ))}
@@ -58,7 +58,7 @@ const CheckboxRow = ({ label, options, value, onChange }: {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
       <label className="text-sm text-gray-600 pt-1">{label}</label>
-      <div className="col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
+      <div className="sm:col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
         {options.map((opt) => (
           <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap">
             <input type="checkbox" checked={selected.includes(opt)} onChange={() => toggle(opt)}
@@ -97,22 +97,22 @@ export default function Form2Survey({ nhom, data, onChange }: Props) {
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên bộ</span>
               <input type="text" value={d.ten_viet_bo} onChange={(e) => set('ten_viet_bo', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên họ</span>
               <input type="text" value={d.ten_viet_ho} onChange={(e) => set('ten_viet_ho', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên chi</span>
               <input type="text" value={d.ten_viet_chi} onChange={(e) => set('ten_viet_chi', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên loài</span>
               <input type="text" value={d.ten_viet_loai} onChange={(e) => set('ten_viet_loai', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <p className="text-xs font-semibold text-gray-500 mt-2 mb-1">- Tên khoa học</p>
@@ -120,28 +120,28 @@ export default function Form2Survey({ nhom, data, onChange }: Props) {
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên bộ</span>
               <input type="text" value={d.ten_khoa_bo} onChange={(e) => set('ten_khoa_bo', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên họ</span>
               <input type="text" value={d.ten_khoa_ho} onChange={(e) => set('ten_khoa_ho', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên chi</span>
               <input type="text" value={d.ten_khoa_chi} onChange={(e) => set('ten_khoa_chi', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-12 shrink-0">Tên loài</span>
               <input type="text" value={d.ten_khoa_loai} onChange={(e) => set('ten_khoa_loai', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-xs text-gray-500 shrink-0">- Tên khác</span>
             <input type="text" value={d.ten_khac_2} onChange={(e) => set('ten_khac_2', e.target.value)}
-              className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+              className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
           </div>
         </div>
       </div>
@@ -157,34 +157,34 @@ export default function Form2Survey({ nhom, data, onChange }: Props) {
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-20 shrink-0">Thôn/bản</span>
               <input type="text" value={d.thon_ban} onChange={(e) => set('thon_ban', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-32 shrink-0">Xã/phường/thị trấn</span>
               <input type="text" value={d.xa_phuong} onChange={(e) => set('xa_phuong', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-20 shrink-0">Huyện/thị/TP</span>
               <input type="text" value={d.huyen_thi_tp} onChange={(e) => set('huyen_thi_tp', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 w-32 shrink-0">Tỉnh</span>
               <input type="text" value={d.tinh} onChange={(e) => set('tinh', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 shrink-0">Tọa độ X</span>
               <input type="text" value={d.toa_do_x} onChange={(e) => set('toa_do_x', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500 shrink-0">Y</span>
               <input type="text" value={d.toa_do_y} onChange={(e) => set('toa_do_y', e.target.value)}
-                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                className="flex-1 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-2">

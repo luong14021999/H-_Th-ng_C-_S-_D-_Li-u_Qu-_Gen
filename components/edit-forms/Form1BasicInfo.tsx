@@ -21,13 +21,13 @@ const Input = ({ label, value, onChange, required, placeholder }: {
     <label className="text-sm text-gray-600 pt-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}{label}
     </label>
-    <div className="col-span-2">
+    <div className="sm:col-span-2">
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent"
+        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent"
       />
     </div>
   </div>
@@ -38,12 +38,12 @@ const Textarea = ({ label, value, onChange }: {
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
-    <div className="col-span-2">
+    <div className="sm:col-span-2">
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={2}
-        className="w-full border border-gray-200 rounded p-1.5 text-sm resize-none focus:outline-none focus:border-green-500 bg-gray-50"
+        className="w-full border border-gray-200 rounded p-1.5 text-base sm:text-sm resize-none focus:outline-none focus:border-green-500 bg-gray-50"
       />
     </div>
   </div>
@@ -82,7 +82,7 @@ function SearchableSelect({ label, value, onChange, options, required }: {
       <label className="text-sm text-gray-600 pt-1.5">
         {required && <span className="text-red-500 mr-0.5">*</span>}{label}
       </label>
-      <div className="col-span-2 relative" ref={containerRef}>
+      <div className="sm:col-span-2 relative" ref={containerRef}>
         <div className="flex items-center border-b border-gray-300 focus-within:border-green-600">
           <input
             type="text"
@@ -90,7 +90,7 @@ function SearchableSelect({ label, value, onChange, options, required }: {
             onChange={(e) => { setQuery(e.target.value); setOpen(true); }}
             onFocus={() => { setQuery(''); setOpen(true); }}
             placeholder="Tìm kiếm..."
-            className="flex-1 outline-none py-1 px-1 text-sm bg-transparent"
+            className="flex-1 outline-none py-1 px-1 text-base sm:text-sm bg-transparent"
           />
           <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
