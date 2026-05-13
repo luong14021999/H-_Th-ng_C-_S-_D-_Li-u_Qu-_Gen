@@ -120,9 +120,6 @@ export default function Sidebar({
         ))}
       </div>
 
-      <div className="p-3 border-t border-gray-100">
-        <p className="text-xs text-gray-400 text-center">Nguồn gen Tỉnh Thanh Hóa</p>
-      </div>
     </div>
   );
 

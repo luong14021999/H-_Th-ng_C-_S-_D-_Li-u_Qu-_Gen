@@ -118,12 +118,14 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const measurePointsRef = useRef<[number, number][]>([]);
   const legendBtnRef = useRef<HTMLDivElement>(null);
+  const linhVucBtnRef = useRef<HTMLDivElement>(null);
 
   const [popup, setPopup] = useState<PopupInfo | null>(null);
   const [activeTool, setActiveTool] = useState<string>("none");
   const [measureSubOpen, setMeasureSubOpen] = useState(false);
   const [measureDisplay, setMeasureDisplay] = useState<string | null>(null);
   const [showLegend, setShowLegend] = useState(false);
+  const [showLinhVucPanel, setShowLinhVucPanel] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
   const showToast = useCallback((msg: string, duration = 2800) => {
@@ -346,6 +348,16 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     return 12;
   })();
 
+  const linhVucTopPx = (() => {
+    const btn = linhVucBtnRef.current;
+    const container = containerRef.current;
+    if (btn && container) {
+      return btn.getBoundingClientRect().top - container.getBoundingClientRect().top;
+    }
+    return 12;
+  })();
+
+
   return (
     <div className={`w-full h-full relative ${cursorClass}`}>
       <div ref={containerRef} className="w-full h-full" />
@@ -414,11 +426,13 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           </ToolButton>
         </div>
 
-        <ToolButton title="Khai thác dữ liệu theo lĩnh vực" onClick={() => showToast("Tính năng đang phát triển")}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
-          </svg>
-        </ToolButton>
+        <div ref={linhVucBtnRef}>
+          <ToolButton title="Khai thác dữ liệu theo lĩnh vực" onClick={() => setShowLinhVucPanel((v) => !v)} active={showLinhVucPanel}>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+            </svg>
+          </ToolButton>
+        </div>
 
         <ToolButton title="Xem chi tiết nguồn gen" onClick={() => showToast("Nhấn vào marker để xem chi tiết")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -433,7 +447,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           </svg>
         </ToolButton>
 
-        <ToolButton title="Danh mục hiện trạng bảo tồn, khai thác, sử dụng nguồn gen Tỉnh Thanh Hóa" onClick={() => showToast("Tính năng đang phát triển")}>
+        <ToolButton title="Danh mục hiện trạng bảo tồn, khai thác, sử dụng nguồn gen Tỉnh Thanh Hóa" onClick={() => window.open("/danh-muc-hien-trang", "_blank")}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -503,7 +517,39 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
         </div>
       )}
 
-      {/* ── Measure display ── */}
+      {/* ── Khai thác dữ liệu theo lĩnh vực panel ── */}
+      {showLinhVucPanel && (
+        <div
+          className="absolute z-[1001] bg-white rounded-2xl shadow-xl overflow-hidden"
+          style={{ right: "3.25rem", top: linhVucTopPx }}
+        >
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+            <span className="font-bold text-sm text-gray-900">Khai thác dữ liệu theo lĩnh vực</span>
+            <button
+              onClick={() => setShowLinhVucPanel(false)}
+              className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-base font-bold ml-3"
+            >✕</button>
+          </div>
+          <div className="flex gap-1 px-3 py-3">
+            {CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => {
+                  setShowLinhVucPanel(false);
+                  router.push(`/ban-do/${cat.id.toLowerCase()}`);
+                }}
+                className="flex flex-col items-center gap-1 px-2 py-2 rounded-xl hover:bg-gray-100 transition-colors min-w-[3.5rem]"
+                title={cat.label}
+              >
+                <span className="text-3xl leading-none">{cat.icon}</span>
+                <span className="text-[10px] text-gray-600 text-center leading-tight">{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+{/* ── Measure display ── */}
       {isMeasureActive && measureDisplay && (
         <div className="absolute top-3 left-3 z-[1000] bg-red-600 text-white text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5 max-w-[calc(100%-5rem)]">
           <span>{activeTool === "measure-area" ? "⬡" : "📏"} {measureDisplay}</span>
