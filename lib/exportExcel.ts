@@ -150,9 +150,9 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
   dataRow(ws, r++, "   Tên khoa học — Tên loài", f2.ten_khoa_loai);
   dataRow(ws, r++, "   Tên khác", f2.ten_khac_2);
   dataRow(ws, r++, "3. Ngày thu thập", f2.ngay_thu_thap);
-  dataRow(ws, r++, "4. Nơi thu thập — Thôn/Bản", f2.thon_ban);
-  dataRow(ws, r++, "   Nơi thu thập — Xã/Phường", f2.xa_phuong);
-  dataRow(ws, r++, "   Nơi thu thập — Huyện/Thị/TP", f2.huyen_thi_tp);
+  dataRow(ws, r++, "4. Nơi thu thập — Thôn Bản", f2.thon_ban);
+  dataRow(ws, r++, "   Nơi thu thập — Xã Phường", f2.xa_phuong);
+  dataRow(ws, r++, "   Nơi thu thập — Huyện Thị TP", f2.huyen_thi_tp);
   dataRow(ws, r++, "   Nơi thu thập — Tỉnh", f2.tinh);
   dataRow(ws, r++, "   Tọa độ X", f2.toa_do_x);
   dataRow(ws, r++, "   Tọa độ Y", f2.toa_do_y);
