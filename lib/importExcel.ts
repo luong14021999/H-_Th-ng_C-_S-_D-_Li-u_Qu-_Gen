@@ -24,14 +24,15 @@ function cellStr(ws: ExcelJS.Worksheet, row: number, col: number): string {
 }
 
 // Build label→value map from a worksheet.
-// Skips rows where col A equals col B (merged section headers).
+// Skips rows where col A equals col B (merged section headers),
+// and skips values that are slash-only artifacts from old combined-cell exports.
 function buildMap(ws: ExcelJS.Worksheet): Map<string, string> {
   const map = new Map<string, string>();
   const maxRow = ws.rowCount || 200;
   for (let r = 1; r <= maxRow; r++) {
     const label = cellStr(ws, r, 1);
     const value = cellStr(ws, r, 2);
-    if (label && value && label !== value && !map.has(label)) {
+    if (label && value && label !== value && !map.has(label) && !/^[/\s]*$/.test(value)) {
       map.set(label, value);
     }
   }

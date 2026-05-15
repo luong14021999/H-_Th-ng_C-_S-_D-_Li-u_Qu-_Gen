@@ -23,7 +23,13 @@ function sectionStyle(ws: WS, row: number, value: string) {
   ws.getRow(row).height = 20;
 }
 
-function dataRow(ws: WS, row: number, label: string, value: string) {
+// Strip slash-only artifact values (e.g. "/" or " / " left over from old combined-cell imports)
+function cleanVal(v: unknown): string {
+  const s = v === null || v === undefined ? "" : String(v).trim();
+  return /^[/\s]*$/.test(s) ? "" : s;
+}
+
+function dataRow(ws: WS, row: number, label: string, value: unknown) {
   const labelCell = ws.getCell(row, 1);
   labelCell.value = label;
   labelCell.font = { size: 10 };
@@ -32,12 +38,13 @@ function dataRow(ws: WS, row: number, label: string, value: string) {
 
   ws.mergeCells(row, 2, row, 3);
   const valCell = ws.getCell(row, 2);
-  valCell.value = value || "";
+  const clean = cleanVal(value);
+  valCell.value = clean;
   valCell.font = { size: 10 };
   valCell.alignment = { vertical: "top", wrapText: true };
   valCell.border = { bottom: { style: "thin", color: { argb: "FFCCCCCC" } } };
 
-  const lines = Math.max(1, Math.ceil((value || "").length / 60));
+  const lines = Math.max(1, Math.ceil(clean.length / 60));
   ws.getRow(row).height = Math.max(18, lines * 15);
 }
 
