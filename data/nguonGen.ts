@@ -58,7 +58,7 @@ export const PHAN_NHOM_BY_NHOM: Record<string, string[]> = {
   TT: ['Cây ăn quả', 'Cây chè', 'Cây cói', 'Cây lấy củ', 'Cây lúa', 'Cây mía', 'Cây ngô', 'Cây rau', 'Thuốc lá'],
   DL: ['Thân bụi', 'Thân gỗ', 'Thân leo', 'Thân thảo'],
   LN: ['Cây đặc sản', 'Cây gỗ', 'Cây ngập mặn', 'Tre nứa'],
-  CN: ['Gia cầm và chim', 'GS nhai lại/gặm nhấm', 'Tiểu gia súc', 'Thủy cầm'],
+  CN: ['Gia cầm và chim', 'GS nhai lại, gặm nhấm', 'Tiểu gia súc', 'Thủy cầm'],
   TS: ['Cá', 'Giáp xác', 'Khác', 'Ốc', 'Thân mềm'],
   VS: ['Nấm ăn', 'Nấm dược liệu', 'Nấm gây bệnh hại cây trồng', 'Nấm kí sinh/ đối kháng bệnh hại cây trồng', 'Nấm lên men thực phẩm/ xử lý môi trường', 'Vi khuẩn lên men thực phẩm/ xử lý môi trường', 'Vi khuẩn đối kháng bệnh hại cây trồng', 'VSV phân giải lân/ xử lý môi trường'],
 };
