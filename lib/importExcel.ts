@@ -638,12 +638,11 @@ export async function importNguonGenExcel(file: File): Promise<ImportResult> {
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load(await file.arrayBuffer());
 
-  const sheets = wb.worksheets;
-  // Sheet order: 0=Form1(TTCB), 1=Form2(ĐTNG), 2=Form3(ĐGBĐ), 3=Form4(ĐTCT)
-  const ws1 = sheets[0];
-  const ws2 = sheets[1];
-  const ws3 = sheets[2];
-  const ws4 = sheets[3];
+  // Locate sheets by name; fall back to index for old 4-sheet files that still include TTCB
+  const ws1 = wb.getWorksheet("00.TTCB") ?? null;
+  const ws2 = wb.getWorksheet("01.ĐTNG") ?? (ws1 ? wb.worksheets[1] : wb.worksheets[0]);
+  const ws3 = wb.getWorksheet("02.ĐGBĐ") ?? (ws1 ? wb.worksheets[2] : wb.worksheets[1]);
+  const ws4 = wb.getWorksheet("03.ĐTCT") ?? (ws1 ? wb.worksheets[3] : wb.worksheets[2]);
 
   let basic: Partial<NguonGen> = {};
   let form1: Partial<Form1Data> = {};
