@@ -116,7 +116,7 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "21. Nguồn gốc giống", f2.nguon_giong_ruong);
     dataRow(ws, r++, "22. Phương thức canh tác", f2.phuong_thuc_canh_tac);
     dataRow(ws, r++, "23. Phương pháp gieo trồng", f2.phuong_phap_gieo_trong);
-    dataRow(ws, r++, "24. Thời vụ trồng", f2.thoi_vu_trong);
+    dataRow(ws, r++, "24. Thời vụ trồng", Array.isArray(f2.thoi_vu_trong) ? (f2.thoi_vu_trong as string[]).join(', ') : f2.thoi_vu_trong);
     dataRow(ws, r++, "25. Thời gian sinh trưởng hoặc thành thục", f2.thoi_gian_sinh_truong);
     dataRow(ws, r++, "26. Phân bón", f2.phan_bon);
     dataRow(ws, r++, "27. Biện pháp phòng trừ sâu bệnh", f2.phong_tru_sau_benh);
@@ -124,8 +124,8 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "16. Nguồn gốc giống", f2.nguon_giong_ruong);
     dataRow(ws, r++, "17. Loại hình nuôi trồng", f2.dl_loai_hinh_nuoi_trong);
     dataRow(ws, r++, "18. Kỹ thuật nuôi trồng", f2.dl_ky_thuat_nuoi_trong);
-    dataRow(ws, r++, "19. Thời vụ trồng", f2.thoi_vu_trong);
-    dataRow(ws, r++, "20. Thời vụ thu hoạch", f2.dl_thoi_vu_thu_hoach);
+    dataRow(ws, r++, "19. Thời vụ trồng", Array.isArray(f2.thoi_vu_trong) ? (f2.thoi_vu_trong as string[]).join(', ') : f2.thoi_vu_trong);
+    dataRow(ws, r++, "20. Thời vụ thu hoạch", Array.isArray(f2.dl_thoi_vu_thu_hoach) ? (f2.dl_thoi_vu_thu_hoach as string[]).join(', ') : f2.dl_thoi_vu_thu_hoach);
     dataRow(ws, r++, "21. Vật liệu nhân giống", `${f2.vat_lieu_nhan_giong}${f2.vat_lieu_nhan_giong_khac ? ' — ' + f2.vat_lieu_nhan_giong_khac : ''}`);
     dataRow(ws, r++, "22. Thời gian sinh trưởng (từ trồng đến thu hoạch)", f2.thoi_gian_sinh_truong);
     dataRow(ws, r++, "23. Phân bón/dinh dưỡng bổ sung", f2.phan_bon);
@@ -137,7 +137,7 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "19. Nguồn gốc giống (tự để giống/mua từ CSSX/...)", f2.nguon_giong_ruong);
     dataRow(ws, r++, "20. Phương thức nuôi", f2.cn_phuong_thuc_nuoi);
     dataRow(ws, r++, "21. Thời gian sinh trưởng hoặc tuổi thành thục", f2.thoi_gian_sinh_truong);
-    dataRow(ws, r++, "22. Biện pháp phòng trừ sâu bệnh", f2.cn_phong_dich);
+    dataRow(ws, r++, "22. Biện pháp phòng trừ sâu bệnh", Array.isArray(f2.cn_phong_dich) ? (f2.cn_phong_dich as string[]).join(', ') : f2.cn_phong_dich);
   } else if (isTS) {
     dataRow(ws, r++, "16. Nguồn gốc giống", f2.ts_nguon_goc_giong);
     dataRow(ws, r++, "17. Loại hình nuôi/trồng", f2.ts_loai_hinh_nuoi === 'Khác' ? `Khác — ${f2.ts_loai_hinh_nuoi_khac}` : f2.ts_loai_hinh_nuoi);
@@ -150,8 +150,8 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "12. Nguồn gốc giống/chủng VSV", f2.nguon_giong_ruong);
     dataRow(ws, r++, "13. Loại hình sản xuất", f2.dl_loai_hinh_nuoi_trong);
     dataRow(ws, r++, "14. Kỹ thuật nuôi trồng", f2.dl_ky_thuat_nuoi_trong);
-    dataRow(ws, r++, "15. Thời vụ trồng", f2.thoi_vu_trong);
-    dataRow(ws, r++, "16. Thời vụ thu hoạch", f2.dl_thoi_vu_thu_hoach);
+    dataRow(ws, r++, "15. Thời vụ trồng", Array.isArray(f2.thoi_vu_trong) ? (f2.thoi_vu_trong as string[]).join(', ') : f2.thoi_vu_trong);
+    dataRow(ws, r++, "16. Thời vụ thu hoạch", Array.isArray(f2.dl_thoi_vu_thu_hoach) ? (f2.dl_thoi_vu_thu_hoach as string[]).join(', ') : f2.dl_thoi_vu_thu_hoach);
     dataRow(ws, r++, "17. Vật liệu nhân giống", `${f2.vat_lieu_nhan_giong}${f2.vat_lieu_nhan_giong_khac ? ' — ' + f2.vat_lieu_nhan_giong_khac : ''}`);
     dataRow(ws, r++, "18. Môi trường giá thể dinh dưỡng", f2.vs_moi_truong_nuoi_cay);
   }
@@ -167,7 +167,7 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "31. Kinh nghiệm, tiêu chí chọn giống", f2.kinh_nghiem_chon_giong);
   } else if (isCN || isTS) {
     dataRow(ws, r++, "23. Bộ phận được thu hoạch, sử dụng chính", f2.phan_cay_su_dung);
-    dataRow(ws, r++, "24. Mục đích sử dụng chính", f2.muc_dich_su_dung);
+    dataRow(ws, r++, "24. Mục đích sử dụng chính", Array.isArray(f2.muc_dich_su_dung) ? (f2.muc_dich_su_dung as string[]).join(', ') : f2.muc_dich_su_dung);
     dataRow(ws, r++, "25. Phương pháp thu hoạch sản phẩm", f2.thu_hoach);
     dataRow(ws, r++, "26. Phương pháp bảo quản sản phẩm", f2.phuong_phap_bao_quan_sp);
     dataRow(ws, r++, "27. Cách chế biến", f2.cach_che_bien);
