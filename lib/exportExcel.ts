@@ -138,12 +138,12 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "22. Biện pháp phòng trừ sâu bệnh", f2.cn_phong_dich);
   } else if (isTS) {
     dataRow(ws, r++, "16. Nguồn gốc giống", f2.ts_nguon_goc_giong);
-    dataRow(ws, r++, "17. Loại hình nuôi/trồng", f2.ts_loai_hinh_nuoi);
+    dataRow(ws, r++, "17. Loại hình nuôi/trồng", f2.ts_loai_hinh_nuoi === 'Khác' ? `Khác — ${f2.ts_loai_hinh_nuoi_khac}` : f2.ts_loai_hinh_nuoi);
     dataRow(ws, r++, "18. Thức ăn", f2.ts_thuc_an);
-    dataRow(ws, r++, "19. Nguồn gốc giống (tự để giống/mua từ CSSX/...)", f2.nguon_giong_ruong);
-    dataRow(ws, r++, "20. Phương thức nuôi", f2.ts_phuong_thuc_nuoi);
+    dataRow(ws, r++, "19. Nguồn gốc giống (tự để giống/mua từ CSSX/...)", f2.nguon_giong_ruong === 'Khác' ? `Khác — ${f2.ts_nguon_giong_khac}` : f2.nguon_giong_ruong);
+    dataRow(ws, r++, "20. Phương thức nuôi", f2.ts_phuong_thuc_nuoi === 'Khác' ? `Khác — ${f2.ts_phuong_thuc_nuoi_khac}` : f2.ts_phuong_thuc_nuoi);
     dataRow(ws, r++, "21. Thời gian sinh trưởng hoặc tuổi thành thục", f2.thoi_gian_sinh_truong);
-    dataRow(ws, r++, "22. Biện pháp phòng trừ sâu bệnh", f2.phong_tru_sau_benh);
+    dataRow(ws, r++, "22. Biện pháp phòng trừ sâu bệnh", Array.isArray(f2.phong_tru_sau_benh) ? (f2.phong_tru_sau_benh as string[]).join(', ') : f2.phong_tru_sau_benh);
   } else if (isVS) {
     dataRow(ws, r++, "12. Nguồn gốc giống/chủng VSV", f2.nguon_giong_ruong);
     dataRow(ws, r++, "13. Loại hình sản xuất", f2.dl_loai_hinh_nuoi_trong);
@@ -211,6 +211,10 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
   const isCNTieuGiaSuc = isCN && phan_nhom === 'Tiểu gia súc';
   const isLNCayDacSan = isLN && phan_nhom === 'Cây đặc sản';
   const isLNTreNua = isLN && phan_nhom === 'Tre nứa';
+  const isTSCa = isTS && phan_nhom === 'Cá';
+  const isTSOc = isTS && phan_nhom === 'Ốc';
+  const isTSThanMem = isTS && phan_nhom === 'Thân mềm';
+  const isTSGiapXac = isTS && phan_nhom === 'Giáp xác';
 
   titleRow(ws, 1, "PHIẾU MÔ TẢ, ĐÁNH GIÁ BAN ĐẦU NGUỒN GEN", "PHIẾU SỐ 02/ĐGBĐ");
   headerStyle(ws, 3, 1, "Chỉ tiêu");
@@ -430,29 +434,61 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "20. Các dạng bộ xương", f3.cn_cac_dang_bo_xuong);
     dataRow(ws, r++, "21. Các chiều đo (8 chiều đo)", f3.cn_cac_chieu_do);
     dataRow(ws, r++, "22. Các đặc điểm khác", f3.cn_dac_diem_khac);
-  } else if (isTS) {
-    dataRow(ws, r++, "10a. Chiều dài toàn thân (cm)", f3.ts_chieu_dai_toan_than);
-    dataRow(ws, r++, "10b. Chiều cao đầu (cm)", f3.ts_chieu_cao_dau);
-    dataRow(ws, r++, "11a. Chiều dài kinh tế (cm)", f3.ts_chieu_dai_kinh_te);
-    dataRow(ws, r++, "11b. Chiều rộng đầu (cm)", f3.ts_chieu_rong_dau);
-    dataRow(ws, r++, "12a. Dài trước vây lưng (cm)", f3.ts_dai_truoc_vay_lung);
-    dataRow(ws, r++, "12b. Chiều cao thân (cm)", f3.ts_chieu_cao_than);
-    dataRow(ws, r++, "13a. Dài trước vây ngực (cm)", f3.ts_dai_truoc_vay_nguc);
-    dataRow(ws, r++, "13b. Chiều dày thân (cm)", f3.ts_chieu_day_than);
-    dataRow(ws, r++, "14a. Dài trước vây bụng (cm)", f3.ts_dai_truoc_vay_bung);
-    dataRow(ws, r++, "14b. Số tia vây lưng", f3.ts_so_tia_vay_lung);
-    dataRow(ws, r++, "15a. Dài trước vây hậu môn (cm)", f3.ts_dai_truoc_vay_hau_mon);
-    dataRow(ws, r++, "15b. Số tia vây ngực", f3.ts_so_tia_vay_nguc);
-    dataRow(ws, r++, "16a. Chiều dài đầu (cm)", f3.ts_chieu_dai_dau);
-    dataRow(ws, r++, "16b. Số tia vây bụng", f3.ts_so_tia_vay_bung);
-    dataRow(ws, r++, "17a. Chiều dài mõm (cm)", f3.ts_chieu_dai_mom);
-    dataRow(ws, r++, "17b. Số tia vây hậu môn", f3.ts_so_tia_vay_hau_mon);
-    dataRow(ws, r++, "18a. Đường kính mắt (cm)", f3.ts_duong_kinh_mat);
-    dataRow(ws, r++, "18b. Số tia vây đuôi", f3.ts_so_tia_vay_duoi);
-    dataRow(ws, r++, "19a. Khoảng cách hai mắt (cm)", f3.ts_khoang_cach_hai_mat);
-    dataRow(ws, r++, "19b. Số vảy đường bên", f3.ts_so_vay_duong_ben);
+  } else if (isTSCa) {
+    dataRow(ws, r++, "10. Chiều dài toàn thân (cm)", f3.ts_chieu_dai_toan_than);
+    dataRow(ws, r++, "   Chiều cao đầu (cm)", f3.ts_chieu_cao_dau);
+    dataRow(ws, r++, "11. Chiều dài kinh tế (cm)", f3.ts_chieu_dai_kinh_te);
+    dataRow(ws, r++, "   Chiều rộng đầu (cm)", f3.ts_chieu_rong_dau);
+    dataRow(ws, r++, "12. Dài trước vây lưng (cm)", f3.ts_dai_truoc_vay_lung);
+    dataRow(ws, r++, "   Chiều cao thân (cm)", f3.ts_chieu_cao_than);
+    dataRow(ws, r++, "13. Dài trước vây ngực (cm)", f3.ts_dai_truoc_vay_nguc);
+    dataRow(ws, r++, "   Chiều dày thân (cm)", f3.ts_chieu_day_than);
+    dataRow(ws, r++, "14. Dài trước vây bụng (cm)", f3.ts_dai_truoc_vay_bung);
+    dataRow(ws, r++, "   Số tia vây lưng", f3.ts_so_tia_vay_lung);
+    dataRow(ws, r++, "15. Dài trước vây hậu môn (cm)", f3.ts_dai_truoc_vay_hau_mon);
+    dataRow(ws, r++, "   Số tia vây ngực", f3.ts_so_tia_vay_nguc);
+    dataRow(ws, r++, "16. Chiều dài đầu (cm)", f3.ts_chieu_dai_dau);
+    dataRow(ws, r++, "   Số tia vây bụng", f3.ts_so_tia_vay_bung);
+    dataRow(ws, r++, "17. Chiều dài mõm (cm)", f3.ts_chieu_dai_mom);
+    dataRow(ws, r++, "   Số tia vây hậu môn", f3.ts_so_tia_vay_hau_mon);
+    dataRow(ws, r++, "18. Đường kính mắt (cm)", f3.ts_duong_kinh_mat);
+    dataRow(ws, r++, "   Số tia vây đuôi", f3.ts_so_tia_vay_duoi);
+    dataRow(ws, r++, "19. Khoảng cách hai mắt (cm)", f3.ts_khoang_cach_hai_mat);
+    dataRow(ws, r++, "   Số vảy đường bên", f3.ts_so_vay_duong_ben);
     dataRow(ws, r++, "20. Trọng lượng (g; n=10)", f3.ts_trong_luong_truong_thanh);
     dataRow(ws, r++, "21. Cơ quan sinh sản", f3.ts_co_quan_sinh_san);
+  } else if (isTSOc || isTSThanMem) {
+    dataRow(ws, r++, "10. Chiều dài vỏ", f3.oc_chieu_dai_vo);
+    dataRow(ws, r++, "11. Chiều rộng vỏ", f3.oc_chieu_rong_vo);
+    dataRow(ws, r++, "12. Chiều dày vỏ", f3.oc_chieu_day_vo);
+    dataRow(ws, r++, "13. Cơ quan sinh dục", f3.oc_co_quan_sinh_duc);
+    dataRow(ws, r++, "14. Màu sắc", f3.oc_mau_sac);
+  } else if (isTSGiapXac) {
+    dataRow(ws, r++, "10. Hình dạng chùy", f3.gx_hinh_dang_chuy);
+    dataRow(ws, r++, "11. Số gai chùy", f3.gx_so_gai_chuy);
+    dataRow(ws, r++, "12. Các loại gai", f3.gx_cac_loai_gai);
+    dataRow(ws, r++, "13. Các loại gờ", f3.gx_cac_loai_go);
+    dataRow(ws, r++, "14. Các loại rãnh", f3.gx_cac_loai_ranh);
+    dataRow(ws, r++, "15. Phần bụng: Số đốt", f3.gx_so_dot_bung);
+    dataRow(ws, r++, "16. Phần phụ đầu — Râu I", f3.gx_rau_1);
+    dataRow(ws, r++, "   Râu II", f3.gx_rau_2);
+    dataRow(ws, r++, "17. Hàm trên", f3.gx_ham_tren);
+    dataRow(ws, r++, "   Hàm dưới I", f3.gx_ham_duoi_1);
+    dataRow(ws, r++, "   Hàm dưới II", f3.gx_ham_duoi_2);
+    dataRow(ws, r++, "18. Chân hàm I", f3.gx_chan_ham_1);
+    dataRow(ws, r++, "   Chân hàm II", f3.gx_chan_ham_2);
+    dataRow(ws, r++, "   Chân hàm III", f3.gx_chan_ham_3);
+    dataRow(ws, r++, "19. Chân bơi I", f3.gx_chan_boi_1);
+    dataRow(ws, r++, "   Chân bơi II", f3.gx_chan_boi_2);
+    dataRow(ws, r++, "20. Chân bơi III-V", f3.gx_chan_boi_3_5);
+    dataRow(ws, r++, "21. Chân đuôi", f3.gx_chan_duoi);
+    dataRow(ws, r++, "22. Mang bên", f3.gx_mang_ben);
+    dataRow(ws, r++, "   Mang khớp", f3.gx_mang_khop);
+    dataRow(ws, r++, "23. Mang nhánh", f3.gx_mang_nhanh);
+    dataRow(ws, r++, "   Mang chân", f3.gx_mang_chan);
+    dataRow(ws, r++, "24. Phần phụ sinh dục đực", f3.gx_phan_phu_sinh_duc_duc);
+    dataRow(ws, r++, "25. Phần phụ sinh dục cái", f3.gx_phan_phu_sinh_duc_cai);
+    dataRow(ws, r++, "26. Màu sắc", f3.gx_mau_sac);
   } else if (isVS) {
     dataRow(ws, r++, "10. Kích thước thân (cm)", f3.vs_kich_thuoc_than);
     dataRow(ws, r++, "10. Kích thước rễ (cm)", f3.vs_kich_thuoc_re);
@@ -516,10 +552,19 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "24. Độ ẩm chuồng trại (%)", f3.do_am);
     dataRow(ws, r++, "25. Điều kiện ánh sáng/chuồng trại", f3.anh_sang);
     dataRow(ws, r++, "26. Yêu cầu đất/nền chuồng và chế độ dinh dưỡng", f3.dat_tho_nhuong);
-  } else if (isTS) {
-    dataRow(ws, r++, "22. Môi trường sống", f3.ts_moi_truong_song);
+  } else if (isTSCa || isTSOc) {
+    dataRow(ws, r++, "22. Môi trường sống (nước mặn, nước lợ, nước ngọt)", f3.ts_moi_truong_song);
     dataRow(ws, r++, "23. Đặc điểm về dinh dưỡng", f3.ts_dac_diem_dinh_duong);
     dataRow(ws, r++, "24. Đặc điểm về sinh sản", f3.ts_dac_diem_sinh_san);
+    dataRow(ws, r++, "25.", f3.ts_mua_vu_sinh_san);
+  } else if (isTSThanMem) {
+    dataRow(ws, r++, "16. Môi trường sống (nước mặn, nước lợ, nước ngọt)", f3.ts_moi_truong_song);
+    dataRow(ws, r++, "17. Đặc điểm về dinh dưỡng", f3.ts_dac_diem_dinh_duong);
+    dataRow(ws, r++, "18. Đặc điểm về sinh sản", f3.ts_dac_diem_sinh_san);
+  } else if (isTSGiapXac) {
+    dataRow(ws, r++, "28. Môi trường sống (nước mặn, nước lợ, nước ngọt)", f3.ts_moi_truong_song);
+    dataRow(ws, r++, "29. Đặc điểm về dinh dưỡng", f3.ts_dac_diem_dinh_duong);
+    dataRow(ws, r++, "30. Đặc điểm về sinh sản", f3.ts_dac_diem_sinh_san);
   } else if (isVS) {
     dataRow(ws, r++, "15. Địa hình", f3.dat_tho_nhuong);
     dataRow(ws, r++, "16. Thổ nhưỡng/giá thể sinh dưỡng", f3.vs_tho_nhuong);
@@ -597,10 +642,19 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "30. Số lứa/năm", f3.cn_so_lua_nam);
     dataRow(ws, r++, "31. Số con/lứa (trung bình)", f3.cn_so_con_lua);
     dataRow(ws, r++, "32. Sản lượng trứng/sữa (quả hoặc L/chu kỳ)", f3.cn_san_xuat_trung);
-  } else if (isTS) {
+  } else if (isTSCa || isTSOc) {
     dataRow(ws, r++, "26. Thời gian sinh trưởng", f3.ts_thoi_gian_sinh_truong_ts);
-    dataRow(ws, r++, "27. Các giai đoạn sinh trưởng", f3.ts_cac_giai_doan_sinh_truong);
+    dataRow(ws, r++, "27. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)", f3.ts_cac_giai_doan_sinh_truong);
     dataRow(ws, r++, "28. Thời gian thành thục sinh dục", f3.ts_thoi_gian_thanh_thuc_sinh_duc);
+  } else if (isTSThanMem) {
+    dataRow(ws, r++, "19. Thời gian sinh trưởng", f3.ts_thoi_gian_sinh_truong_ts);
+    dataRow(ws, r++, "20. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)", f3.ts_cac_giai_doan_sinh_truong);
+    dataRow(ws, r++, "21. Thời gian thành thục sinh dục", f3.ts_thoi_gian_thanh_thuc_sinh_duc);
+  } else if (isTSGiapXac) {
+    dataRow(ws, r++, "31. Thời gian sinh trưởng", f3.ts_thoi_gian_sinh_truong_ts);
+    dataRow(ws, r++, "32. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)", f3.ts_cac_giai_doan_sinh_truong);
+    dataRow(ws, r++, "33. Thời gian thành thục sinh dục", f3.ts_thoi_gian_thanh_thuc_sinh_duc);
+    dataRow(ws, r++, "...", f3.ts_mua_vu_sinh_san);
   } else if (isVS) {
     dataRow(ws, r++, "22. Thời gian sinh trưởng (từ lúc nuôi/trồng đến thu hoạch)", f3.vs_thoi_gian_khuan_lac);
     dataRow(ws, r++, "23. Sinh trưởng — giai đoạn phát triển sợi nấm", f3.vs_toc_do_sinh_truong);
