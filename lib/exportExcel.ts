@@ -1,6 +1,6 @@
 import ExcelJS from "exceljs";
 import { NguonGen } from "@/data/nguonGen";
-import { ExtendedFormData, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
+import { ExtendedFormData, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 
 type WB = ExcelJS.Workbook;
 type WS = ExcelJS.Worksheet;
@@ -63,6 +63,60 @@ function setupColumns(ws: WS) {
     { width: 30 },
     { width: 30 },
   ];
+}
+
+function buildForm1Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
+  setupColumns(ws);
+  const f1 = { ...defaultForm1(), ...ext.form1 };
+
+  titleRow(ws, 1, "THÔNG TIN CƠ BẢN NGUỒN GEN", "PHIẾU THÔNG TIN CƠ BẢN");
+  headerStyle(ws, 3, 1, "Chỉ tiêu");
+  headerStyle(ws, 3, 2, "Giá trị");
+  ws.mergeCells(3, 2, 3, 3);
+  ws.getRow(3).height = 22;
+
+  let r = 4;
+  sectionStyle(ws, r++, "I. ĐỊNH DANH NGUỒN GEN");
+  dataRow(ws, r++, "Mã nguồn gen", item.ma);
+  dataRow(ws, r++, "Tên Việt Nam", item.ten);
+  dataRow(ws, r++, "Tên khoa học", item.khoa_hoc);
+  dataRow(ws, r++, "Tên khác", f1.ten_khac);
+  dataRow(ws, r++, "Tên họ", f1.ten_ho);
+  dataRow(ws, r++, "Tên bộ", f1.ten_bo);
+  dataRow(ws, r++, "Nhóm nguồn gen", item.nhom);
+  dataRow(ws, r++, "Phân nhóm", item.phan_nhom ?? '');
+  dataRow(ws, r++, "Đơn vị sản xuất/cung cấp", item.don_vi);
+
+  sectionStyle(ws, r++, "II. NƠI THU THẬP");
+  dataRow(ws, r++, "Người/cơ quan giao, trồng/cấp giống", f1.nguon_giao);
+  dataRow(ws, r++, "Tỉnh/TP", f1.noi_thu_thap_tinh);
+  dataRow(ws, r++, "Huyện", f1.noi_thu_thap_huyen);
+  dataRow(ws, r++, "Xã", f1.noi_thu_thap_xa);
+  dataRow(ws, r++, "Địa chỉ chi tiết", f1.dia_chi_chi_tiet);
+  dataRow(ws, r++, "Mô tả nơi thu thập", f1.mo_ta_thu_thap);
+
+  sectionStyle(ws, r++, "III. NƠI PHÂN BỐ/NUÔI/TRỒNG");
+  dataRow(ws, r++, "Nơi phân bố/nuôi/trồng", f1.noi_phan_bo);
+
+  sectionStyle(ws, r++, "IV. TÌNH TRẠNG BẢO TỒN");
+  dataRow(ws, r++, "Đang bảo tồn", f1.dang_bao_ton ? 'Có' : 'Không');
+  if (f1.dang_bao_ton && (f1.bao_ton_list ?? []).length > 0) {
+    (f1.bao_ton_list ?? []).forEach((entry, idx) => {
+      sectionStyle(ws, r++, `Danh sách bảo tồn ${idx + 1}`);
+      dataRow(ws, r++, "Phương thức bảo tồn", entry.phuong_thuc);
+      dataRow(ws, r++, "Hình thức bảo tồn", entry.hinh_thuc);
+      dataRow(ws, r++, "Đơn vị bảo tồn", entry.don_vi);
+      dataRow(ws, r++, "Nơi bảo tồn", entry.noi);
+    });
+  }
+
+  sectionStyle(ws, r++, "V. TÌNH TRẠNG KHAI THÁC, SỬ DỤNG");
+  dataRow(ws, r++, "Đang khai thác, sử dụng", f1.dang_khai_thac ? 'Có' : 'Không');
+  if (f1.dang_khai_thac) {
+    dataRow(ws, r++, "Hình thức khai thác, sử dụng", f1.hinh_thuc_khai_thac);
+    dataRow(ws, r++, "Nơi khai thác, sử dụng", f1.noi_khai_thac);
+    dataRow(ws, r++, "Đơn vị khai thác, sử dụng", f1.don_vi_khai_thac);
+  }
 }
 
 function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
@@ -967,6 +1021,7 @@ export async function exportNguonGenExcel(item: NguonGen, ext: ExtendedFormData)
   wb.creator = "HeThongCoSoDuLieuGen";
   wb.created = new Date();
 
+  buildForm1Sheet(wb.addWorksheet("00.TTCB"), item, ext);
   buildForm2Sheet(wb.addWorksheet("01.ĐTNG"), item, ext);
   buildForm3Sheet(wb.addWorksheet("02.ĐGBĐ"), item, ext);
   buildForm4Sheet(wb.addWorksheet("03.ĐTCT"), item, ext);
