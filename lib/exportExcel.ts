@@ -211,7 +211,6 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
   const isCNTieuGiaSuc = isCN && phan_nhom === 'Tiểu gia súc';
   const isLNCayDacSan = isLN && phan_nhom === 'Cây đặc sản';
   const isLNTreNua = isLN && phan_nhom === 'Tre nứa';
-  const isTSCa = isTS && phan_nhom === 'Cá';
   const isTSOc = isTS && phan_nhom === 'Ốc';
   const isTSThanMem = isTS && phan_nhom === 'Thân mềm';
   const isTSGiapXac = isTS && phan_nhom === 'Giáp xác';
@@ -434,7 +433,7 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "20. Các dạng bộ xương", f3.cn_cac_dang_bo_xuong);
     dataRow(ws, r++, "21. Các chiều đo (8 chiều đo)", f3.cn_cac_chieu_do);
     dataRow(ws, r++, "22. Các đặc điểm khác", f3.cn_dac_diem_khac);
-  } else if (isTSCa) {
+  } else if (isTS && !isTSOc && !isTSThanMem && !isTSGiapXac) {
     dataRow(ws, r++, "10. Chiều dài toàn thân (cm)", f3.ts_chieu_dai_toan_than);
     dataRow(ws, r++, "   Chiều cao đầu (cm)", f3.ts_chieu_cao_dau);
     dataRow(ws, r++, "11. Chiều dài kinh tế (cm)", f3.ts_chieu_dai_kinh_te);
@@ -552,7 +551,7 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "24. Độ ẩm chuồng trại (%)", f3.do_am);
     dataRow(ws, r++, "25. Điều kiện ánh sáng/chuồng trại", f3.anh_sang);
     dataRow(ws, r++, "26. Yêu cầu đất/nền chuồng và chế độ dinh dưỡng", f3.dat_tho_nhuong);
-  } else if (isTSCa || isTSOc) {
+  } else if (isTS && !isTSThanMem && !isTSGiapXac) {
     dataRow(ws, r++, "22. Môi trường sống (nước mặn, nước lợ, nước ngọt)", f3.ts_moi_truong_song);
     dataRow(ws, r++, "23. Đặc điểm về dinh dưỡng", f3.ts_dac_diem_dinh_duong);
     dataRow(ws, r++, "24. Đặc điểm về sinh sản", f3.ts_dac_diem_sinh_san);
@@ -642,7 +641,7 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "30. Số lứa/năm", f3.cn_so_lua_nam);
     dataRow(ws, r++, "31. Số con/lứa (trung bình)", f3.cn_so_con_lua);
     dataRow(ws, r++, "32. Sản lượng trứng/sữa (quả hoặc L/chu kỳ)", f3.cn_san_xuat_trung);
-  } else if (isTSCa || isTSOc) {
+  } else if (isTS && !isTSThanMem && !isTSGiapXac) {
     dataRow(ws, r++, "26. Thời gian sinh trưởng", f3.ts_thoi_gian_sinh_truong_ts);
     dataRow(ws, r++, "27. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)", f3.ts_cac_giai_doan_sinh_truong);
     dataRow(ws, r++, "28. Thời gian thành thục sinh dục", f3.ts_thoi_gian_thanh_thuc_sinh_duc);
