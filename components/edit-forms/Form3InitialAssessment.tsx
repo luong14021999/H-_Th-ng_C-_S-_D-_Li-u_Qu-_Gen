@@ -40,6 +40,54 @@ const SubLabel = ({ children }: { children: React.ReactNode }) => (
   <p className="text-xs text-gray-500 italic mt-2 mb-1">{children}</p>
 );
 
+const PairRow = ({ label1, value1, onChange1, label2, value2, onChange2 }: {
+  label1: string; value1: string; onChange1: (v: string) => void;
+  label2: string; value2: string; onChange2: (v: string) => void;
+}) => (
+  <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
+    <div>
+      <label className="text-sm text-gray-600">{label1}</label>
+      <input type="text" value={value1} onChange={(e) => onChange1(e.target.value)}
+        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent mt-0.5" />
+    </div>
+    <div>
+      <label className="text-sm text-gray-600">{label2}</label>
+      <input type="text" value={value2} onChange={(e) => onChange2(e.target.value)}
+        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent mt-0.5" />
+    </div>
+  </div>
+);
+
+const TriRow = ({ label, label1, value1, onChange1, label2, value2, onChange2, label3, value3, onChange3 }: {
+  label: string;
+  label1: string; value1: string; onChange1: (v: string) => void;
+  label2: string; value2: string; onChange2: (v: string) => void;
+  label3: string; value3: string; onChange3: (v: string) => void;
+}) => (
+  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
+    <label className="text-sm text-gray-600 pt-1.5">{label}</label>
+    <div className="sm:col-span-2">
+      <div className="flex gap-3">
+        <div className="flex-1">
+          <p className="text-xs text-gray-400 mb-0.5">{label1}</p>
+          <input type="text" value={value1} onChange={(e) => onChange1(e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs text-gray-400 mb-0.5">{label2}</p>
+          <input type="text" value={value2} onChange={(e) => onChange2(e.target.value)}
+            className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
+        </div>
+      </div>
+      <div className="mt-2">
+        <p className="text-xs text-gray-400 mb-0.5">{label3}</p>
+        <input type="text" value={value3} onChange={(e) => onChange3(e.target.value)}
+          className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
+      </div>
+    </div>
+  </div>
+);
+
 const DualRow = ({ label, value1, onChange1, label1, value2, onChange2, label2 }: {
   label: string;
   value1: string; onChange1: (v: string) => void; label1: string;
@@ -77,6 +125,10 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
   const isLNCayDacSan = nhom === 'LN' && phan_nhom === 'Cây đặc sản';
   const isLNTreNua = nhom === 'LN' && phan_nhom === 'Tre nứa';
   const isTS = nhom === 'TS';
+  const isTSCa = isTS && phan_nhom === 'Cá';
+  const isTSGiapXac = isTS && phan_nhom === 'Giáp xác';
+  const isTSOc = isTS && phan_nhom === 'Ốc';
+  const isTSThanMem = isTS && phan_nhom === 'Thân mềm';
   const isVS = nhom === 'VS';
 
   return (
@@ -350,32 +402,98 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         )
       )}
 
-      {/* ── TS: Thủy sản (Bảng 14) ── */}
-      {isTS && (
+      {/* ── TS: Thủy sản — Cá (Bảng 14) ── */}
+      {isTSCa && (
         <>
           <SubLabel>- Dữ liệu hình thái cơ thể (cm; n = 10)</SubLabel>
-          <Row label="10a. Chiều dài toàn thân (cm)" value={d.ts_chieu_dai_toan_than} onChange={(v) => set('ts_chieu_dai_toan_than', v)} />
-          <Row label="10b. Chiều cao đầu (cm)" value={d.ts_chieu_cao_dau} onChange={(v) => set('ts_chieu_cao_dau', v)} />
-          <Row label="11a. Chiều dài kinh tế (cm)" value={d.ts_chieu_dai_kinh_te} onChange={(v) => set('ts_chieu_dai_kinh_te', v)} />
-          <Row label="11b. Chiều rộng đầu (cm)" value={d.ts_chieu_rong_dau} onChange={(v) => set('ts_chieu_rong_dau', v)} />
-          <Row label="12a. Dài trước vây lưng (cm)" value={d.ts_dai_truoc_vay_lung} onChange={(v) => set('ts_dai_truoc_vay_lung', v)} />
-          <Row label="12b. Chiều cao thân (cm)" value={d.ts_chieu_cao_than} onChange={(v) => set('ts_chieu_cao_than', v)} />
-          <Row label="13a. Dài trước vây ngực (cm)" value={d.ts_dai_truoc_vay_nguc} onChange={(v) => set('ts_dai_truoc_vay_nguc', v)} />
-          <Row label="13b. Chiều dày thân (cm)" value={d.ts_chieu_day_than} onChange={(v) => set('ts_chieu_day_than', v)} />
-          <Row label="14a. Dài trước vây bụng (cm)" value={d.ts_dai_truoc_vay_bung} onChange={(v) => set('ts_dai_truoc_vay_bung', v)} />
-          <Row label="14b. Số tia vây lưng" value={d.ts_so_tia_vay_lung} onChange={(v) => set('ts_so_tia_vay_lung', v)} />
-          <Row label="15a. Dài trước vây hậu môn (cm)" value={d.ts_dai_truoc_vay_hau_mon} onChange={(v) => set('ts_dai_truoc_vay_hau_mon', v)} />
-          <Row label="15b. Số tia vây ngực" value={d.ts_so_tia_vay_nguc} onChange={(v) => set('ts_so_tia_vay_nguc', v)} />
-          <Row label="16a. Chiều dài đầu (cm)" value={d.ts_chieu_dai_dau} onChange={(v) => set('ts_chieu_dai_dau', v)} />
-          <Row label="16b. Số tia vây bụng" value={d.ts_so_tia_vay_bung} onChange={(v) => set('ts_so_tia_vay_bung', v)} />
-          <Row label="17a. Chiều dài mõm (cm)" value={d.ts_chieu_dai_mom} onChange={(v) => set('ts_chieu_dai_mom', v)} />
-          <Row label="17b. Số tia vây hậu môn" value={d.ts_so_tia_vay_hau_mon} onChange={(v) => set('ts_so_tia_vay_hau_mon', v)} />
-          <Row label="18a. Đường kính mắt (cm)" value={d.ts_duong_kinh_mat} onChange={(v) => set('ts_duong_kinh_mat', v)} />
-          <Row label="18b. Số tia vây đuôi" value={d.ts_so_tia_vay_duoi} onChange={(v) => set('ts_so_tia_vay_duoi', v)} />
-          <Row label="19a. Khoảng cách hai mắt (cm)" value={d.ts_khoang_cach_hai_mat} onChange={(v) => set('ts_khoang_cach_hai_mat', v)} />
-          <Row label="19b. Số vảy đường bên" value={d.ts_so_vay_duong_ben} onChange={(v) => set('ts_so_vay_duong_ben', v)} />
+          <PairRow
+            label1="10. Chiều dài toàn thân (cm)" value1={d.ts_chieu_dai_toan_than} onChange1={(v) => set('ts_chieu_dai_toan_than', v)}
+            label2="Chiều cao đầu (cm)" value2={d.ts_chieu_cao_dau} onChange2={(v) => set('ts_chieu_cao_dau', v)}
+          />
+          <PairRow
+            label1="11. Chiều dài kinh tế (cm)" value1={d.ts_chieu_dai_kinh_te} onChange1={(v) => set('ts_chieu_dai_kinh_te', v)}
+            label2="Chiều rộng đầu (cm)" value2={d.ts_chieu_rong_dau} onChange2={(v) => set('ts_chieu_rong_dau', v)}
+          />
+          <PairRow
+            label1="12. Dài trước vây lưng (cm)" value1={d.ts_dai_truoc_vay_lung} onChange1={(v) => set('ts_dai_truoc_vay_lung', v)}
+            label2="Chiều cao thân (cm)" value2={d.ts_chieu_cao_than} onChange2={(v) => set('ts_chieu_cao_than', v)}
+          />
+          <PairRow
+            label1="13. Dài trước vây ngực (cm)" value1={d.ts_dai_truoc_vay_nguc} onChange1={(v) => set('ts_dai_truoc_vay_nguc', v)}
+            label2="Chiều dày thân (cm)" value2={d.ts_chieu_day_than} onChange2={(v) => set('ts_chieu_day_than', v)}
+          />
+          <PairRow
+            label1="14. Dài trước vây bụng (cm)" value1={d.ts_dai_truoc_vay_bung} onChange1={(v) => set('ts_dai_truoc_vay_bung', v)}
+            label2="Số tia vây lưng" value2={d.ts_so_tia_vay_lung} onChange2={(v) => set('ts_so_tia_vay_lung', v)}
+          />
+          <PairRow
+            label1="15. Dài trước vây hậu môn (cm)" value1={d.ts_dai_truoc_vay_hau_mon} onChange1={(v) => set('ts_dai_truoc_vay_hau_mon', v)}
+            label2="Số tia vây ngực" value2={d.ts_so_tia_vay_nguc} onChange2={(v) => set('ts_so_tia_vay_nguc', v)}
+          />
+          <PairRow
+            label1="16. Chiều dài đầu (cm)" value1={d.ts_chieu_dai_dau} onChange1={(v) => set('ts_chieu_dai_dau', v)}
+            label2="Số tia vây bụng" value2={d.ts_so_tia_vay_bung} onChange2={(v) => set('ts_so_tia_vay_bung', v)}
+          />
+          <PairRow
+            label1="17. Chiều dài mõm (cm)" value1={d.ts_chieu_dai_mom} onChange1={(v) => set('ts_chieu_dai_mom', v)}
+            label2="Số tia vây hậu môn" value2={d.ts_so_tia_vay_hau_mon} onChange2={(v) => set('ts_so_tia_vay_hau_mon', v)}
+          />
+          <PairRow
+            label1="18. Đường kính mắt (cm)" value1={d.ts_duong_kinh_mat} onChange1={(v) => set('ts_duong_kinh_mat', v)}
+            label2="Số tia vây đuôi" value2={d.ts_so_tia_vay_duoi} onChange2={(v) => set('ts_so_tia_vay_duoi', v)}
+          />
+          <PairRow
+            label1="19. Khoảng cách hai mắt (cm)" value1={d.ts_khoang_cach_hai_mat} onChange1={(v) => set('ts_khoang_cach_hai_mat', v)}
+            label2="Số vảy đường bên" value2={d.ts_so_vay_duong_ben} onChange2={(v) => set('ts_so_vay_duong_ben', v)}
+          />
           <Row label="20. Trọng lượng (g; n = 10)" value={d.ts_trong_luong_truong_thanh} onChange={(v) => set('ts_trong_luong_truong_thanh', v)} />
-          <Row label="21. Cơ quan sinh sản" value={d.ts_co_quan_sinh_san} onChange={(v) => set('ts_co_quan_sinh_san', v)} />
+          <Row label="21. Cơ quan sinh sản" value={d.ts_co_quan_sinh_san} onChange={(v) => set('ts_co_quan_sinh_san', v)} rows={2} />
+        </>
+      )}
+
+      {/* ── TS: Thủy sản — Ốc / Thân mềm ── */}
+      {(isTSOc || isTSThanMem) && (
+        <>
+          <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
+          <Row label="10. Chiều dài vỏ" value={d.oc_chieu_dai_vo} onChange={(v) => set('oc_chieu_dai_vo', v)} />
+          <Row label="11. Chiều rộng vỏ" value={d.oc_chieu_rong_vo} onChange={(v) => set('oc_chieu_rong_vo', v)} />
+          <Row label="12. Chiều dày vỏ" value={d.oc_chieu_day_vo} onChange={(v) => set('oc_chieu_day_vo', v)} />
+          <Row label="13. Cơ quan sinh dục" value={d.oc_co_quan_sinh_duc} onChange={(v) => set('oc_co_quan_sinh_duc', v)} rows={2} />
+          <Row label="14. Màu sắc" value={d.oc_mau_sac} onChange={(v) => set('oc_mau_sac', v)} rows={2} />
+        </>
+      )}
+
+      {/* ── TS: Thủy sản — Giáp xác ── */}
+      {isTSGiapXac && (
+        <>
+          <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
+          <Row label="10. Hình dạng chùy" value={d.gx_hinh_dang_chuy} onChange={(v) => set('gx_hinh_dang_chuy', v)} />
+          <Row label="11. Số gai chùy" value={d.gx_so_gai_chuy} onChange={(v) => set('gx_so_gai_chuy', v)} />
+          <Row label="12. Các loại gai (gai gan, gai mắt, gai râu, gai vò mang, gai má)" value={d.gx_cac_loai_gai} onChange={(v) => set('gx_cac_loai_gai', v)} rows={2} />
+          <Row label="13. Các loại gờ (gờ mặt vị, gờ mang tim, gờ cổ, gờ bên chùy, gờ sau chùy, gờ trán vị)" value={d.gx_cac_loai_go} onChange={(v) => set('gx_cac_loai_go', v)} rows={2} />
+          <Row label="14. Các loại rãnh (rãnh râu mắt, rãnh gan, rãnh mang tim, rãnh bên chùy, rãnh giữa, rãnh cổ, rãnh dọc, rãnh trán vị, rãnh mắt sau)" value={d.gx_cac_loai_ranh} onChange={(v) => set('gx_cac_loai_ranh', v)} rows={2} />
+          <Row label="15. Phần bụng: Số đốt" value={d.gx_so_dot_bung} onChange={(v) => set('gx_so_dot_bung', v)} />
+          <DualRow label="16. Phần phụ đầu" label1="Râu I" value1={d.gx_rau_1} onChange1={(v) => set('gx_rau_1', v)} label2="Râu II" value2={d.gx_rau_2} onChange2={(v) => set('gx_rau_2', v)} />
+          <TriRow
+            label="17."
+            label1="Hàm trên" value1={d.gx_ham_tren} onChange1={(v) => set('gx_ham_tren', v)}
+            label2="Hàm dưới I" value2={d.gx_ham_duoi_1} onChange2={(v) => set('gx_ham_duoi_1', v)}
+            label3="Hàm dưới II" value3={d.gx_ham_duoi_2} onChange3={(v) => set('gx_ham_duoi_2', v)}
+          />
+          <TriRow
+            label="18."
+            label1="Chân hàm I" value1={d.gx_chan_ham_1} onChange1={(v) => set('gx_chan_ham_1', v)}
+            label2="Chân hàm II" value2={d.gx_chan_ham_2} onChange2={(v) => set('gx_chan_ham_2', v)}
+            label3="Chân hàm III" value3={d.gx_chan_ham_3} onChange3={(v) => set('gx_chan_ham_3', v)}
+          />
+          <DualRow label="19." label1="Chân bơi I" value1={d.gx_chan_boi_1} onChange1={(v) => set('gx_chan_boi_1', v)} label2="Chân bơi II" value2={d.gx_chan_boi_2} onChange2={(v) => set('gx_chan_boi_2', v)} />
+          <Row label="20. Chân bơi III-V" value={d.gx_chan_boi_3_5} onChange={(v) => set('gx_chan_boi_3_5', v)} />
+          <Row label="21. Chân đuôi" value={d.gx_chan_duoi} onChange={(v) => set('gx_chan_duoi', v)} />
+          <DualRow label="22." label1="Mang bên" value1={d.gx_mang_ben} onChange1={(v) => set('gx_mang_ben', v)} label2="Mang khớp" value2={d.gx_mang_khop} onChange2={(v) => set('gx_mang_khop', v)} />
+          <DualRow label="23." label1="Mang nhánh" value1={d.gx_mang_nhanh} onChange1={(v) => set('gx_mang_nhanh', v)} label2="Mang chân" value2={d.gx_mang_chan} onChange2={(v) => set('gx_mang_chan', v)} />
+          <Row label="24. Phần phụ sinh dục đực" value={d.gx_phan_phu_sinh_duc_duc} onChange={(v) => set('gx_phan_phu_sinh_duc_duc', v)} rows={2} />
+          <Row label="25. Phần phụ sinh dục cái" value={d.gx_phan_phu_sinh_duc_cai} onChange={(v) => set('gx_phan_phu_sinh_duc_cai', v)} rows={2} />
+          <Row label="26. Màu sắc" value={d.gx_mau_sac} onChange={(v) => set('gx_mau_sac', v)} />
         </>
       )}
 
@@ -481,11 +599,26 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           </>
         )
       )}
-      {isTS && (
+      {(isTSCa || isTSOc) && (
         <>
-          <Row label="22. Môi trường sống" value={d.ts_moi_truong_song} onChange={(v) => set('ts_moi_truong_song', v)} rows={2} />
+          <Row label="22. Môi trường sống (nước mặn, nước lợ, nước ngọt)" value={d.ts_moi_truong_song} onChange={(v) => set('ts_moi_truong_song', v)} rows={2} />
           <Row label="23. Đặc điểm về dinh dưỡng" value={d.ts_dac_diem_dinh_duong} onChange={(v) => set('ts_dac_diem_dinh_duong', v)} rows={2} />
           <Row label="24. Đặc điểm về sinh sản" value={d.ts_dac_diem_sinh_san} onChange={(v) => set('ts_dac_diem_sinh_san', v)} rows={2} />
+          <Row label="25." value={d.ts_mua_vu_sinh_san} onChange={(v) => set('ts_mua_vu_sinh_san', v)} rows={2} />
+        </>
+      )}
+      {isTSGiapXac && (
+        <>
+          <Row label="28. Môi trường sống (nước mặn, nước lợ, nước ngọt)" value={d.ts_moi_truong_song} onChange={(v) => set('ts_moi_truong_song', v)} rows={2} />
+          <Row label="29. Đặc điểm về dinh dưỡng" value={d.ts_dac_diem_dinh_duong} onChange={(v) => set('ts_dac_diem_dinh_duong', v)} rows={2} />
+          <Row label="30. Đặc điểm về sinh sản" value={d.ts_dac_diem_sinh_san} onChange={(v) => set('ts_dac_diem_sinh_san', v)} rows={2} />
+        </>
+      )}
+      {isTSThanMem && (
+        <>
+          <Row label="16. Môi trường sống (nước mặn, nước lợ, nước ngọt)" value={d.ts_moi_truong_song} onChange={(v) => set('ts_moi_truong_song', v)} rows={2} />
+          <Row label="17. Đặc điểm về dinh dưỡng" value={d.ts_dac_diem_dinh_duong} onChange={(v) => set('ts_dac_diem_dinh_duong', v)} rows={2} />
+          <Row label="18. Đặc điểm về sinh sản" value={d.ts_dac_diem_sinh_san} onChange={(v) => set('ts_dac_diem_sinh_san', v)} rows={2} />
         </>
       )}
       {isVS && (
@@ -598,11 +731,26 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           </>
         )
       )}
-      {isTS && (
+      {(isTSCa || isTSOc) && (
         <>
-          <Row label="26. Thời gian sinh trưởng" value={d.ts_thoi_gian_sinh_truong_ts} onChange={(v) => set('ts_thoi_gian_sinh_truong_ts', v)} />
-          <Row label="27. Các giai đoạn sinh trưởng" value={d.ts_cac_giai_doan_sinh_truong} onChange={(v) => set('ts_cac_giai_doan_sinh_truong', v)} rows={2} />
-          <Row label="28. Thời gian thành thục sinh dục" value={d.ts_thoi_gian_thanh_thuc_sinh_duc} onChange={(v) => set('ts_thoi_gian_thanh_thuc_sinh_duc', v)} />
+          <Row label="26. Thời gian sinh trưởng" value={d.ts_thoi_gian_sinh_truong_ts} onChange={(v) => set('ts_thoi_gian_sinh_truong_ts', v)} rows={2} />
+          <Row label="27. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)" value={d.ts_cac_giai_doan_sinh_truong} onChange={(v) => set('ts_cac_giai_doan_sinh_truong', v)} rows={2} />
+          <Row label="28. Thời gian thành thục sinh dục" value={d.ts_thoi_gian_thanh_thuc_sinh_duc} onChange={(v) => set('ts_thoi_gian_thanh_thuc_sinh_duc', v)} rows={2} />
+        </>
+      )}
+      {isTSGiapXac && (
+        <>
+          <Row label="31. Thời gian sinh trưởng" value={d.ts_thoi_gian_sinh_truong_ts} onChange={(v) => set('ts_thoi_gian_sinh_truong_ts', v)} rows={2} />
+          <Row label="32. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)" value={d.ts_cac_giai_doan_sinh_truong} onChange={(v) => set('ts_cac_giai_doan_sinh_truong', v)} rows={2} />
+          <Row label="33. Thời gian thành thục sinh dục" value={d.ts_thoi_gian_thanh_thuc_sinh_duc} onChange={(v) => set('ts_thoi_gian_thanh_thuc_sinh_duc', v)} rows={2} />
+          <Row label="... ..." value={d.ts_mua_vu_sinh_san} onChange={(v) => set('ts_mua_vu_sinh_san', v)} rows={2} />
+        </>
+      )}
+      {isTSThanMem && (
+        <>
+          <Row label="19. Thời gian sinh trưởng" value={d.ts_thoi_gian_sinh_truong_ts} onChange={(v) => set('ts_thoi_gian_sinh_truong_ts', v)} rows={2} />
+          <Row label="20. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)" value={d.ts_cac_giai_doan_sinh_truong} onChange={(v) => set('ts_cac_giai_doan_sinh_truong', v)} rows={2} />
+          <Row label="21. Thời gian thành thục sinh dục" value={d.ts_thoi_gian_thanh_thuc_sinh_duc} onChange={(v) => set('ts_thoi_gian_thanh_thuc_sinh_duc', v)} rows={2} />
         </>
       )}
       {isVS && (

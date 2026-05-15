@@ -87,9 +87,12 @@ export interface Form2Data {
   cn_phong_dich: string;
   // III. TS (Thủy sản) specific
   ts_nguon_goc_giong: string;
-  ts_loai_hinh_nuoi: string;    // backward compat
+  ts_loai_hinh_nuoi: string;
+  ts_loai_hinh_nuoi_khac: string;
   ts_thuc_an: string;
   ts_phuong_thuc_nuoi: string;
+  ts_phuong_thuc_nuoi_khac: string;
+  ts_nguon_giong_khac: string;
   ts_nguon_nuoc: string;        // backward compat
   ts_mat_do_nuoi: string;       // backward compat
   // III. VS (Vi sinh vật/Nấm) specific
@@ -329,6 +332,40 @@ export interface Form3Data {
   ts_tuoi_thanh_thuc: string;
   ts_so_lan_sinh_san: string;
 
+  // TS Ốc morphology — fields 10–14
+  oc_chieu_dai_vo: string;
+  oc_chieu_rong_vo: string;
+  oc_chieu_day_vo: string;
+  oc_co_quan_sinh_duc: string;
+  oc_mau_sac: string;
+
+  // TS Giáp xác morphology — fields 10–26
+  gx_hinh_dang_chuy: string;
+  gx_so_gai_chuy: string;
+  gx_cac_loai_gai: string;
+  gx_cac_loai_go: string;
+  gx_cac_loai_ranh: string;
+  gx_so_dot_bung: string;
+  gx_rau_1: string;
+  gx_rau_2: string;
+  gx_ham_tren: string;
+  gx_ham_duoi_1: string;
+  gx_ham_duoi_2: string;
+  gx_chan_ham_1: string;
+  gx_chan_ham_2: string;
+  gx_chan_ham_3: string;
+  gx_chan_boi_1: string;
+  gx_chan_boi_2: string;
+  gx_chan_boi_3_5: string;
+  gx_chan_duoi: string;
+  gx_mang_ben: string;
+  gx_mang_khop: string;
+  gx_mang_nhanh: string;
+  gx_mang_chan: string;
+  gx_phan_phu_sinh_duc_duc: string;
+  gx_phan_phu_sinh_duc_cai: string;
+  gx_mau_sac: string;
+
   // VS (Vi sinh vật/Nấm) morphology — Bảng 17, fields 10–13
   vs_kich_thuoc_than: string;    // 10. Kích thước thân
   vs_kich_thuoc_re: string;      // 10. Kích thước rễ
@@ -451,7 +488,8 @@ export const defaultForm2 = (): Form2Data => ({
   thoi_gian_sinh_truong: '', phan_bon: '', phong_tru_sau_benh: '',
   dl_loai_hinh_nuoi_trong: '', dl_ky_thuat_nuoi_trong: '', dl_thoi_vu_thu_hoach: '',
   cn_nguon_goc_giong: '', cn_hinh_thuc_chan_nuoi: '', cn_thuc_an: '', cn_phuong_thuc_nuoi: '', cn_phong_dich: '',
-  ts_nguon_goc_giong: '', ts_loai_hinh_nuoi: '', ts_thuc_an: '', ts_phuong_thuc_nuoi: '',
+  ts_nguon_goc_giong: '', ts_loai_hinh_nuoi: '', ts_loai_hinh_nuoi_khac: '',
+  ts_thuc_an: '', ts_phuong_thuc_nuoi: '', ts_phuong_thuc_nuoi_khac: '', ts_nguon_giong_khac: '',
   ts_nguon_nuoc: '', ts_mat_do_nuoi: '',
   vs_moi_truong_nuoi_cay: '', vs_nhiet_do_sinh_truong: '', vs_do_am_sinh_truong: '', vs_ph: '', vs_thoi_gian_sinh_truong: '',
   phan_cay_su_dung: '', muc_dich_su_dung: '', thu_hoach: '',
@@ -521,6 +559,16 @@ export const defaultForm3 = (): Form3Data => ({
   ts_moi_truong_song: '', ts_dac_diem_dinh_duong: '', ts_dac_diem_sinh_san: '',
   ts_thoi_gian_sinh_truong_ts: '', ts_cac_giai_doan_sinh_truong: '', ts_thoi_gian_thanh_thuc_sinh_duc: '',
   ts_mau_sac_co_the: '', ts_mua_vu_sinh_san: '', ts_tuoi_thanh_thuc: '', ts_so_lan_sinh_san: '',
+  // TS Ốc fields
+  oc_chieu_dai_vo: '', oc_chieu_rong_vo: '', oc_chieu_day_vo: '', oc_co_quan_sinh_duc: '', oc_mau_sac: '',
+  // TS Giáp xác fields
+  gx_hinh_dang_chuy: '', gx_so_gai_chuy: '', gx_cac_loai_gai: '', gx_cac_loai_go: '', gx_cac_loai_ranh: '',
+  gx_so_dot_bung: '', gx_rau_1: '', gx_rau_2: '',
+  gx_ham_tren: '', gx_ham_duoi_1: '', gx_ham_duoi_2: '',
+  gx_chan_ham_1: '', gx_chan_ham_2: '', gx_chan_ham_3: '',
+  gx_chan_boi_1: '', gx_chan_boi_2: '', gx_chan_boi_3_5: '', gx_chan_duoi: '',
+  gx_mang_ben: '', gx_mang_khop: '', gx_mang_nhanh: '', gx_mang_chan: '',
+  gx_phan_phu_sinh_duc_duc: '', gx_phan_phu_sinh_duc_cai: '', gx_mau_sac: '',
   // TGS fields
   tgs_long: '', tgs_mom: '', tgs_rang_nanh: '', tgs_dau: '', tgs_kieu_tai: '',
   tgs_huong_tai: '', tgs_da: '', tgs_duoi: '', tgs_lung: '', tgs_chan: '',

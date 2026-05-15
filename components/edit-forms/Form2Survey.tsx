@@ -209,15 +209,15 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
 
       <SectionTitle>II. Thông tin mẫu thu thập</SectionTitle>
       <RadioRow
-        label={isCNSpecial ? "8. Nguồn gốc mẫu thu thập (tự nhiên/hộ gia đình/trang trại/...)" : "8. Nguồn gốc mẫu thu thập (tự nhiên/đồi núi/đất hoang hoá/vườn hộ/...)"}
+        label={(isCNSpecial || isTS) ? "8. Nguồn gốc mẫu thu thập (tự nhiên/hộ gia đình/trang trại/...)" : "8. Nguồn gốc mẫu thu thập (tự nhiên/đồi núi/đất hoang hoá/vườn hộ/...)"}
         name="nguon_goc_mau"
-        options={isCNThuyCamLike ? ["Tự nhiên", "Hộ gia đình", "Trang trại"] : isCNSpecial ? ["Tự nhiên", "Hộ gia đình", "Trang trại", "Khác"] : ["Tự nhiên", "Đồi núi", "Đất hoang hoá", "Vườn hộ", "Khác"]}
+        options={isTS ? ["Tự nhiên", "Hộ gia đình", "Trang trại", "Khác"] : isCNThuyCamLike ? ["Tự nhiên", "Hộ gia đình", "Trang trại"] : isCNSpecial ? ["Tự nhiên", "Hộ gia đình", "Trang trại", "Khác"] : ["Tự nhiên", "Đồi núi", "Đất hoang hoá", "Vườn hộ", "Khác"]}
         value={d.nguon_goc_mau} onChange={(v) => set('nguon_goc_mau', v)}
       />
       <RadioRow
-        label={(isCNGSGam || isCNThuyCamLike) ? "9. Dạng mẫu được thu thập (cá thể/máu/lông/trứng/da/thịt/...)" : isCNGiaCam ? "9. Dạng mẫu được thu thập (cá thể/lông/máu/trứng/thịt/...)" : "9. Dạng mẫu được thu thập (thân/cành/lá/hoa/quả/...)"}
+        label={(isCNGSGam || isCNThuyCamLike || isTS) ? "9. Dạng mẫu được thu thập (cá thể/máu/lông/trứng/da/thịt/...)" : isCNGiaCam ? "9. Dạng mẫu được thu thập (cá thể/lông/máu/trứng/thịt/...)" : "9. Dạng mẫu được thu thập (thân/cành/lá/hoa/quả/...)"}
         name="dang_mau"
-        options={isCNSpecial ? ["Cá thể", "Lông", "Máu", "Trứng", "Thịt", "Khác"] : ["Thân", "Cành", "Lá", "Hoa", "Quả", "Khác"]}
+        options={isTS ? ["Cá thể", "Máu", "Da", "Lông", "Trứng", "Khác"] : isCNSpecial ? ["Cá thể", "Lông", "Máu", "Trứng", "Thịt", "Khác"] : ["Thân", "Cành", "Lá", "Hoa", "Quả", "Khác"]}
         value={d.dang_mau} onChange={(v) => set('dang_mau', v)}
         otherValue={d.dang_mau_khac} onOtherChange={(v) => set('dang_mau_khac', v)}
       />
@@ -229,9 +229,9 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
         otherValue={d.ban_chat_truyen_khac} onOtherChange={(v) => set('ban_chat_truyen_khac', v)}
       />
       <RadioRow
-        label={isCNSpecial ? "11. Mức độ thuần của mẫu: (thuần nhất/hỗn dòng/lẫn tạp, ...)" : "11. Mức độ thuần của mẫu: (thuần nhất/hỗn đồng/lẫn tạp, ...)"}
+        label={(isCNSpecial || isTS) ? "11. Mức độ thuần của mẫu (thuần nhất/hỗn dòng/lẫn tạp/...)" : "11. Mức độ thuần của mẫu: (thuần nhất/hỗn đồng/lẫn tạp, ...)"}
         name="muc_do_thuan"
-        options={isCNSpecial ? ["Thuần nhất", "Hỗn dòng", "Lẫn tạp"] : ["Thuần nhất", "Hỗn đồng", "Lẫn tạp", "Khác"]}
+        options={isCNSpecial ? ["Thuần nhất", "Hỗn dòng", "Lẫn tạp"] : isTS ? ["Thuần nhất", "Hỗn dòng", "Lẫn tạp", "Khác"] : ["Thuần nhất", "Hỗn đồng", "Lẫn tạp", "Khác"]}
         value={d.muc_do_thuan} onChange={(v) => set('muc_do_thuan', v)}
       />
       <RadioRow
@@ -241,12 +241,12 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
         value={d.thoi_gian_ton_tai} onChange={(v) => set('thoi_gian_ton_tai', v)}
       />
       <RadioRow
-        label={isCNSpecial ? "13. Mức độ phổ biến của giống tại nơi thu thập (nhiều (>30% hộ nuôi)/vừa phải (15-30%)/ít (5-15%)/hiếm (<5%))" : "13. Mức độ phổ biến của giống tại nơi thu thập (nhiều (>30% hộ trồng)/vừa phải (15-30%)/ít (5-15%)/hiếm (<5%))"}
+        label={(isCNSpecial || isTS) ? "13. Mức độ phổ biến của giống tại nơi thu thập (nhiều (>30% hộ nuôi)/vừa phải (15-30%)/ít (5-15%)/hiếm (<5%))" : "13. Mức độ phổ biến của giống tại nơi thu thập (nhiều (>30% hộ trồng)/vừa phải (15-30%)/ít (5-15%)/hiếm (<5%))"}
         name="muc_do_pho_bien"
         options={isCNThuyCamLike
           ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15–30%) hộ nuôi", "Ít (từ 5–15%) hộ nuôi"]
-          : isCNSpecial
-          ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15–30%) hộ nuôi", "Ít (từ 5–15%) hộ nuôi", "Hiếm (dưới 5% hộ nuôi)"]
+          : (isCNSpecial || isTS)
+          ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15-30% hộ nuôi)", "Ít (từ 5-15% hộ nuôi)", "Hiếm (dưới 5% hộ nuôi)"]
           : ["Nhiều (trên 30% hộ trồng)", "Vừa phải (từ 15–30%) hộ trồng", "Ít (từ 5–15%) hộ trồng", "Hiếm (dưới 5% hộ trồng)"]}
         value={d.muc_do_pho_bien} onChange={(v) => set('muc_do_pho_bien', v)}
       />
@@ -462,32 +462,34 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
             name="ts_loai_hinh_nuoi"
             options={["CN hộ", "Trang trại", "CNC", "Tự nhiên", "Khác"]}
             value={d.ts_loai_hinh_nuoi} onChange={(v) => set('ts_loai_hinh_nuoi', v)}
+            otherValue={d.ts_loai_hinh_nuoi_khac} onOtherChange={(v) => set('ts_loai_hinh_nuoi_khac', v)}
           />
           <RadioRow
             label="18. Thức ăn (tự nhiên/tự cung cấp/công nghiệp/...)"
             name="ts_thuc_an"
-            options={["Tự nhiên", "Tự cung cấp", "Công nghiệp", "Hỗn hợp", "Khác"]}
+            options={["Tự nhiên", "Tự cung cấp", "Công nghiệp", "Khác"]}
             value={d.ts_thuc_an} onChange={(v) => set('ts_thuc_an', v)}
           />
           <RadioRow
             label="19. Nguồn gốc giống (tự để giống/mua từ CSSX/trao đổi tại địa phương/...)"
             name="nguon_giong_ruong"
-            options={["Tự để giống", "Mua từ CSSX", "Trao đổi tại địa phương", "Nhập nội", "Khác"]}
+            options={["Tự để giống", "Trao đổi tại địa phương", "Mua từ cơ sở sản xuất", "Khác"]}
             value={d.nguon_giong_ruong} onChange={(v) => set('nguon_giong_ruong', v)}
+            otherValue={d.ts_nguon_giong_khac} onOtherChange={(v) => set('ts_nguon_giong_khac', v)}
           />
           <RadioRow
             label="20. Phương thức nuôi (công nghiệp/bán chăn thả/chăn thả/...)"
             name="ts_phuong_thuc_nuoi"
             options={["Công nghiệp", "Bán chăn thả", "Chăn thả", "Khác"]}
             value={d.ts_phuong_thuc_nuoi} onChange={(v) => set('ts_phuong_thuc_nuoi', v)}
+            otherValue={d.ts_phuong_thuc_nuoi_khac} onOtherChange={(v) => set('ts_phuong_thuc_nuoi_khac', v)}
           />
           <TextRow
             label="21. Thời gian sinh trưởng hoặc tuổi thành thục"
             value={d.thoi_gian_sinh_truong} onChange={(v) => set('thoi_gian_sinh_truong', v)}
           />
-          <RadioRow
+          <CheckboxRow
             label="22. Biện pháp phòng trừ sâu bệnh (không áp dụng/thuốc dân gian/thuốc BVTV/...)"
-            name="phong_tru_sau_benh"
             options={["Không áp dụng", "Thuốc dân gian", "Thuốc BVTV", "Khác"]}
             value={d.phong_tru_sau_benh} onChange={(v) => set('phong_tru_sau_benh', v)}
           />
@@ -553,7 +555,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
       ) : (isCN || isTS) ? (
         <>
           <TextRow label="23. Bộ phận được thu hoạch, sử dụng chính" value={d.phan_cay_su_dung} onChange={(v) => set('phan_cay_su_dung', v)} />
-          {isCNSpecial ? (
+          {(isCNSpecial || isTS) ? (
             <CheckboxRow
               label="24. Mục đích sử dụng chính (thực phẩm/sinh sản/sức kéo/...)"
               options={["Thực phẩm", "Sinh sản", "Sức kéo", "Khác"]}
