@@ -69,8 +69,10 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
   setupColumns(ws);
   const f2 = { ...defaultForm2(), ...ext.form2 };
   const nhom = item.nhom;
-  const isTTLN = !nhom || ['TT', 'LN'].includes(nhom);
-  const isDL = nhom === 'DL';
+  const phan_nhom = item.phan_nhom;
+  const isDLUseTTLN = nhom === 'DL' && ['Thân bụi', 'Thân gỗ', 'Thân leo', 'Thân thảo'].includes(phan_nhom ?? '');
+  const isTTLN = !nhom || ['TT', 'LN'].includes(nhom) || isDLUseTTLN;
+  const isDL = nhom === 'DL' && !isDLUseTTLN;
   const isCN = nhom === 'CN';
   const isTS = nhom === 'TS';
   const isVS = nhom === 'VS';
