@@ -46,11 +46,6 @@ function g(m: Map<string, string>, ...labels: string[]): string {
   return "";
 }
 
-function splitParts(val: string, sep: string, n: number): string[] {
-  const arr = val.split(sep).map((s) => s.trim());
-  while (arr.length < n) arr.push("");
-  return arr;
-}
 
 // ─── Form 1 (sheet 0: "00.TTCB") ─────────────────────────────
 function parseForm1(ws: ExcelJS.Worksheet): { basic: Partial<NguonGen>; form1: Partial<Form1Data> } {
@@ -91,20 +86,25 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
   const isVS   = nhom === "VS";
 
   // Section I — fixed for all nhom
-  const viet = splitParts(g(m, "2. Tên nguồn gen — Tên Việt Nam (Bộ/Họ/Chi/Loài)"), " / ", 4);
-  const khoa = splitParts(g(m, "Tên khoa học (Bộ/Họ/Chi/Loài)"), " / ", 4);
-  const noi  = splitParts(g(m, "4. Nơi thu thập (Thôn/Xã/Huyện/Tỉnh)"), " / ", 4);
-  const toa  = splitParts(g(m, "Tọa độ X / Y"), " / ", 2);
-
   const result: Partial<Form2Data> = {
-    ma_thu_thap:        g(m, "1. Mã thu thập"),
-    ten_viet_bo: viet[0], ten_viet_ho: viet[1], ten_viet_chi: viet[2], ten_viet_loai: viet[3],
-    ten_khoa_bo: khoa[0], ten_khoa_ho: khoa[1], ten_khoa_chi: khoa[2], ten_khoa_loai: khoa[3],
-    ten_khac_2:         g(m, "Tên khác"),
-    ngay_thu_thap:      g(m, "3. Ngày thu thập"),
-    thon_ban: noi[0], xa_phuong: noi[1], huyen_thi_tp: noi[2], tinh: noi[3],
-    toa_do_x: toa[0], toa_do_y: toa[1],
-    do_cao:             g(m, "Độ cao (m)"),
+    ma_thu_thap:   g(m, "1. Mã thu thập"),
+    ten_viet_bo:   g(m, "2. Tên nguồn gen — Tên Việt Nam — Tên bộ"),
+    ten_viet_ho:   g(m, "Tên Việt Nam — Tên họ"),
+    ten_viet_chi:  g(m, "Tên Việt Nam — Tên chi"),
+    ten_viet_loai: g(m, "Tên Việt Nam — Tên loài"),
+    ten_khoa_bo:   g(m, "Tên khoa học — Tên bộ"),
+    ten_khoa_ho:   g(m, "Tên khoa học — Tên họ"),
+    ten_khoa_chi:  g(m, "Tên khoa học — Tên chi"),
+    ten_khoa_loai: g(m, "Tên khoa học — Tên loài"),
+    ten_khac_2:    g(m, "Tên khác"),
+    ngay_thu_thap: g(m, "3. Ngày thu thập"),
+    thon_ban:      g(m, "4. Nơi thu thập — Thôn/Bản"),
+    xa_phuong:     g(m, "Nơi thu thập — Xã/Phường"),
+    huyen_thi_tp:  g(m, "Nơi thu thập — Huyện/Thị/TP"),
+    tinh:          g(m, "Nơi thu thập — Tỉnh"),
+    toa_do_x:      g(m, "Tọa độ X"),
+    toa_do_y:      g(m, "Tọa độ Y"),
+    do_cao:        g(m, "Độ cao (m)"),
     ten_nguon_goc:      g(m, "5. Tên người/cơ quan gieo, trồng/cấp giống"),
     ten_nguoi_thu_thap: g(m, "6. Tên người thu thập"),
     co_quan_dieu_tra:   g(m, "7. Cơ quan điều tra, thu thập"),
