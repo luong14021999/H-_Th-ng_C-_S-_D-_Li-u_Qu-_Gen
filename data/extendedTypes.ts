@@ -55,6 +55,7 @@ export interface Form2Data {
   dang_mau: string;
   dang_mau_khac: string;
   ban_chat_truyen: string;
+  ban_chat_truyen_khac: string;
   muc_do_thuan: string;
   thoi_gian_ton_tai: string;
   muc_do_pho_bien: string;
@@ -201,7 +202,8 @@ export interface Form3Data {
   ln_hinh_dang_la: string;          // 19. Hình dạng lá
   ln_kieu_la: string;               // 20. Kiểu lá
   ln_cuong_la: string;              // 21. Cuống lá
-  ln_kich_thuoc_la: string;         // 22. Kích thước lá (Dài × Rộng cm)
+  ln_kich_thuoc_la: string;         // 22. Kích thước lá (Dài cm)
+  ln_kich_thuoc_la_rong: string;    // 22. Kích thước lá (Rộng cm)
   ln_gan_la: string;                // 23. Gân lá
   ln_mau_la: string;                // 24. Màu lá
   ln_mau_la_non: string;            // 25. Màu lá non
@@ -225,18 +227,42 @@ export interface Form3Data {
   ln_kieu_qua: string;              // 43. Kiểu quả
   ln_loai_qua: string;              // 44. Loại quả
   ln_hinh_dang_qua: string;         // 45. Hình dạng quả
-  ln_kich_thuoc_qua: string;        // 46. Kích thước quả (Dài × Rộng/đường kính cm)
+  ln_kich_thuoc_qua: string;        // 46. Kích thước quả (Dài cm)
+  ln_kich_thuoc_qua_rong: string;   // 46. Kích thước quả (Rộng hoặc đường kính cm)
   ln_mau_vo_qua: string;            // 47. Màu sắc vỏ quả
   ln_so_hat_qua: string;            // 48. Số hạt trên quả (TB)
   ln_dang_hat: string;              // 49. Dạng hạt
   ln_be_mat_hat: string;            // 50. Bề mặt hạt
   ln_mau_hat: string;               // 51. Màu hạt
-  ln_kich_thuoc_hat: string;        // 52. Kích thước hạt (Dài mm × Rộng cm)
+  ln_kich_thuoc_hat: string;        // 52. Kích thước hạt (Dài mm)
+  ln_kich_thuoc_hat_rong: string;   // 52. Kích thước hạt (Rộng cm)
   ln_trong_luong_1000_hat: string;  // 53. Trọng lượng 1000 hạt (Kg)
   ln_cau_tao_cay_mam: string;       // 54. Cấu tạo cây mầm
   // LN growth/development
   ln_thoi_gian_ra_hoa: string;      // 63. Thời gian từ trồng đến ra hoa, kết quả (năm)
   ln_thoi_gian_thu_hoach: string;   // 64. Thời gian từ trồng đến thu hoạch (năm)
+
+  // TN (Tre nứa) morphology — Bảng 06, fields 10–31
+  tn_than_ngam: string;          // 10. Thân ngầm
+  tn_chieu_cao_than: string;     // 11. Chiều cao thân khí sinh (TB) (m)
+  tn_duong_kinh_than: string;    // 11. Đường kính thân khí sinh (TB) (cm)
+  tn_chieu_dai_long: string;     // 12. Chiều dài lóng (TB) (cm)
+  tn_chieu_dai_la: string;       // 13. Chiều dài lá (TB) (cm)
+  tn_chieu_rong_la: string;      // 14. Chiều rộng lá (TB) (cm)
+  tn_do_phu_long_la: string;     // 15. Độ phủ lông của lá
+  tn_mau_phien_la: string;       // 16. Màu phiến lá
+  tn_mau_goc_be_la: string;      // 17. Màu góc bẹ lá
+  tn_goc_la: string;             // 18. Góc lá
+  tn_mau_co_la: string;          // 19. Màu cổ lá
+  tn_mau_tai_la: string;         // 20. Màu tai lá
+  tn_hinh_dang_mo_than: string;  // 21. Hình dạng mo thân
+  tn_mau_sac_mo_than: string;    // 22. Màu sắc mo thân
+  tn_mau_long_mo: string;        // 23. Màu lông mo
+  tn_tai_mo: string;             // 24. Tai mo (có/không)
+  tn_la_mo: string;              // 25. Lá mo
+  tn_dang_bong: string;          // 26. Dạng bông/khuy
+  tn_phan_nhanh: string;         // 27. Phân nhánh thứ cấp trên bông
+  tn_mau_hat: string;            // 28. Màu hạt
 
   // CN (Vật nuôi) morphology — Bảng 11, fields 10–22
   cn_hinh_thai_long: string;       // 10. Hình thái lông
@@ -322,6 +348,23 @@ export interface Form3Data {
   vs_thoi_gian_khuan_lac: string;
   vs_toc_do_sinh_truong: string;
 
+  // TGS (Tiểu gia súc) morphology — fields 10–32
+  tgs_long: string;          // 10. Lông
+  tgs_mom: string;           // 11. Mõm
+  tgs_rang_nanh: string;     // 12. Răng nanh
+  tgs_dau: string;           // 15. Đầu
+  tgs_kieu_tai: string;      // 16. Kiểu tai
+  tgs_huong_tai: string;     // 17. Hướng tai
+  tgs_da: string;            // 18. Da
+  tgs_duoi: string;          // 19. Đuôi
+  tgs_lung: string;          // 20. Lưng
+  tgs_chan: string;          // 21. Chân
+  tgs_klct: string;          // 23. KLCT
+  tgs_dai_dau: string;       // 25. Dài đầu
+  tgs_dai_tai: string;       // 26. Dài tai
+  tgs_dai_duoi: string;      // 27. Dài đuôi
+  tgs_so_vu: string;         // 30. Số vú
+
   // II.B Sinh học, sinh thái (dùng chung)
   anh_sang: string;
   dat_tho_nhuong: string;
@@ -348,6 +391,7 @@ export interface Form4Data {
   ten_giong: string;
   nguon_giong: string;
   noi_nhan_giong: string;
+  noi_nhan_giong_nuoi: string;
   nguoi_mo_ta: string;
   co_quan_mo_ta: string;
   // II.A Thông tin DNA (fields 9–12)
@@ -399,7 +443,7 @@ export const defaultForm2 = (): Form2Data => ({
   ngay_thu_thap: '', thon_ban: '', xa_phuong: '', huyen_thi_tp: '', tinh: '',
   toa_do_x: '', toa_do_y: '', do_cao: '',
   ten_nguon_goc: '', ten_nguoi_thu_thap: '', co_quan_dieu_tra: '',
-  nguon_goc_mau: '', dang_mau: '', dang_mau_khac: '', ban_chat_truyen: '', muc_do_thuan: '',
+  nguon_goc_mau: '', dang_mau: '', dang_mau_khac: '', ban_chat_truyen: '', ban_chat_truyen_khac: '', muc_do_thuan: '',
   thoi_gian_ton_tai: '', muc_do_pho_bien: '', xu_huong_phat_trien: '',
   dia_hinh: '', loai_dat: '', loai_dat_khac: '', mau_dat: '', do_chua: '',
   vat_lieu_nhan_giong: '', vat_lieu_nhan_giong_khac: '', nguon_giong_ruong: '',
@@ -440,14 +484,21 @@ export const defaultForm3 = (): Form3Data => ({
   ln_dang_cay: '', ln_chieu_cao_hvn: '', ln_chieu_cao_hdc: '', ln_duong_kinh_d13: '',
   ln_dac_diem_goc: '', ln_sac_to_canh_non: '', ln_long_canh_non: '', ln_goc_phan_canh: '',
   ln_hinh_thai_tan: '', ln_duong_kinh_tan: '', ln_hinh_dang_la: '', ln_kieu_la: '', ln_cuong_la: '',
-  ln_kich_thuoc_la: '', ln_gan_la: '', ln_mau_la: '', ln_mau_la_non: '', ln_mep_la: '',
+  ln_kich_thuoc_la: '', ln_kich_thuoc_la_rong: '', ln_gan_la: '', ln_mau_la: '', ln_mau_la_non: '', ln_mep_la: '',
   ln_dau_la: '', ln_duoi_la: '', ln_sap_xep_la: '', ln_kieu_hoa: '', ln_kieu_dinh_hoa: '',
   ln_kich_thuoc_hoa: '', ln_hinh_dang_hoa: '', ln_de_hoa: '', ln_dai_hoa: '', ln_trang_hoa: '',
   ln_mau_sac_trang_hoa: '', ln_nhi_hoa: '', ln_bao_phan: '', ln_nhuy_hoa: '', ln_mui_hoa: '',
-  ln_huong_moc_hoa: '', ln_kieu_qua: '', ln_loai_qua: '', ln_hinh_dang_qua: '', ln_kich_thuoc_qua: '',
+  ln_huong_moc_hoa: '', ln_kieu_qua: '', ln_loai_qua: '', ln_hinh_dang_qua: '', ln_kich_thuoc_qua: '', ln_kich_thuoc_qua_rong: '',
   ln_mau_vo_qua: '', ln_so_hat_qua: '', ln_dang_hat: '', ln_be_mat_hat: '', ln_mau_hat: '',
-  ln_kich_thuoc_hat: '', ln_trong_luong_1000_hat: '', ln_cau_tao_cay_mam: '',
+  ln_kich_thuoc_hat: '', ln_kich_thuoc_hat_rong: '', ln_trong_luong_1000_hat: '', ln_cau_tao_cay_mam: '',
   ln_thoi_gian_ra_hoa: '', ln_thoi_gian_thu_hoach: '',
+  // TN fields
+  tn_than_ngam: '', tn_chieu_cao_than: '', tn_duong_kinh_than: '',
+  tn_chieu_dai_long: '', tn_chieu_dai_la: '', tn_chieu_rong_la: '',
+  tn_do_phu_long_la: '', tn_mau_phien_la: '', tn_mau_goc_be_la: '',
+  tn_goc_la: '', tn_mau_co_la: '', tn_mau_tai_la: '',
+  tn_hinh_dang_mo_than: '', tn_mau_sac_mo_than: '', tn_mau_long_mo: '',
+  tn_tai_mo: '', tn_la_mo: '', tn_dang_bong: '', tn_phan_nhanh: '', tn_mau_hat: '',
   // CN fields
   cn_hinh_thai_long: '', cn_phan_bo_long: '', cn_mao: '', cn_kieu_bo_long: '',
   cn_mau_bo_long: '', cn_mau_da: '', cn_mau_dai_tai: '', cn_kieu_mao: '', cn_do_lon_mao: '',
@@ -470,6 +521,10 @@ export const defaultForm3 = (): Form3Data => ({
   ts_moi_truong_song: '', ts_dac_diem_dinh_duong: '', ts_dac_diem_sinh_san: '',
   ts_thoi_gian_sinh_truong_ts: '', ts_cac_giai_doan_sinh_truong: '', ts_thoi_gian_thanh_thuc_sinh_duc: '',
   ts_mau_sac_co_the: '', ts_mua_vu_sinh_san: '', ts_tuoi_thanh_thuc: '', ts_so_lan_sinh_san: '',
+  // TGS fields
+  tgs_long: '', tgs_mom: '', tgs_rang_nanh: '', tgs_dau: '', tgs_kieu_tai: '',
+  tgs_huong_tai: '', tgs_da: '', tgs_duoi: '', tgs_lung: '', tgs_chan: '',
+  tgs_klct: '', tgs_dai_dau: '', tgs_dai_tai: '', tgs_dai_duoi: '', tgs_so_vu: '',
   // VS fields
   vs_kich_thuoc_than: '', vs_kich_thuoc_re: '', vs_kich_thuoc_mu_dam: '', vs_mau_sac: '',
   vs_soi_nam_hinh_dang: '', vs_soi_nam_kich_thuoc: '', vs_soi_nam_co_vach: '',
@@ -485,7 +540,7 @@ export const defaultForm3 = (): Form3Data => ({
 
 export const defaultForm4 = (): Form4Data => ({
   ma_so_he_thong: '', ma_so_nhiem_vu: '', ten_giong: '',
-  nguon_giong: '', noi_nhan_giong: '', nguoi_mo_ta: '', co_quan_mo_ta: '',
+  nguon_giong: '', noi_nhan_giong: '', noi_nhan_giong_nuoi: '', nguoi_mo_ta: '', co_quan_mo_ta: '',
   trinh_tu_dna: '', chieu_dai_dna: '', ti_le_atgc: '', chuoi_acid_amin: '',
   thong_tin_nang_suat: '', thong_tin_chat_luong: '', khang_sau_benh: '',
   chiu_sinh_thai_bat_thuon: '', dac_tinh_kinh_te_noi_bat: '', tap_quan_xa_hoi: '',

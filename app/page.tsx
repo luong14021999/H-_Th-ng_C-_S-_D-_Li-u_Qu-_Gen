@@ -223,7 +223,7 @@ export default function Home() {
         }}
       />
 
-      <div className="flex flex-1 overflow-hidden pb-16 md:pb-0">
+      <div className="flex flex-1 overflow-hidden pb-nav-safe md:pb-0">
         {activeStats === "tk-don-vi-quan-ly" ? (
           <ThongKeTable data={data} />
         ) : activeStats === "tk-don-vi-hc" ? (

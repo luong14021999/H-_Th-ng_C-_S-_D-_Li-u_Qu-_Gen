@@ -285,20 +285,23 @@ export default function Header({
 
       {/* ── Mobile bottom nav — always visible ── */}
       {mounted && createPortal(
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex bg-green-700">
+        <nav
+          className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex bg-green-700"
+          style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        >
           {bottomTabs.map((tab) => {
             const isActive = activeTab === tab.id || (tab.id === "nguon-gen" && isNguonGenActive);
             return (
               <button
                 key={tab.id}
                 onClick={tab.action}
-                className={`flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors ${
+                className={`relative flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors min-h-[3rem] touch-manipulation ${
                   isActive ? "text-white" : "text-white/50 hover:text-white/80"
                 }`}
               >
                 <div className={`${isActive ? "opacity-100" : "opacity-60"}`}>{tab.icon}</div>
-                <span className="text-[10px] font-medium leading-none">{tab.label}</span>
-                {isActive && <div className="absolute bottom-0 w-8 h-0.5 bg-white rounded-full" />}
+                <span className="text-[11px] font-medium leading-none">{tab.label}</span>
+                {isActive && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-white rounded-full" />}
               </button>
             );
           })}
@@ -322,14 +325,14 @@ export default function Header({
                 <button
                   key={cat.id}
                   onClick={() => handleCategorySelect(cat.id)}
-                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700"
+                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 touch-manipulation"
                 >
                   <span className="text-xl">{cat.icon}</span>
                   <span className="font-medium">{cat.label}</span>
                 </button>
               ))}
             </div>
-            <div className="h-4" />
+            <div className="safe-area-bottom" />
           </div>
         </>,
         document.body
@@ -355,14 +358,14 @@ export default function Header({
                     onTabChange("thong-ke");
                     onThongKeSelect?.(item.id);
                   }}
-                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700"
+                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 touch-manipulation"
                 >
                   <IconChart cls="w-5 h-5 text-green-600 shrink-0" />
                   <span className="font-medium">{item.label}</span>
                 </button>
               ))}
             </div>
-            <div className="h-4" />
+            <div className="safe-area-bottom" />
           </div>
         </>,
         document.body

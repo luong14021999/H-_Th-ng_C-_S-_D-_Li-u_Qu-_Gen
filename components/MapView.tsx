@@ -59,8 +59,8 @@ function formatArea(km2: number): string {
 
 // ── ToolButton with hover tooltip ─────────────────────────────────────────────
 
-const BTN = "w-9 h-9 flex items-center justify-center rounded transition-colors text-white/90 hover:text-white hover:bg-white/15 active:bg-white/25 touch-manipulation";
-const BTN_ON = "w-9 h-9 flex items-center justify-center rounded text-white bg-white/25 touch-manipulation";
+const BTN = "w-10 h-10 flex items-center justify-center rounded transition-colors text-white/90 hover:text-white hover:bg-white/15 active:bg-white/25 touch-manipulation";
+const BTN_ON = "w-10 h-10 flex items-center justify-center rounded text-white bg-white/25 touch-manipulation";
 
 function ToolButton({
   title, onClick, active, children,

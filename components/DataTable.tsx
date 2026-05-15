@@ -379,8 +379,9 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
                         <td className="px-3 py-2.5 text-sm text-gray-600 hidden lg:table-cell">
                           {item.don_vi || "—"}
                         </td>
-                        <td className="px-3 py-2.5 text-sm text-gray-600 hidden xl:table-cell">
-                          {cat?.label ?? item.nhom}
+                        <td className="px-3 py-2.5 hidden xl:table-cell">
+                          <p className="text-sm text-gray-800">{item.phan_nhom || "—"}</p>
+                          {cat && <p className="text-xs text-gray-400 mt-0.5">{cat.icon} {cat.label}</p>}
                         </td>
                         <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell whitespace-nowrap">{formatDate(item.created_at)}</td>
                         <td className="px-3 py-2.5">
@@ -507,8 +508,11 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
                             <p className="text-xs text-gray-500 italic mt-0.5">{item.khoa_hoc}</p>
                           )}
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                            {item.phan_nhom && (
+                              <span className="text-xs text-gray-700">{item.phan_nhom}</span>
+                            )}
                             {cat && (
-                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                              <span className="text-xs text-gray-400 flex items-center gap-0.5">
                                 <span>{cat.icon}</span>
                                 <span>{cat.label}</span>
                               </span>

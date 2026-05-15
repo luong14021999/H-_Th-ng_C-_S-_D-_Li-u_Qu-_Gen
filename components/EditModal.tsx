@@ -162,9 +162,9 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
       {/* Form content */}
       <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4">
         {tab === 0 && <Form1BasicInfo basic={basic} data={form1} isNew={isNew} onBasicChange={setBasic} onDataChange={setForm1} />}
-        {tab === 1 && <Form2Survey nhom={basic.nhom} data={form2} onChange={setForm2} />}
-        {tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} data={form3} onChange={setForm3} />}
-        {tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} data={form4} onChange={setForm4} />}
+        {tab === 1 && <Form2Survey nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form2} onChange={setForm2} />}
+        {tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form3} onChange={setForm3} />}
+        {tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form4} onChange={setForm4} />}
       </div>
 
       {/* Validation error modal */}

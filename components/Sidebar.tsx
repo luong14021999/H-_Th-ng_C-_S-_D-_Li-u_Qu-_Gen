@@ -220,7 +220,7 @@ export default function Sidebar({
       {/* Mobile: drawer overlay */}
       {open && (
         <div className="md:hidden fixed inset-0 z-[1500] flex">
-          <div className="w-80 bg-white shadow-2xl flex flex-col h-full">
+          <div className="w-4/5 max-w-xs bg-white shadow-2xl flex flex-col h-full">
             {content}
           </div>
           <div className="flex-1 bg-black/40" onClick={onClose} />
