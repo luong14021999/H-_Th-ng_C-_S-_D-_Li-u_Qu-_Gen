@@ -74,10 +74,20 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
     setImporting(true);
     try {
       const result = await importNguonGenExcel(file);
-      if (result.form2) setForm2(result.form2);
-      if (result.form3) setForm3(result.form3);
-      if (result.form4) setForm4(result.form4);
-      if (result.ma) setBasic((prev) => ({ ...prev, ma: result.ma! }));
+      // Apply basic fields (merge: only overwrite non-empty values)
+      setBasic((prev) => {
+        const merged = { ...prev };
+        for (const [k, v] of Object.entries(result.basic)) {
+          if (v !== undefined && v !== null && v !== "") {
+            (merged as Record<string, unknown>)[k] = v;
+          }
+        }
+        return merged;
+      });
+      if (Object.keys(result.form1).length) setForm1(result.form1);
+      if (Object.keys(result.form2).length) setForm2(result.form2);
+      if (Object.keys(result.form3).length) setForm3(result.form3);
+      if (Object.keys(result.form4).length) setForm4(result.form4);
     } catch {
       alert("Không thể đọc file. Vui lòng chọn file Excel được xuất từ hệ thống.");
     } finally {

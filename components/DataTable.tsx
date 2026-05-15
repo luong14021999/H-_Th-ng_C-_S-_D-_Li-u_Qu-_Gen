@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { CATEGORY_MAP, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 import EditModal from "./EditModal";
+import ImportModal from "./ImportModal";
 import { exportNguonGenExcel, exportDanhSachExcel } from "@/lib/exportExcel";
 
 interface DataTableProps {
@@ -68,6 +69,7 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [exportingList, setExportingList] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
   const pageSize = 20;
 
   const activeCat = filterCategory !== "all" ? CATEGORY_MAP[filterCategory] : null;
@@ -290,6 +292,16 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
               <span className="text-xs text-gray-400 shrink-0">({filtered.length})</span>
             </div>
             <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center gap-1.5 border border-gray-300 text-gray-600 hover:bg-gray-100 text-xs font-medium px-2.5 py-2 rounded-lg transition-colors"
+                title="Nhập từ tệp Excel"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                <span className="hidden sm:inline">Nhập Excel</span>
+              </button>
               <button
                 onClick={handleExportList}
                 disabled={exportingList || filtered.length === 0}
@@ -604,6 +616,15 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
           </div>
           <div className="flex-1 bg-black/40" onClick={() => setFilterDrawerOpen(false)} />
         </div>
+      )}
+
+      {/* Import modal */}
+      {showImportModal && (
+        <ImportModal
+          existingData={data}
+          onClose={() => setShowImportModal(false)}
+          onSuccess={() => setShowImportModal(false)}
+        />
       )}
 
       {/* Add modal */}
