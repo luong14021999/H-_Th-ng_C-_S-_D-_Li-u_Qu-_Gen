@@ -80,11 +80,31 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
   const m = buildMap(ws);
 
   const isDLUseTTLN = nhom === "DL" && ["Thân bụi", "Thân gỗ", "Thân leo", "Thân thảo"].includes(phan_nhom);
-  const isTTLN = !nhom || ["TT", "LN"].includes(nhom) || isDLUseTTLN;
-  const isDL   = nhom === "DL" && !isDLUseTTLN;
-  const isCN   = nhom === "CN";
-  const isTS   = nhom === "TS";
-  const isVS   = nhom === "VS";
+
+  // When nhom is unknown (no Form1 sheet exported), detect from unique Section III labels.
+  // CN and TS share identical labels, so we dual-write both when ambiguous.
+  let detectedNhom = nhom;
+  let cntsAmbiguous = false;
+  if (!nhom) {
+    if (m.has("16. Địa hình")) {
+      detectedNhom = "TT";
+    } else if (m.has("12. Nguồn gốc giống/chủng VSV")) {
+      detectedNhom = "VS";
+    } else if (m.has("18. Kỹ thuật nuôi trồng")) {
+      detectedNhom = "DL";
+    } else if (m.has("17. Loại hình nuôi/trồng")) {
+      detectedNhom = "CN";
+      cntsAmbiguous = true; // also write TS fields
+    } else {
+      detectedNhom = "TT";
+    }
+  }
+
+  const isTTLN = ["TT", "LN"].includes(detectedNhom) || isDLUseTTLN;
+  const isDL   = detectedNhom === "DL" && !isDLUseTTLN;
+  const isCN   = detectedNhom === "CN" || cntsAmbiguous;
+  const isTS   = detectedNhom === "TS" || cntsAmbiguous;
+  const isVS   = detectedNhom === "VS";
 
   // Section I — fixed for all nhom
   const result: Partial<Form2Data> = {
@@ -175,7 +195,11 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
     result.cach_che_bien           = g(m, "29. Cách chế biến");
     result.phuong_phap_de_giong    = g(m, "30. Phương pháp để giống");
     result.kinh_nghiem_chon_giong  = g(m, "31. Kinh nghiệm, tiêu chí chọn giống");
-  } else if (isCN) {
+  }
+
+  // CN and TS blocks are independent (not else-if) so both run when cntsAmbiguous is true,
+  // letting the correct nhom's fields be populated regardless of which the record actually is.
+  if (isCN) {
     result.cn_nguon_goc_giong      = g(m, "16. Nguồn gốc giống");
     result.cn_hinh_thuc_chan_nuoi  = g(m, "17. Loại hình nuôi/trồng");
     result.cn_thuc_an              = g(m, "18. Thức ăn");
@@ -191,7 +215,9 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
     result.cach_che_bien           = g(m, "27. Cách chế biến");
     result.phuong_phap_de_giong    = g(m, "28. Phương pháp để giống");
     result.kinh_nghiem_chon_giong  = g(m, "29. Kinh nghiệm, tiêu chí chọn giống");
-  } else if (isTS) {
+  }
+
+  if (isTS) {
     result.ts_nguon_goc_giong  = g(m, "16. Nguồn gốc giống");
     const lh = g(m, "17. Loại hình nuôi/trồng");
     if (lh.startsWith("Khác — ")) { result.ts_loai_hinh_nuoi = "Khác"; result.ts_loai_hinh_nuoi_khac = lh.slice(7); }
@@ -213,7 +239,9 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
     result.cach_che_bien           = g(m, "27. Cách chế biến");
     result.phuong_phap_de_giong    = g(m, "28. Phương pháp để giống");
     result.kinh_nghiem_chon_giong  = g(m, "29. Kinh nghiệm, tiêu chí chọn giống");
-  } else if (isVS) {
+  }
+
+  if (isVS) {
     result.nguon_giong_ruong       = g(m, "12. Nguồn gốc giống/chủng VSV");
     result.dl_loai_hinh_nuoi_trong = g(m, "13. Loại hình sản xuất");
     result.dl_ky_thuat_nuoi_trong  = g(m, "14. Kỹ thuật nuôi trồng");
