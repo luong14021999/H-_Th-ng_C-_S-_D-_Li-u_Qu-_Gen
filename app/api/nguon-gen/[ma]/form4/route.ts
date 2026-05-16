@@ -6,14 +6,11 @@ type Ctx = { params: Promise<{ ma: string }> };
 export async function PUT(req: NextRequest, { params }: Ctx) {
   const { ma } = await params;
   const body = await req.json();
-  const payload = { ...body, ma_nguon_gen: ma };
 
-  const { data, error } = await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from("form4_data")
-    .upsert(payload, { onConflict: "ma_nguon_gen" })
-    .select()
-    .single();
+    .upsert({ ma_nguon_gen: ma, data: body }, { onConflict: "ma_nguon_gen" });
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json(data);
+  return NextResponse.json({ ok: true });
 }
