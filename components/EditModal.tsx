@@ -13,7 +13,7 @@ interface EditModalProps {
   item: NguonGen;
   extended: ExtendedFormData;
   isNew?: boolean;
-  onSave: (updated: NguonGen, ext: ExtendedFormData) => void;
+  onSave: (updated: NguonGen, ext: ExtendedFormData) => Promise<void>;
   onClose: () => void;
 }
 
@@ -34,9 +34,11 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [validationMsg, setValidationMsg] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!basic.ten.trim()) {
       setValidationMsg("Vui lòng nhập Tên Việt Nam trước khi lưu.");
       setTab(0);
@@ -56,7 +58,14 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
       setTab(0);
       return;
     }
-    onSave(basic, { form1, form2, form3, form4 });
+    setSaving(true);
+    try {
+      await onSave(basic, { form1, form2, form3, form4 });
+      setSaved(true);
+      setTimeout(() => onClose(), 1800);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleReset = () => {
@@ -142,8 +151,9 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
             <span className="hidden sm:inline">Làm mới (F9)</span>
           </button>
 
-          <button onClick={handleSave} className="bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors">
-            {isNew ? "Lưu lại" : "Lưu lại"}
+          <button onClick={handleSave} disabled={saving || saved} className="flex items-center gap-1.5 bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors disabled:opacity-70">
+            {saving && <div className="w-3.5 h-3.5 border-2 border-green-700 border-t-transparent rounded-full animate-spin" />}
+            {saving ? "Đang lưu..." : "Lưu lại"}
           </button>
           <button onClick={onClose} className="text-green-100 hover:text-white p-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -260,13 +270,31 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
               Tiếp theo →
             </button>
           ) : (
-            <button onClick={handleSave}
-              className="px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors font-medium">
-              {isNew ? "Lưu lại" : "Lưu lại"}
+            <button onClick={handleSave} disabled={saving || saved}
+              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:opacity-70">
+              {saving && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              {saving ? "Đang lưu..." : "Lưu lại"}
             </button>
           )}
         </div>
       </div>
+
+      {/* Success overlay */}
+      {saved && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-200">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-gray-800">Lưu thành công!</p>
+              <p className="text-sm text-gray-400 mt-1">{isNew ? `Đã tạo mới: ${basic.ten}` : `Đã cập nhật: ${basic.ten}`}</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

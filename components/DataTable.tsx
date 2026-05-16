@@ -10,7 +10,7 @@ import { exportNguonGenExcel, exportDanhSachExcel } from "@/lib/exportExcel";
 interface DataTableProps {
   data: NguonGen[];
   extendedMap: Record<string, ExtendedFormData>;
-  onEdit: (updated: NguonGen, ext: ExtendedFormData) => void;
+  onEdit: (updated: NguonGen, ext: ExtendedFormData) => Promise<void>;
   onDelete: (ma: string) => void;
   onAdd: (item: NguonGen, ext: ExtendedFormData) => Promise<void>;
   onOpenEdit?: (ma: string) => Promise<void>;
@@ -103,9 +103,9 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
     setLoadingDownload(null);
   };
 
-  const handleSave = (updated: NguonGen, ext: ExtendedFormData) => {
-    onEdit(updated, ext);
-    setEditItem(null);
+  const handleSave = async (updated: NguonGen, ext: ExtendedFormData) => {
+    await onEdit(updated, ext);
+    // EditModal closes itself after showing the success overlay
   };
 
   const handleDelete = (item: NguonGen) => {
