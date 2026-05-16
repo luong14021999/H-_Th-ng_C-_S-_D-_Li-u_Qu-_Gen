@@ -245,6 +245,12 @@ export interface Form3Data {
   ln_thoi_gian_ra_hoa: string;      // 63. Thời gian từ trồng đến ra hoa, kết quả (năm)
   ln_thoi_gian_thu_hoach: string;   // 64. Thời gian từ trồng đến thu hoạch (năm)
 
+  // TT — Cây ăn quả (phan_nhom = 'Cây ăn quả') extra fields
+  caq_chieu_cao_phan_canh: string;  // 15. Chiều cao phân cành
+  caq_thoi_gian_ra_hoa: string;     // 59. Thời gian từ trồng đến ra hoa (ngày)
+  caq_thoi_gian_dau_qua: string;    // 60. Thời gian từ trồng đến đậu quả (ngày)
+  caq_thoi_gian_thu_hoach: string;  // 61. Thời gian từ ra hoa đến thu hoạch (ngày)
+
   // TN (Tre nứa) morphology — Bảng 06, fields 10–31
   tn_than_ngam: string;          // 10. Thân ngầm
   tn_chieu_cao_than: string;     // 11. Chiều cao thân khí sinh (TB) (m)
@@ -530,6 +536,8 @@ export const defaultForm3 = (): Form3Data => ({
   ln_mau_vo_qua: '', ln_so_hat_qua: '', ln_dang_hat: '', ln_be_mat_hat: '', ln_mau_hat: '',
   ln_kich_thuoc_hat: '', ln_kich_thuoc_hat_rong: '', ln_trong_luong_1000_hat: '', ln_cau_tao_cay_mam: '',
   ln_thoi_gian_ra_hoa: '', ln_thoi_gian_thu_hoach: '',
+  // CAQ fields
+  caq_chieu_cao_phan_canh: '', caq_thoi_gian_ra_hoa: '', caq_thoi_gian_dau_qua: '', caq_thoi_gian_thu_hoach: '',
   // TN fields
   tn_than_ngam: '', tn_chieu_cao_than: '', tn_duong_kinh_than: '',
   tn_chieu_dai_long: '', tn_chieu_dai_la: '', tn_chieu_rong_la: '',
