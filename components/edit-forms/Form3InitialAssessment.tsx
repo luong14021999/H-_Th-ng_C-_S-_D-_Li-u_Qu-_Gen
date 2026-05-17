@@ -120,6 +120,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
   const isTTCaycoi = isTT && phan_nhom === 'Cây cói';
   const isTTCaylaycu = isTT && phan_nhom === 'Cây lấy củ';
   const isTTCaymia = isTT && phan_nhom === 'Cây mía';
+  const isTTCayngo = isTT && phan_nhom === 'Cây ngô';
   const isLN = nhom === 'LN';
   const isDL = !nhom || nhom === 'DL';
   const isCN = nhom === 'CN';
@@ -151,7 +152,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       <SectionTitle>II. Dữ liệu mô tả và đánh giá ban đầu</SectionTitle>
 
       <SubTitle>A. Dữ liệu mô tả đặc điểm hình thái</SubTitle>
-      {!isLNCayDacSan && !isTTCaylaycu && !isTTCaymia && (
+      {!isLNCayDacSan && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && (
         <>
           <SubLabel>- Đặc điểm chung</SubLabel>
           <Row label="9." value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} />
@@ -353,8 +354,13 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         </>
       )}
 
+      {/* ── TT: Cây ngô ── */}
+      {isTTCayngo && (
+        <Row label="" value={d.ngo_hinh_thai} onChange={(v) => set('ngo_hinh_thai', v)} rows={6} />
+      )}
+
       {/* ── TT: Nông nghiệp / Lúa (Bảng 02) ── */}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && (
         <>
           <SubLabel>- Dữ liệu mô tả đặc điểm hình thái</SubLabel>
           <Row label="10. Chiều cao mạ" value={d.tt_chieu_cao_ma} onChange={(v) => set('tt_chieu_cao_ma', v)} />
@@ -719,7 +725,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       )}
 
       {/* ── II.B Sinh học, sinh thái ── */}
-      <SubTitle>{isLNCayDacSan ? '. Dữ liệu mô tả đặc điểm sinh học, sinh thái' : 'B. Dữ liệu mô tả đặc điểm sinh học, sinh thái'}</SubTitle>
+      <SubTitle>{(isLNCayDacSan || isTTCayngo) ? '. Dữ liệu mô tả đặc điểm sinh học, sinh thái' : 'B. Dữ liệu mô tả đặc điểm sinh học, sinh thái'}</SubTitle>
       {isTTCayAnQua && (
         <>
           <Row label="53. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
@@ -752,7 +758,10 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="37. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && (
+      {isTTCayngo && (
+        <Row label="" value={d.ngo_sinh_hoc_st} onChange={(v) => set('ngo_sinh_hoc_st', v)} rows={4} />
+      )}
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && (
         <>
           <Row label="49. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
           <Row label="50. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
@@ -866,7 +875,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       )}
 
       {/* ── II.C Sinh trưởng, phát triển ── */}
-      <SubTitle>{isLNCayDacSan ? '. Dữ liệu sinh trưởng và phát triển' : 'C. Dữ liệu mô tả đặc điểm sinh trưởng, phát triển'}</SubTitle>
+      <SubTitle>{(isLNCayDacSan || isTTCayngo) ? '. Dữ liệu sinh trưởng và phát triển' : 'C. Dữ liệu mô tả đặc điểm sinh trưởng, phát triển'}</SubTitle>
       {isTTCayAnQua && (
         <>
           <Row label="57. Thời vụ gieo trồng" value={d.thoi_vu_gieo_trong} onChange={(v) => set('thoi_vu_gieo_trong', v)} />
@@ -914,7 +923,10 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="... Thuộc tính mới" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && (
+      {isTTCayngo && (
+        <Row label="" value={d.ngo_sinh_truong_pt} onChange={(v) => set('ngo_sinh_truong_pt', v)} rows={4} />
+      )}
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && (
         <>
           <Row label="54. Hình thức sinh trưởng" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
           <Row label="55. Tỷ lệ nảy mầm" value={d.ti_le_nay_mam} onChange={(v) => set('ti_le_nay_mam', v)} />
@@ -1042,7 +1054,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
 
       <SectionTitle>III. Ghi chú</SectionTitle>
       <div className="py-2">
-        <p className="text-xs text-gray-500 mb-1">{isLNCayDacSan ? '. Quan sát đánh giá khả năng chống chịu điều kiện bất thuận, sâu bệnh, chất lượng' : '(Quan sát khả năng chống chịu sinh thái bất thuận, khả năng kháng sâu/bệnh)'}</p>
+        <p className="text-xs text-gray-500 mb-1">{(isLNCayDacSan || isTTCayngo) ? '. Quan sát đánh giá khả năng chống chịu điều kiện bất thuận, sâu bệnh, chất lượng' : '(Quan sát khả năng chống chịu sinh thái bất thuận, khả năng kháng sâu/bệnh)'}</p>
         <textarea rows={3} value={d.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)}
           className="w-full border border-gray-200 rounded p-1.5 text-sm resize-none focus:outline-none focus:border-green-500 bg-gray-50" />
       </div>
