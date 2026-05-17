@@ -11,11 +11,11 @@ interface Props {
   onChange: (updated: Partial<Form3Data>) => void;
 }
 
-const Row = ({ label, value, onChange, rows }: {
-  label: string; value: string; onChange: (v: string) => void; rows?: number;
+const Row = ({ label, value, onChange, rows, bold }: {
+  label: string; value: string; onChange: (v: string) => void; rows?: number; bold?: boolean;
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-    <label className="text-sm text-gray-600 pt-1.5">{label}</label>
+    <label className={`text-sm pt-1.5 ${bold ? 'font-semibold text-gray-700' : 'text-gray-600'}`}>{label}</label>
     <div className="sm:col-span-2">
       {rows ? (
         <textarea rows={rows} value={value} onChange={(e) => onChange(e.target.value)}
@@ -157,7 +157,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       {!isLNCayDacSan && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && (
         <>
           <SubLabel>- Đặc điểm chung</SubLabel>
-          <Row label="9." value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} />
+          <Row label="9." value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} bold />
         </>
       )}
 
@@ -327,7 +327,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       {isTTCaymia && (
         <>
           <SubLabel>- Đặc điểm chung</SubLabel>
-          <Row label="9." value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} />
+          <Row label="9." value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} bold />
           <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
           <Row label="10. Chiều cao cây" value={d.chieu_cao_cay} onChange={(v) => set('chieu_cao_cay', v)} />
           <Row label="11. Chiều dài lá" value={d.tt_chieu_dai_la} onChange={(v) => set('tt_chieu_dai_la', v)} />
@@ -745,7 +745,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       {isVS && (
         <>
           <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
-          <SubLabel>10. Cơ quan sinh dưỡng (sợi nấm/tế bào khuẩn)</SubLabel>
+          <p className="text-sm font-semibold text-gray-700 mt-2 mb-1">10. Cơ quan sinh dưỡng (sợi nấm/tế bào khuẩn)</p>
           <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
             <div>
               <label className="text-sm text-gray-600">Hình dạng</label>
@@ -768,7 +768,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
                 className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
             </div>
           </div>
-          <SubLabel>11. Cơ quan sinh sản (bào tử)</SubLabel>
+          <p className="text-sm font-semibold text-gray-700 mt-2 mb-1">11. Cơ quan sinh sản (bào tử)</p>
           <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
             <div>
               <label className="text-sm text-gray-600">Hình dạng</label>
