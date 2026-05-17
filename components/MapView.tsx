@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { NguonGen, CATEGORY_MAP, CATEGORIES } from "@/data/nguonGen";
+import { NguonGen, CATEGORY_MAP, CATEGORIES, PHAN_NHOM_ICONS } from "@/data/nguonGen";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
 
@@ -295,9 +295,10 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
 
     data.forEach((item) => {
       const cat = CATEGORY_MAP[item.nhom];
+      const markerEmoji = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍";
       const icon = L.divIcon({
         className: "",
-        html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));">${cat?.icon ?? "📍"}</div>`,
+        html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));">${markerEmoji}</div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12],
       });
