@@ -101,6 +101,8 @@ export interface Form2Data {
   vs_do_am_sinh_truong: string;
   vs_ph: string;
   vs_thoi_gian_sinh_truong: string;
+  vs_muc_dich_khac: string;
+  vs_bo_phan_khac: string;
   // IV. Sử dụng, bảo quản, chế biến
   phan_cay_su_dung: string;
   muc_dich_su_dung: string;
@@ -585,6 +587,7 @@ export const defaultForm2 = (): Form2Data => ({
   ts_thuc_an: '', ts_phuong_thuc_nuoi: '', ts_phuong_thuc_nuoi_khac: '', ts_nguon_giong_khac: '',
   ts_nguon_nuoc: '', ts_mat_do_nuoi: '',
   vs_moi_truong_nuoi_cay: '', vs_nhiet_do_sinh_truong: '', vs_do_am_sinh_truong: '', vs_ph: '', vs_thoi_gian_sinh_truong: '',
+  vs_muc_dich_khac: '', vs_bo_phan_khac: '',
   phan_cay_su_dung: '', muc_dich_su_dung: '', thu_hoach: '',
   phuong_phap_bao_quan_sp: '', cach_che_bien: '', phuong_phap_de_giong: '',
   kinh_nghiem_chon_giong: '', dac_tinh_noi_bat: '', tai_lieu_tham_khao: '',

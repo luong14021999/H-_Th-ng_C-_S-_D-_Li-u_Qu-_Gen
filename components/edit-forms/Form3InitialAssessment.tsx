@@ -744,21 +744,53 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       {/* ── VS: Vi sinh vật/Nấm (Bảng 17) ── */}
       {isVS && (
         <>
-          <SubLabel>- Dữ liệu hình thái (Mô tả cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
-          <SubLabel>10. Kích thước</SubLabel>
-          <Row label="  Thân (cm)" value={d.vs_kich_thuoc_than} onChange={(v) => set('vs_kich_thuoc_than', v)} />
-          <Row label="  Rễ (cm)" value={d.vs_kich_thuoc_re} onChange={(v) => set('vs_kich_thuoc_re', v)} />
-          <Row label="  Mũ/đảm (cm)" value={d.vs_kich_thuoc_mu_dam} onChange={(v) => set('vs_kich_thuoc_mu_dam', v)} />
-          <SubLabel>11. Màu sắc</SubLabel>
-          <Row label="  Màu sắc (rễ/thân/mũ đảm/tán nấm)" value={d.vs_mau_sac} onChange={(v) => set('vs_mau_sac', v)} rows={2} />
-          <SubLabel>12. Sợi nấm</SubLabel>
-          <Row label="  Hình dạng" value={d.vs_soi_nam_hinh_dang} onChange={(v) => set('vs_soi_nam_hinh_dang', v)} />
-          <Row label="  Kích thước (µm)" value={d.vs_soi_nam_kich_thuoc} onChange={(v) => set('vs_soi_nam_kich_thuoc', v)} />
-          <Row label="  Đa bào/Đơn bào (có vách ngăn/không có vách ngăn)" value={d.vs_soi_nam_co_vach} onChange={(v) => set('vs_soi_nam_co_vach', v)} />
-          <SubLabel>13. Cơ quan sinh sản</SubLabel>
-          <Row label="  Bào tử vô tính (hình dạng/kích thước/màu sắc/đa bào/đơn bào)" value={d.vs_bao_tu_vo_tinh} onChange={(v) => set('vs_bao_tu_vo_tinh', v)} rows={2} />
-          <Row label="  Bào tử hữu tính (hình dạng/kích thước/màu sắc/đa bào/đơn bào)" value={d.vs_bao_tu_huu_tinh} onChange={(v) => set('vs_bao_tu_huu_tinh', v)} rows={2} />
-          <Row label="  Đặc điểm khác" value={d.vs_dac_diem_khac} onChange={(v) => set('vs_dac_diem_khac', v)} />
+          <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
+          <SubLabel>10. Cơ quan sinh dưỡng (sợi nấm/tế bào khuẩn)</SubLabel>
+          <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
+            <div>
+              <label className="text-sm text-gray-600">Hình dạng</label>
+              <textarea rows={2} value={d.vs_soi_nam_hinh_dang} onChange={(e) => set('vs_soi_nam_hinh_dang', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Kích thước</label>
+              <textarea rows={2} value={d.vs_soi_nam_kich_thuoc} onChange={(e) => set('vs_soi_nam_kich_thuoc', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Màu sắc</label>
+              <textarea rows={2} value={d.vs_mau_sac} onChange={(e) => set('vs_mau_sac', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Đa bào/đơn bào</label>
+              <textarea rows={2} value={d.vs_soi_nam_co_vach} onChange={(e) => set('vs_soi_nam_co_vach', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+          </div>
+          <SubLabel>11. Cơ quan sinh sản (bào tử)</SubLabel>
+          <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
+            <div>
+              <label className="text-sm text-gray-600">Hình dạng</label>
+              <textarea rows={2} value={d.vs_bao_tu_vo_tinh} onChange={(e) => set('vs_bao_tu_vo_tinh', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Kích thước</label>
+              <textarea rows={2} value={d.vs_kich_thuoc_than} onChange={(e) => set('vs_kich_thuoc_than', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Màu sắc</label>
+              <textarea rows={2} value={d.vs_kich_thuoc_re} onChange={(e) => set('vs_kich_thuoc_re', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+            <div>
+              <label className="text-sm text-gray-600">Đa bào/đơn bào</label>
+              <textarea rows={2} value={d.vs_kich_thuoc_mu_dam} onChange={(e) => set('vs_kich_thuoc_mu_dam', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+            </div>
+          </div>
         </>
       )}
 
@@ -910,13 +942,13 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       )}
       {isVS && (
         <>
-          <Row label="15. Địa hình" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
-          <Row label="16. Thổ nhưỡng/giá thể sinh dưỡng" value={d.vs_tho_nhuong} onChange={(v) => set('vs_tho_nhuong', v)} />
-          <Row label="17. Nhiệt độ (°C)" value={d.nhiet_do} onChange={(v) => set('nhiet_do', v)} />
-          <Row label="18. Ẩm độ (%)" value={d.do_am} onChange={(v) => set('do_am', v)} />
-          <Row label="19. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
-          <Row label="20. Dinh dưỡng" value={d.vs_dinh_duong} onChange={(v) => set('vs_dinh_duong', v)} />
-          <Row label="21. Biện pháp canh tác/nhân nuôi" value={d.vs_bien_phap_canh_tac} onChange={(v) => set('vs_bien_phap_canh_tac', v)} rows={2} />
+          <Row label="13. Địa hình" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
+          <Row label="14. Thổ nhưỡng/ giá thể sinh dưỡng" value={d.vs_tho_nhuong} onChange={(v) => set('vs_tho_nhuong', v)} />
+          <Row label="15. Nhiệt độ" value={d.nhiet_do} onChange={(v) => set('nhiet_do', v)} />
+          <Row label="16. Ẩm độ" value={d.do_am} onChange={(v) => set('do_am', v)} />
+          <Row label="17. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
+          <Row label="18. Dinh dưỡng" value={d.vs_dinh_duong} onChange={(v) => set('vs_dinh_duong', v)} />
+          <Row label="19. Biện pháp phân lập, làm thuần và nhân sinh khố" value={d.vs_bien_phap_canh_tac} onChange={(v) => set('vs_bien_phap_canh_tac', v)} rows={2} />
         </>
       )}
 
@@ -1102,9 +1134,9 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       )}
       {isVS && (
         <>
-          <Row label="22. Thời gian sinh trưởng (từ lúc nuôi/trồng đến thu hoạch)" value={d.vs_thoi_gian_khuan_lac} onChange={(v) => set('vs_thoi_gian_khuan_lac', v)} />
-          <Row label="23. Sinh trưởng — giai đoạn phát triển sợi nấm (mô tả)" value={d.vs_toc_do_sinh_truong} onChange={(v) => set('vs_toc_do_sinh_truong', v)} rows={2} />
-          <Row label="24. Phát triển — giai đoạn hình thành bào tử (mô tả)" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} rows={2} />
+          <Row label="20. Sinh trưởng (giai đoạn phát triển sợi nấm)" value={d.vs_toc_do_sinh_truong} onChange={(v) => set('vs_toc_do_sinh_truong', v)} />
+          <Row label="21. Phát triển (giai đoạn hình thành bào tử)" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
+          <Row label="22. Yêu cầu về môi trường nuôi cấy" value={d.vs_thoi_gian_khuan_lac} onChange={(v) => set('vs_thoi_gian_khuan_lac', v)} />
         </>
       )}
 
