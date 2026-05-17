@@ -230,15 +230,15 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
         otherValue={d.ban_chat_truyen_khac} onOtherChange={(v) => set('ban_chat_truyen_khac', v)}
       />
       <RadioRow
-        label={(isCNSpecial || isTS) ? "11. Mức độ thuần của mẫu (thuần nhất/hỗn dòng/lẫn tạp/...)" : "11. Mức độ thuần của mẫu: (thuần nhất/hỗn đồng/lẫn tạp, ...)"}
+        label="11. Mức độ thuần của mẫu (thuần nhất/hỗn dòng/lẫn tạp/...)"
         name="muc_do_thuan"
-        options={isCNSpecial ? ["Thuần nhất", "Hỗn dòng", "Lẫn tạp"] : isTS ? ["Thuần nhất", "Hỗn dòng", "Lẫn tạp", "Khác"] : ["Thuần nhất", "Hỗn đồng", "Lẫn tạp", "Khác"]}
+        options={isCNSpecial ? ["Thuần nhất", "Hỗn dòng", "Lẫn tạp"] : ["Thuần nhất", "Hỗn dòng", "Lẫn tạp", "Khác"]}
         value={d.muc_do_thuan} onChange={(v) => set('muc_do_thuan', v)}
       />
       <RadioRow
         label="12. Thời gian tồn tại của giống, loài tại nơi thu thập: (<2 năm/2-10 năm/>10 năm)"
         name="thoi_gian_ton_tai"
-        options={["Dưới 2 năm", "Từ 2–10 năm", "Trên 10 năm"]}
+        options={["Dưới 2 năm", "Từ 2 - 10 năm", "Trên 10 năm"]}
         value={d.thoi_gian_ton_tai} onChange={(v) => set('thoi_gian_ton_tai', v)}
       />
       <RadioRow
@@ -248,7 +248,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15–30%) hộ nuôi", "Ít (từ 5–15%) hộ nuôi"]
           : (isCNSpecial || isTS)
           ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15-30% hộ nuôi)", "Ít (từ 5-15% hộ nuôi)", "Hiếm (dưới 5% hộ nuôi)"]
-          : ["Nhiều (trên 30% hộ trồng)", "Vừa phải (từ 15–30%) hộ trồng", "Ít (từ 5–15%) hộ trồng", "Hiếm (dưới 5% hộ trồng)"]}
+          : ["Nhiều (trên 30% hộ trồng)", "Vừa phải (từ 15 - 30%) hộ trồng", "Ít (từ 5 - 15%) hộ trồng", "Hiếm (dưới 5% hộ trồng)"]}
         value={d.muc_do_pho_bien} onChange={(v) => set('muc_do_pho_bien', v)}
       />
       <RadioRow
