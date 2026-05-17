@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { NguonGen } from "@/data/nguonGen";
+import { NguonGen, CATEGORY_MAP } from "@/data/nguonGen";
 import { ExtendedFormData, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 
 type WB = ExcelJS.Workbook;
@@ -997,7 +997,8 @@ export async function exportNguonGenExcel(item: NguonGen, ext: ExtendedFormData)
   const a = document.createElement("a");
   a.href = url;
   const safeName = item.ten.replace(/[/\\?%*:|"<>]/g, '-');
-  a.download = `[${item.nhom}] ${safeName} (${item.ma}).xlsx`;
+  const nhomLabel = CATEGORY_MAP[item.nhom]?.label ?? item.nhom;
+  a.download = `[${nhomLabel}] ${safeName} (${item.ma}).xlsx`;
   a.click();
   URL.revokeObjectURL(url);
 }
