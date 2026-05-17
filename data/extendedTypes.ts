@@ -111,6 +111,8 @@ export interface Form2Data {
   kinh_nghiem_chon_giong: string;
   // V. Đặc tính nổi bật
   dac_tinh_noi_bat: string;
+  // VI. Tài liệu tham khảo (Cây ngô)
+  tai_lieu_tham_khao: string;
 }
 
 // Form 3 — Dữ liệu đánh giá ban đầu
@@ -564,7 +566,7 @@ export const defaultForm2 = (): Form2Data => ({
   vs_moi_truong_nuoi_cay: '', vs_nhiet_do_sinh_truong: '', vs_do_am_sinh_truong: '', vs_ph: '', vs_thoi_gian_sinh_truong: '',
   phan_cay_su_dung: '', muc_dich_su_dung: '', thu_hoach: '',
   phuong_phap_bao_quan_sp: '', cach_che_bien: '', phuong_phap_de_giong: '',
-  kinh_nghiem_chon_giong: '', dac_tinh_noi_bat: '',
+  kinh_nghiem_chon_giong: '', dac_tinh_noi_bat: '', tai_lieu_tham_khao: '',
 });
 
 export const defaultForm3 = (): Form3Data => ({
