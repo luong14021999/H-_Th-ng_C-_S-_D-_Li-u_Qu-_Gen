@@ -122,6 +122,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
   const isTTCaymia = isTT && phan_nhom === 'Cây mía';
   const isTTCayngo = isTT && phan_nhom === 'Cây ngô';
   const isTTCayrau = isTT && phan_nhom === 'Cây rau';
+  const isTTThuocla = isTT && phan_nhom === 'Thuốc lá';
   const isLN = nhom === 'LN';
   const isDL = !nhom || nhom === 'DL';
   const isCN = nhom === 'CN';
@@ -210,8 +211,8 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         </>
       )}
 
-      {/* ── TT: Cây chè (Bảng chè) ── */}
-      {isTTCayche && (
+      {/* ── TT: Cây chè / Thuốc lá ── */}
+      {(isTTCayche || isTTThuocla) && (
         <>
           <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
           <Row label="10. Các dạng thân (thân gỗ/thâm nửa gỗ/thân bụi/...)" value={d.dang_cay} onChange={(v) => set('dang_cay', v)} />
@@ -397,7 +398,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       )}
 
       {/* ── TT: Nông nghiệp / Lúa (Bảng 02) ── */}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && !isTTCayrau && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && !isTTCayrau && !isTTThuocla && (
         <>
           <SubLabel>- Dữ liệu mô tả đặc điểm hình thái</SubLabel>
           <Row label="10. Chiều cao mạ" value={d.tt_chieu_cao_ma} onChange={(v) => set('tt_chieu_cao_ma', v)} />
@@ -771,7 +772,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="56. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
         </>
       )}
-      {(isTTCayche || isTTCaycoi) && (
+      {(isTTCayche || isTTCaycoi || isTTThuocla) && (
         <>
           <Row label="32. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
           <Row label="33. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
@@ -806,7 +807,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="45. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && !isTTCayrau && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && !isTTCayrau && !isTTThuocla && (
         <>
           <Row label="49. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
           <Row label="50. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
@@ -930,7 +931,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="61. Thời gian từ ra hoa đến thu hoạch(ngày)" value={d.caq_thoi_gian_thu_hoach} onChange={(v) => set('caq_thoi_gian_thu_hoach', v)} />
         </>
       )}
-      {isTTCayche && (
+      {(isTTCayche || isTTThuocla) && (
         <>
           <Row label="36. Thời vụ gieo trồng" value={d.thoi_vu_gieo_trong} onChange={(v) => set('thoi_vu_gieo_trong', v)} />
           <Row label="37. Thời gian từ khi gieo đến khi mọc(ngày)" value={d.thoi_gian_khi_gieo_moc} onChange={(v) => set('thoi_gian_khi_gieo_moc', v)} />
@@ -981,7 +982,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="..." value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && !isTTCayrau && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && !isTTCayrau && !isTTThuocla && (
         <>
           <Row label="54. Hình thức sinh trưởng" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
           <Row label="55. Tỷ lệ nảy mầm" value={d.ti_le_nay_mam} onChange={(v) => set('ti_le_nay_mam', v)} />
