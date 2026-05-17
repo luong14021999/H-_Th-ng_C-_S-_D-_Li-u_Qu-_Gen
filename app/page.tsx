@@ -211,13 +211,14 @@ export default function Home() {
         onLogout={handleLogout}
         onMenuToggle={() => setSidebarOpen((v) => !v)}
         onOpenAdmin={() => {
-          if (isAdmin) { setShowTable(true); setActiveTab("danh-muc"); }
+          if (isAdmin) { setShowTable(true); setActiveTab("danh-muc"); setActiveDanhMuc(null); }
           else setShowLogin(true);
         }}
         onNguonGenCategorySelect={(categoryId) => {
           setTableCategory(categoryId);
           setShowTable(true);
           setActiveTab("nguon-gen");
+          setActiveDanhMuc(null);
         }}
         onThongKeSelect={(id) => {
           setActiveStats(id);
