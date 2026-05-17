@@ -150,7 +150,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       <SectionTitle>II. Dữ liệu mô tả và đánh giá ban đầu</SectionTitle>
 
       <SubTitle>A. Dữ liệu mô tả đặc điểm hình thái</SubTitle>
-      {!isLNCayDacSan && (
+      {!isLNCayDacSan && !isTTCaylaycu && (
         <>
           <SubLabel>- Đặc điểm chung</SubLabel>
           <Row label="9." value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} />
@@ -268,15 +268,17 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       {/* ── TT: Cây lấy củ ── */}
       {isTTCaylaycu && (
         <>
+          <SubLabel>- Đặc điểm chung</SubLabel>
+          <Row label="9. Thuộc tính mới" value={d.dac_diem_chung} onChange={(v) => set('dac_diem_chung', v)} rows={2} />
           <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
-          <Row label="10. Hình thành dài bò (có/không)" value={d.lcu_hinh_thanh_dai_bo} onChange={(v) => set('lcu_hinh_thanh_dai_bo', v)} />
+          <Row label="10. Hình thành dài bò (không có/có nhiều/có một phần/...)" value={d.lcu_hinh_thanh_dai_bo} onChange={(v) => set('lcu_hinh_thanh_dai_bo', v)} />
           <Row label="11. Số lượng dài bò" value={d.lcu_so_luong_dai_bo} onChange={(v) => set('lcu_so_luong_dai_bo', v)} />
-          <Row label="12. Hình thành củ nhánh (có/không)" value={d.lcu_hinh_thanh_cu_nhanh} onChange={(v) => set('lcu_hinh_thanh_cu_nhanh', v)} />
-          <Row label="13. Số lượng chồi bên" value={d.lcu_so_luong_choi_ben} onChange={(v) => set('lcu_so_luong_choi_ben', v)} />
+          <Row label="12. Hình thành củ nhánh (không/có)" value={d.lcu_hinh_thanh_cu_nhanh} onChange={(v) => set('lcu_hinh_thanh_cu_nhanh', v)} />
+          <Row label="13. Số lượng chồi bên (n=5)" value={d.lcu_so_luong_choi_ben} onChange={(v) => set('lcu_so_luong_choi_ben', v)} />
           <Row label="14. Chiều cao cây (lùn <50cm/trung bình 50-100cm/cao 100-150cm/rất cao >150cm)" value={d.chieu_cao_cay} onChange={(v) => set('chieu_cao_cay', v)} />
-          <Row label="15. Dạng lá phổ biến" value={d.lcu_dang_la} onChange={(v) => set('lcu_dang_la', v)} />
-          <Row label="16. Hướng phiến lá" value={d.lcu_huong_phien_la} onChange={(v) => set('lcu_huong_phien_la', v)} />
-          <Row label="17. Mép lá" value={d.lcu_mep_la} onChange={(v) => set('lcu_mep_la', v)} />
+          <Row label="15. Dạng lá phổ biến (phẳng/thùy rũ/phẳng mép rũ xuống/hình cốc/hình ô/ ...)" value={d.lcu_dang_la} onChange={(v) => set('lcu_dang_la', v)} />
+          <Row label="16. Hướng phiến lá (hướng lên/hướng xuống/ngang/...)" value={d.lcu_huong_phien_la} onChange={(v) => set('lcu_huong_phien_la', v)} />
+          <Row label="17. Mép lá (nguyên/gợn sóng/ ...)" value={d.lcu_mep_la} onChange={(v) => set('lcu_mep_la', v)} />
           <DualRow label="18–19. Kích thước phiến lá" label1="Dài(cm)" value1={d.lcu_dai_phien_la} onChange1={(v) => set('lcu_dai_phien_la', v)} label2="Rộng(cm)" value2={d.lcu_rong_phien_la} onChange2={(v) => set('lcu_rong_phien_la', v)} />
           <Row label="20. Dài cuống lá" value={d.lcu_dai_cuong_la} onChange={(v) => set('lcu_dai_cuong_la', v)} />
           <Row label="21. Màu đường viền mép lá" value={d.lcu_mau_vien_mep_la} onChange={(v) => set('lcu_mau_vien_mep_la', v)} />
