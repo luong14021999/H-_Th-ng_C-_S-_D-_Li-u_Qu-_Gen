@@ -17,6 +17,9 @@ import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
 import NhomNguonGenTable from "@/components/NhomNguonGenTable";
 import DonViSanXuatTable from "@/components/DonViSanXuatTable";
+import PhuongThucBaoTonTable from "@/components/PhuongThucBaoTonTable";
+import HinhThucBaoTonTable from "@/components/HinhThucBaoTonTable";
+import HinhThucKhaiThacTable from "@/components/HinhThucKhaiThacTable";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -238,6 +241,12 @@ export default function Home() {
           <NhomNguonGenTable />
         ) : activeDanhMuc === "dm-don-vi-sx" ? (
           <DonViSanXuatTable data={data} />
+        ) : activeDanhMuc === "dm-phuong-thuc-bao-ton" ? (
+          <PhuongThucBaoTonTable />
+        ) : activeDanhMuc === "dm-hinh-thuc-bao-ton" ? (
+          <HinhThucBaoTonTable />
+        ) : activeDanhMuc === "dm-hinh-thuc-khai-thac" ? (
+          <HinhThucKhaiThacTable />
         ) : activeStats === "tk-don-vi-quan-ly" ? (
           <ThongKeTable data={data} />
         ) : activeStats === "tk-don-vi-hc" ? (

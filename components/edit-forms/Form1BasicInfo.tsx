@@ -3,6 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { NguonGen, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { Form1Data, BaoTonEntry, defaultForm1 } from "@/data/extendedTypes";
+import SearchSelect from "@/components/SearchableSelect";
+import { PHUONG_THUC_BAO_TON, HINH_THUC_BAO_TON, HINH_THUC_KHAI_THAC } from "@/data/danhMucData";
 
 
 interface Props {
@@ -190,15 +192,46 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                     <button onClick={() => removeBaoTon(idx)} className="text-red-400 hover:text-red-600 text-xs">✕ Xóa</button>
                   )}
                 </div>
-                {(['phuong_thuc', 'hinh_thuc', 'don_vi', 'noi'] as const).map((f) => (
-                  <div key={f} className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
-                    <label className="text-xs text-gray-500">
-                      {{ phuong_thuc: '* Phương thức bảo tồn', hinh_thuc: '* Hình thức bảo tồn', don_vi: '* Đơn vị bảo tồn', noi: '* Nơi bảo tồn' }[f]}
-                    </label>
-                    <input type="text" value={entry[f]} onChange={(e) => updateBaoTon(idx, f, e.target.value)}
-                      className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                {/* Phương thức bảo tồn */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
+                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Phương thức bảo tồn</label>
+                  <div className="col-span-2">
+                    <SearchSelect
+                      value={entry.phuong_thuc}
+                      onChange={(v) => updateBaoTon(idx, 'phuong_thuc', v)}
+                      options={PHUONG_THUC_BAO_TON.filter(p => p.trang_thai === 'kich_hoat').map(p => p.ten)}
+                      placeholder="Chọn phương thức bảo tồn..."
+                    />
                   </div>
-                ))}
+                </div>
+                {/* Hình thức bảo tồn */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
+                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Hình thức bảo tồn</label>
+                  <div className="col-span-2">
+                    <SearchSelect
+                      value={entry.hinh_thuc}
+                      onChange={(v) => updateBaoTon(idx, 'hinh_thuc', v)}
+                      options={HINH_THUC_BAO_TON.filter(h =>
+                        h.trang_thai === 'kich_hoat' &&
+                        h.nhom.includes(basic.nhom) &&
+                        (!entry.phuong_thuc || h.phuong_thuc_id === PHUONG_THUC_BAO_TON.find(p => p.ten === entry.phuong_thuc)?.id)
+                      ).map(h => h.ten)}
+                      placeholder="Chọn hình thức bảo tồn..."
+                    />
+                  </div>
+                </div>
+                {/* Đơn vị bảo tồn */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
+                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Đơn vị bảo tồn</label>
+                  <input type="text" value={entry.don_vi} onChange={(e) => updateBaoTon(idx, 'don_vi', e.target.value)}
+                    className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                </div>
+                {/* Nơi bảo tồn */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
+                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Nơi bảo tồn</label>
+                  <input type="text" value={entry.noi} onChange={(e) => updateBaoTon(idx, 'noi', e.target.value)}
+                    className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                </div>
               </div>
             ))}
             <button onClick={addBaoTon} className="mt-1 text-xs text-green-700 border border-green-600 px-3 py-1 rounded hover:bg-green-50 transition-colors">
@@ -217,9 +250,19 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         </div>
         {d.dang_khai_thac && (
           <>
-            <Input label="* Hình thức khai thác, sử dụng" value={d.hinh_thuc_khai_thac} onChange={(v) => set('hinh_thuc_khai_thac', v)} required />
-            <Input label="* Nơi khai thác, sử dụng" value={d.noi_khai_thac} onChange={(v) => set('noi_khai_thac', v)} required />
-            <Input label="* Đơn vị khai thác, sử dụng" value={d.don_vi_khai_thac} onChange={(v) => set('don_vi_khai_thac', v)} required />
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
+              <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Hình thức khai thác, sử dụng</label>
+              <div className="sm:col-span-2">
+                <SearchSelect
+                  value={d.hinh_thuc_khai_thac ?? ''}
+                  onChange={(v) => set('hinh_thuc_khai_thac', v)}
+                  options={HINH_THUC_KHAI_THAC.filter(h => h.trang_thai === 'kich_hoat' && h.nhom.includes(basic.nhom)).map(h => h.ten)}
+                  placeholder="Chọn hình thức khai thác, sử dụng..."
+                />
+              </div>
+            </div>
+            <Input label="Nơi khai thác, sử dụng" value={d.noi_khai_thac} onChange={(v) => set('noi_khai_thac', v)} required />
+            <Input label="Đơn vị khai thác, sử dụng" value={d.don_vi_khai_thac} onChange={(v) => set('don_vi_khai_thac', v)} required />
           </>
         )}
       </div>
