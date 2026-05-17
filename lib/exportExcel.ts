@@ -996,7 +996,8 @@ export async function exportNguonGenExcel(item: NguonGen, ext: ExtendedFormData)
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `NguonGen_${item.ma}.xlsx`;
+  const safeName = item.ten.replace(/[/\\?%*:|"<>]/g, '-');
+  a.download = `[${item.nhom}] ${safeName} (${item.ma}).xlsx`;
   a.click();
   URL.revokeObjectURL(url);
 }
