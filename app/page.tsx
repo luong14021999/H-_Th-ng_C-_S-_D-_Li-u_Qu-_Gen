@@ -195,7 +195,7 @@ export default function Home() {
     <div className="h-full flex flex-col">
       <Header
         isAdmin={isAdmin}
-        showNav={isAdmin && (showTable || !!activeStats)}
+        showNav={isAdmin && (showTable || !!activeStats || !!activeDanhMuc)}
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
