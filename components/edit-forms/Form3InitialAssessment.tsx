@@ -279,20 +279,21 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="15. Dạng lá phổ biến (phẳng/thùy rũ/phẳng mép rũ xuống/hình cốc/hình ô/ ...)" value={d.lcu_dang_la} onChange={(v) => set('lcu_dang_la', v)} />
           <Row label="16. Hướng phiến lá (hướng lên/hướng xuống/ngang/...)" value={d.lcu_huong_phien_la} onChange={(v) => set('lcu_huong_phien_la', v)} />
           <Row label="17. Mép lá (nguyên/gợn sóng/ ...)" value={d.lcu_mep_la} onChange={(v) => set('lcu_mep_la', v)} />
-          <DualRow label="18–19. Kích thước phiến lá" label1="Dài(cm)" value1={d.lcu_dai_phien_la} onChange1={(v) => set('lcu_dai_phien_la', v)} label2="Rộng(cm)" value2={d.lcu_rong_phien_la} onChange2={(v) => set('lcu_rong_phien_la', v)} />
-          <Row label="20. Dài cuống lá" value={d.lcu_dai_cuong_la} onChange={(v) => set('lcu_dai_cuong_la', v)} />
-          <Row label="21. Màu đường viền mép lá" value={d.lcu_mau_vien_mep_la} onChange={(v) => set('lcu_mau_vien_mep_la', v)} />
-          <Row label="22. Màu phiến lá" value={d.lcu_mau_phien_la} onChange={(v) => set('lcu_mau_phien_la', v)} />
+          <Row label="18. Dài phiến lá (cm, n=5)" value={d.lcu_dai_phien_la} onChange={(v) => set('lcu_dai_phien_la', v)} />
+          <Row label="19. Rộng phiến lá (cm, n=5)" value={d.lcu_rong_phien_la} onChange={(v) => set('lcu_rong_phien_la', v)} />
+          <Row label="20. Dài cuống lá (cm, n=5)" value={d.lcu_dai_cuong_la} onChange={(v) => set('lcu_dai_cuong_la', v)} />
+          <Row label="21. Màu đường viền mép lá (xanh/nhạt/tím/đỏ/vàng nhạt/ ...)" value={d.lcu_mau_vien_mep_la} onChange={(v) => set('lcu_mau_vien_mep_la', v)} />
+          <Row label="22. Màu phiến lá (xanh nhạt/xanh đậm/vàng/tím nhạt/ tím/ ...)" value={d.lcu_mau_phien_la} onChange={(v) => set('lcu_mau_phien_la', v)} />
           <Row label="23. Đốm lá (có/không)" value={d.lcu_dom_la} onChange={(v) => set('lcu_dom_la', v)} />
-          <Row label="24. Độ dày phiến lá" value={d.lcu_do_day_phien_la} onChange={(v) => set('lcu_do_day_phien_la', v)} />
-          <Row label="25. Màu rốn lá" value={d.lcu_mau_ron_la} onChange={(v) => set('lcu_mau_ron_la', v)} />
-          <Row label="26. Số gân thứ cấp nối với gân chính" value={d.lcu_so_gan_thu_cap} onChange={(v) => set('lcu_so_gan_thu_cap', v)} />
-          <Row label="27. Góc chữ V, đo 10cm từ gân chính" value={d.lcu_goc_chu_v} onChange={(v) => set('lcu_goc_chu_v', v)} />
-          <Row label="28. Vị trí đường viền mép lá" value={d.lcu_vi_tri_vien_mep} onChange={(v) => set('lcu_vi_tri_vien_mep', v)} />
-          <Row label="29. Màu sắc gân mặt trên" value={d.lcu_mau_gan_mat_tren} onChange={(v) => set('lcu_mau_gan_mat_tren', v)} />
-          <Row label="30. Màu sắc gân mặt dưới" value={d.lcu_mau_gan_mat_duoi} onChange={(v) => set('lcu_mau_gan_mat_duoi', v)} />
-          <Row label="31. Gân chính và gân phụ" value={d.lcu_gan_chinh_phu} onChange={(v) => set('lcu_gan_chinh_phu', v)} />
-          <Row label="32. Độ sâu của gian thùy" value={d.lcu_do_sau_gian_thuy} onChange={(v) => set('lcu_do_sau_gian_thuy', v)} />
+          <Row label="24. Độ dày phiến lá (mỏng <0.4 mm/dày >0,4mm/đan xen dày,mỏng/ ...)" value={d.lcu_do_day_phien_la} onChange={(v) => set('lcu_do_day_phien_la', v)} />
+          <Row label="25. Màu rốn lá (trắng/vàng/xanh nhạt/đỏ/tím/ ...)" value={d.lcu_mau_ron_la} onChange={(v) => set('lcu_mau_ron_la', v)} />
+          <Row label="26. Số gân thứ cấp nối với gân chính tại rốn lá (không có/ hai/ bốn/ ...)" value={d.lcu_so_gan_thu_cap} onChange={(v) => set('lcu_so_gan_thu_cap', v)} />
+          <Row label="27. Góc chữ V, đo 10cm từ gân chính (cm, n=5)" value={d.lcu_goc_chu_v} onChange={(v) => set('lcu_goc_chu_v', v)} />
+          <Row label="28. Vị trí đường viền mép lá (khoảng cách bằng nhau/khoảng cách thay đổi)" value={d.lcu_vi_tri_vien_mep} onChange={(v) => set('lcu_vi_tri_vien_mep', v)} />
+          <Row label="29. Màu sắc gân mặt trên của lá (giống màu lá/nhạt hơn/ đậm hơn/ ...)" value={d.lcu_mau_gan_mat_tren} onChange={(v) => set('lcu_mau_gan_mat_tren', v)} />
+          <Row label="30. Màu sắc gân mặt dưới của lá (giống màu lá/nhạt hơn/ đậm hơn/ ...)" value={d.lcu_mau_gan_mat_duoi} onChange={(v) => set('lcu_mau_gan_mat_duoi', v)} />
+          <Row label="31. Gân chính và gân phụ (tách rời và có khoảng cách/nối dưới, không nối trên/nối cả 2 mặt/ ...)" value={d.lcu_gan_chinh_phu} onChange={(v) => set('lcu_gan_chinh_phu', v)} />
+          <Row label="32. Độ sâu của gian thùy (n=5)" value={d.lcu_do_sau_gian_thuy} onChange={(v) => set('lcu_do_sau_gian_thuy', v)} />
           <Row label="33. Điểm nối từ gân chính đến đáy thùy lá" value={d.lcu_diem_noi_gan_day} onChange={(v) => set('lcu_diem_noi_gan_day', v)} />
           <Row label="34. Hình dạng gốc thùy" value={d.lcu_hinh_dang_goc_thuy} onChange={(v) => set('lcu_hinh_dang_goc_thuy', v)} />
           <Row label="35. Màu dọc lá" value={d.lcu_mau_doc_la} onChange={(v) => set('lcu_mau_doc_la', v)} />
