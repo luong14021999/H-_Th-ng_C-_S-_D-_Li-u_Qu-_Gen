@@ -252,8 +252,22 @@ export interface Form3Data {
   caq_thoi_gian_thu_hoach: string;  // 61/40. Thời gian từ ra hoa đến thu hoạch (ngày)
 
   // TT — Cây chè (phan_nhom = 'Cây chè') extra fields
-  che_thoi_gian_ra_hoa: string;     // 38. Thời gian từ trồng để ra hoa (năm)
-  che_thoi_gian_dau_qua: string;    // 39. Thời gian từ trồng đến đậu quả (năm)
+  che_thoi_gian_ra_hoa: string;     // 38. Thời gian từ trồng để ra hoa (năm/tháng)
+  che_thoi_gian_dau_qua: string;    // 39. Thời gian từ trồng đến đậu quả (năm/tháng)
+
+  // TT — Cây cói (phan_nhom = 'Cây cói') extra fields
+  coi_chieu_cao_dong_bap: string;   // 11. Chiều cao đóng bắp (cm, n=5)
+  coi_so_la: string;                // 12. Số lá/cây (n=5)
+  coi_mau_gan_la: string;           // 14. Màu gân lá
+  coi_so_ngay_ra_hoa: string;       // 15. Số ngày từ mọc đến 50% cây ra hoa
+  coi_phan_ung_anh_sang: string;    // 16. Phản ứng ánh sáng
+  coi_so_hoa: string;               // 17. Số hoa trên thân chính cây
+  coi_su_no_hoa: string;            // 18. Sự nở hoa đồng thời
+  coi_do_tro_thoat: string;         // 19. Độ trỗ thoát
+  coi_kha_nang_chong_do: string;    // 20. Khả năng chống đổ
+  coi_do_tan_la_dai: string;        // 21. Độ tàn lá — Dài(cm)
+  coi_do_tan_la_rong: string;       // 21. Độ tàn lá — Rộng
+  coi_thoi_vu_thu_hoach: string;    // 40. Thời vụ thu hoạch
 
   // TN (Tre nứa) morphology — Bảng 06, fields 10–31
   tn_than_ngam: string;          // 10. Thân ngầm
@@ -543,6 +557,9 @@ export const defaultForm3 = (): Form3Data => ({
   // CAQ fields
   caq_chieu_cao_phan_canh: '', caq_thoi_gian_ra_hoa: '', caq_thoi_gian_dau_qua: '', caq_thoi_gian_thu_hoach: '',
   che_thoi_gian_ra_hoa: '', che_thoi_gian_dau_qua: '',
+  coi_chieu_cao_dong_bap: '', coi_so_la: '', coi_mau_gan_la: '', coi_so_ngay_ra_hoa: '',
+  coi_phan_ung_anh_sang: '', coi_so_hoa: '', coi_su_no_hoa: '', coi_do_tro_thoat: '',
+  coi_kha_nang_chong_do: '', coi_do_tan_la_dai: '', coi_do_tan_la_rong: '', coi_thoi_vu_thu_hoach: '',
   // TN fields
   tn_than_ngam: '', tn_chieu_cao_than: '', tn_duong_kinh_than: '',
   tn_chieu_dai_long: '', tn_chieu_dai_la: '', tn_chieu_rong_la: '',

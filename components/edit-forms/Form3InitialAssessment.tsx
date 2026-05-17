@@ -117,6 +117,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
   const isTT = nhom === 'TT';
   const isTTCayAnQua = isTT && phan_nhom === 'Cây ăn quả';
   const isTTCayche = isTT && phan_nhom === 'Cây chè';
+  const isTTCaycoi = isTT && phan_nhom === 'Cây cói';
   const isLN = nhom === 'LN';
   const isDL = !nhom || nhom === 'DL';
   const isCN = nhom === 'CN';
@@ -234,8 +235,37 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         </>
       )}
 
+      {/* ── TT: Cây cói ── */}
+      {isTTCaycoi && (
+        <>
+          <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
+          <Row label="10. Cao cây (cm, n=5)" value={d.chieu_cao_cay} onChange={(v) => set('chieu_cao_cay', v)} />
+          <Row label="11. Chiều cao đóng bắp (cm, n=5)" value={d.coi_chieu_cao_dong_bap} onChange={(v) => set('coi_chieu_cao_dong_bap', v)} />
+          <Row label="12. Số lá/cây (n=5)" value={d.coi_so_la} onChange={(v) => set('coi_so_la', v)} />
+          <Row label="13. Màu lá (trắng/xanh đậm/vàng/nâu/tims/ ...)" value={d.ln_mau_la} onChange={(v) => set('ln_mau_la', v)} />
+          <Row label="14. Màu gân lá (trắng/xanh đậm/vàng/nâu/tims/ ...)" value={d.coi_mau_gan_la} onChange={(v) => set('coi_mau_gan_la', v)} />
+          <Row label="15. Số ngày từ mọc đến 50% cây ra hoa" value={d.coi_so_ngay_ra_hoa} onChange={(v) => set('coi_so_ngay_ra_hoa', v)} />
+          <Row label="16. Phản ứng ánh sáng (mẫn cảm/trung gian/không mẫn cảm)" value={d.coi_phan_ung_anh_sang} onChange={(v) => set('coi_phan_ung_anh_sang', v)} />
+          <Row label="17. Số hoa trên thân chính cây (n=5)" value={d.coi_so_hoa} onChange={(v) => set('coi_so_hoa', v)} />
+          <Row label="18. Sự nở hoa đồng thời (đồng thời/không đồng thời)" value={d.coi_su_no_hoa} onChange={(v) => set('coi_su_no_hoa', v)} />
+          <Row label="19. Độ trỗ thoát (vừa thoát/thoát/thoát rất tốt/thoát và gục xuống/...)" value={d.coi_do_tro_thoat} onChange={(v) => set('coi_do_tro_thoat', v)} />
+          <Row label="20. Khả năng chống đổ (khỏe/trung bình/yếu)" value={d.coi_kha_nang_chong_do} onChange={(v) => set('coi_kha_nang_chong_do', v)} />
+          <DualRow label="21. Độ tàn lá (muộn và chậm/trung bình/sớm và nhanh)" label1="Dài(cm)" value1={d.coi_do_tan_la_dai} onChange1={(v) => set('coi_do_tan_la_dai', v)} label2="Rộng" value2={d.coi_do_tan_la_rong} onChange2={(v) => set('coi_do_tan_la_rong', v)} />
+          <Row label="22. Màu sắc thân (xám nâu/nâu/xám vàng/ ...)" value={d.mau_sac_than} onChange={(v) => set('mau_sac_than', v)} />
+          <Row label="23. Phân nhánh thứ cấp trên hoa" value={d.tt_phan_nhanh_thu_cap} onChange={(v) => set('tt_phan_nhanh_thu_cap', v)} />
+          <Row label="24. Độ thoát cổ hoa (thoát hoàn toàn/trung bình/thoát một phần/không thoát/ ...)" value={d.tt_do_thoat_co_bong} onChange={(v) => set('tt_do_thoat_co_bong', v)} />
+          <Row label="25. Trục bông (thẳng đứng/uốn xuống)" value={d.tt_truc_bong} onChange={(v) => set('tt_truc_bong', v)} />
+          <Row label="26. Độ tàn lá (muộn và chậm/trung bình/sớm và nhanh)" value={d.tt_do_tan_la} onChange={(v) => set('tt_do_tan_la', v)} />
+          <Row label="27. Độ rụng hạt" value={d.tt_do_rung_hat} onChange={(v) => set('tt_do_rung_hat', v)} />
+          <Row label="28. Màu hạt (trắng/nâu/đỉnh đỏ/đỉnh tím/ ...)" value={d.ln_mau_hat} onChange={(v) => set('ln_mau_hat', v)} />
+          <Row label="29. Độ phủ lông vỏ hạt (nhẵn/có lông/ ...)" value={d.ln_be_mat_hat} onChange={(v) => set('ln_be_mat_hat', v)} />
+          <Row label="30. Độ thụ phấn của bông (hữu thụ cao >90%/hữu thụ 75–90%/hữu thụ bộ phận 50–74%/bất thụ cao <50%/bất thụ hoàn toàn 0%)" value={d.tt_do_thu_phan_bong} onChange={(v) => set('tt_do_thu_phan_bong', v)} />
+          <Row label="31. Trọng lượng 1000 hạt (kg)" value={d.ln_trong_luong_1000_hat} onChange={(v) => set('ln_trong_luong_1000_hat', v)} />
+        </>
+      )}
+
       {/* ── TT: Nông nghiệp / Lúa (Bảng 02) ── */}
-      {isTT && !isTTCayAnQua && !isTTCayche && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && (
         <>
           <SubLabel>- Dữ liệu mô tả đặc điểm hình thái</SubLabel>
           <Row label="10. Chiều cao mạ" value={d.tt_chieu_cao_ma} onChange={(v) => set('tt_chieu_cao_ma', v)} />
@@ -609,7 +639,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="56. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
         </>
       )}
-      {isTTCayche && (
+      {(isTTCayche || isTTCaycoi) && (
         <>
           <Row label="32. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
           <Row label="33. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
@@ -617,7 +647,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="35. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && (
         <>
           <Row label="49. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
           <Row label="50. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
@@ -751,7 +781,16 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="41." value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && (
+      {isTTCaycoi && (
+        <>
+          <Row label="36. Thời vụ gieo trồng" value={d.thoi_vu_gieo_trong} onChange={(v) => set('thoi_vu_gieo_trong', v)} rows={2} />
+          <Row label="37. Thời gian từ khi gieo đến khi mọc(ngày)" value={d.thoi_gian_khi_gieo_moc} onChange={(v) => set('thoi_gian_khi_gieo_moc', v)} />
+          <Row label="38. Thời gian từ trồng để ra hoa(năm)" value={d.che_thoi_gian_ra_hoa} onChange={(v) => set('che_thoi_gian_ra_hoa', v)} />
+          <Row label="39. Thời gian từ trồng đến đậu quả(năm)" value={d.che_thoi_gian_dau_qua} onChange={(v) => set('che_thoi_gian_dau_qua', v)} />
+          <Row label="40. Thời vụ gieo trồng" value={d.coi_thoi_vu_thu_hoach} onChange={(v) => set('coi_thoi_vu_thu_hoach', v)} />
+        </>
+      )}
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && (
         <>
           <Row label="54. Hình thức sinh trưởng" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
           <Row label="55. Tỷ lệ nảy mầm" value={d.ti_le_nay_mam} onChange={(v) => set('ti_le_nay_mam', v)} />
