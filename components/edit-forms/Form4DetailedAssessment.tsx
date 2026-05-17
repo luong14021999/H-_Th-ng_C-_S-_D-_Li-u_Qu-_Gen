@@ -42,8 +42,9 @@ export default function Form4DetailedAssessment({ ma, onMaChange, nhom, phan_nho
   const set = (f: keyof Form4Data, v: string) => onChange({ ...d, [f]: v });
 
   const isCNGiaCam = nhom === 'CN' && phan_nhom === 'Gia cầm và chim';
+  const isTTCayngo = nhom === 'TT' && phan_nhom === 'Cây ngô';
 
-  if (isCNGiaCam) {
+  if (isCNGiaCam || isTTCayngo) {
     return (
       <div className="text-sm">
         <SectionTitle>A. Thông tin DNA</SectionTitle>
