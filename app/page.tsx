@@ -16,6 +16,7 @@ import ThongKeTable from "@/components/ThongKeTable";
 import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
 import NhomNguonGenTable from "@/components/NhomNguonGenTable";
+import DonViSanXuatTable from "@/components/DonViSanXuatTable";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -235,6 +236,8 @@ export default function Home() {
       <div className="flex flex-1 overflow-hidden pb-nav-safe md:pb-0">
         {activeDanhMuc === "dm-nhom-nguon-gen" ? (
           <NhomNguonGenTable />
+        ) : activeDanhMuc === "dm-don-vi-sx" ? (
+          <DonViSanXuatTable data={data} />
         ) : activeStats === "tk-don-vi-quan-ly" ? (
           <ThongKeTable data={data} />
         ) : activeStats === "tk-don-vi-hc" ? (
