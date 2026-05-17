@@ -269,6 +269,52 @@ export interface Form3Data {
   coi_do_tan_la_rong: string;       // 21. Độ tàn lá — Rộng
   coi_thoi_vu_thu_hoach: string;    // 40. Thời vụ thu hoạch
 
+  // TT — Cây lấy củ (phan_nhom = 'Cây lấy củ') extra fields
+  lcu_hinh_thanh_dai_bo: string;    // 10. Hình thành dài bò
+  lcu_so_luong_dai_bo: string;      // 11. Số lượng dài bò
+  lcu_hinh_thanh_cu_nhanh: string;  // 12. Hình thành củ nhánh
+  lcu_so_luong_choi_ben: string;    // 13. Số lượng chồi bên
+  lcu_dang_la: string;              // 15. Dạng lá phổ biến
+  lcu_huong_phien_la: string;       // 16. Hướng phiến lá
+  lcu_mep_la: string;               // 17. Mép lá
+  lcu_dai_phien_la: string;         // 18. Dài phiến lá
+  lcu_rong_phien_la: string;        // 19. Rộng phiến lá
+  lcu_dai_cuong_la: string;         // 20. Dài cuống lá
+  lcu_mau_vien_mep_la: string;      // 21. Màu đường viền mép lá
+  lcu_mau_phien_la: string;         // 22. Màu phiến lá
+  lcu_dom_la: string;               // 23. Đốm lá
+  lcu_do_day_phien_la: string;      // 24. Độ dày phiến lá
+  lcu_mau_ron_la: string;           // 25. Màu rốn lá
+  lcu_so_gan_thu_cap: string;       // 26. Số gân thứ cấp nối với gân chính
+  lcu_goc_chu_v: string;            // 27. Góc chữ V, đo 10cm từ gân chính
+  lcu_vi_tri_vien_mep: string;      // 28. Vị trí đường viền mép lá
+  lcu_mau_gan_mat_tren: string;     // 29. Màu sắc gân mặt trên
+  lcu_mau_gan_mat_duoi: string;     // 30. Màu sắc gân mặt dưới
+  lcu_gan_chinh_phu: string;        // 31. Gân chính và gân phụ
+  lcu_do_sau_gian_thuy: string;     // 32. Độ sâu của gian thùy
+  lcu_diem_noi_gan_day: string;     // 33. Điểm nối từ gân chính đến đáy thùy lá
+  lcu_hinh_dang_goc_thuy: string;   // 34. Hình dạng gốc thùy
+  lcu_mau_doc_la: string;           // 35. Màu dọc lá
+  lcu_bien_doi_mau: string;         // 36. Sự biến đổi màu trên dọc lá
+  lcu_phan_cuong_la: string;        // 37. Phấn trên cuống lá
+  lcu_dai_be_cuong_la: string;      // 38. Dài bẹ cuống lá
+  lcu_mau_mep_be_la: string;        // 39. Màu mép bẹ lá
+  lcu_hinh_dang_be: string;         // 40. Hình dạng bẹ ở vị trí cắt ngang
+  lcu_dang_cu_cai: string;          // 41. Dạng củ cái
+  lcu_dai_cu_cai: string;           // 42. Dài củ cái
+  lcu_rong_cu_cai: string;          // 43. Rộng củ cái
+  lcu_khoi_luong_cu_cai: string;    // 44. Khối lượng củ cái
+  lcu_mau_thit_cu_cai: string;      // 45. Màu thịt củ cái
+  lcu_mau_xo_cu_cai: string;        // 46. Màu xơ củ cái
+  lcu_so_cu_con: string;            // 47. Số củ con
+  lcu_khoi_luong_cu_con: string;    // 48. Khối lượng củ con
+  lcu_sap_xep_cu: string;           // 49. Sự sắp xếp củ
+  lcu_hinh_dang_cu_con: string;     // 50. Hình dạng củ con
+  lcu_dai_cu_con: string;           // 51. Dài củ con
+  lcu_rong_cu_con: string;          // 52. Rộng củ con
+  lcu_mau_thit_cu_con: string;      // 53. Màu thịt củ con
+  lcu_mau_xo_cu_con: string;        // 54. Màu xơ củ con
+
   // TN (Tre nứa) morphology — Bảng 06, fields 10–31
   tn_than_ngam: string;          // 10. Thân ngầm
   tn_chieu_cao_than: string;     // 11. Chiều cao thân khí sinh (TB) (m)
@@ -560,6 +606,18 @@ export const defaultForm3 = (): Form3Data => ({
   coi_chieu_cao_dong_bap: '', coi_so_la: '', coi_mau_gan_la: '', coi_so_ngay_ra_hoa: '',
   coi_phan_ung_anh_sang: '', coi_so_hoa: '', coi_su_no_hoa: '', coi_do_tro_thoat: '',
   coi_kha_nang_chong_do: '', coi_do_tan_la_dai: '', coi_do_tan_la_rong: '', coi_thoi_vu_thu_hoach: '',
+  // LCU fields
+  lcu_hinh_thanh_dai_bo: '', lcu_so_luong_dai_bo: '', lcu_hinh_thanh_cu_nhanh: '', lcu_so_luong_choi_ben: '',
+  lcu_dang_la: '', lcu_huong_phien_la: '', lcu_mep_la: '', lcu_dai_phien_la: '', lcu_rong_phien_la: '',
+  lcu_dai_cuong_la: '', lcu_mau_vien_mep_la: '', lcu_mau_phien_la: '', lcu_dom_la: '',
+  lcu_do_day_phien_la: '', lcu_mau_ron_la: '', lcu_so_gan_thu_cap: '', lcu_goc_chu_v: '',
+  lcu_vi_tri_vien_mep: '', lcu_mau_gan_mat_tren: '', lcu_mau_gan_mat_duoi: '', lcu_gan_chinh_phu: '',
+  lcu_do_sau_gian_thuy: '', lcu_diem_noi_gan_day: '', lcu_hinh_dang_goc_thuy: '', lcu_mau_doc_la: '',
+  lcu_bien_doi_mau: '', lcu_phan_cuong_la: '', lcu_dai_be_cuong_la: '', lcu_mau_mep_be_la: '',
+  lcu_hinh_dang_be: '', lcu_dang_cu_cai: '', lcu_dai_cu_cai: '', lcu_rong_cu_cai: '',
+  lcu_khoi_luong_cu_cai: '', lcu_mau_thit_cu_cai: '', lcu_mau_xo_cu_cai: '',
+  lcu_so_cu_con: '', lcu_khoi_luong_cu_con: '', lcu_sap_xep_cu: '', lcu_hinh_dang_cu_con: '',
+  lcu_dai_cu_con: '', lcu_rong_cu_con: '', lcu_mau_thit_cu_con: '', lcu_mau_xo_cu_con: '',
   // TN fields
   tn_than_ngam: '', tn_chieu_cao_than: '', tn_duong_kinh_than: '',
   tn_chieu_dai_long: '', tn_chieu_dai_la: '', tn_chieu_rong_la: '',

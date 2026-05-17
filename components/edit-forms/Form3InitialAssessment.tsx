@@ -118,6 +118,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
   const isTTCayAnQua = isTT && phan_nhom === 'Cây ăn quả';
   const isTTCayche = isTT && phan_nhom === 'Cây chè';
   const isTTCaycoi = isTT && phan_nhom === 'Cây cói';
+  const isTTCaylaycu = isTT && phan_nhom === 'Cây lấy củ';
   const isLN = nhom === 'LN';
   const isDL = !nhom || nhom === 'DL';
   const isCN = nhom === 'CN';
@@ -264,8 +265,57 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         </>
       )}
 
+      {/* ── TT: Cây lấy củ ── */}
+      {isTTCaylaycu && (
+        <>
+          <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
+          <Row label="10. Hình thành dài bò (có/không)" value={d.lcu_hinh_thanh_dai_bo} onChange={(v) => set('lcu_hinh_thanh_dai_bo', v)} />
+          <Row label="11. Số lượng dài bò" value={d.lcu_so_luong_dai_bo} onChange={(v) => set('lcu_so_luong_dai_bo', v)} />
+          <Row label="12. Hình thành củ nhánh (có/không)" value={d.lcu_hinh_thanh_cu_nhanh} onChange={(v) => set('lcu_hinh_thanh_cu_nhanh', v)} />
+          <Row label="13. Số lượng chồi bên" value={d.lcu_so_luong_choi_ben} onChange={(v) => set('lcu_so_luong_choi_ben', v)} />
+          <Row label="14. Chiều cao cây (lùn <50cm/trung bình 50-100cm/cao 100-150cm/rất cao >150cm)" value={d.chieu_cao_cay} onChange={(v) => set('chieu_cao_cay', v)} />
+          <Row label="15. Dạng lá phổ biến" value={d.lcu_dang_la} onChange={(v) => set('lcu_dang_la', v)} />
+          <Row label="16. Hướng phiến lá" value={d.lcu_huong_phien_la} onChange={(v) => set('lcu_huong_phien_la', v)} />
+          <Row label="17. Mép lá" value={d.lcu_mep_la} onChange={(v) => set('lcu_mep_la', v)} />
+          <DualRow label="18–19. Kích thước phiến lá" label1="Dài(cm)" value1={d.lcu_dai_phien_la} onChange1={(v) => set('lcu_dai_phien_la', v)} label2="Rộng(cm)" value2={d.lcu_rong_phien_la} onChange2={(v) => set('lcu_rong_phien_la', v)} />
+          <Row label="20. Dài cuống lá" value={d.lcu_dai_cuong_la} onChange={(v) => set('lcu_dai_cuong_la', v)} />
+          <Row label="21. Màu đường viền mép lá" value={d.lcu_mau_vien_mep_la} onChange={(v) => set('lcu_mau_vien_mep_la', v)} />
+          <Row label="22. Màu phiến lá" value={d.lcu_mau_phien_la} onChange={(v) => set('lcu_mau_phien_la', v)} />
+          <Row label="23. Đốm lá (có/không)" value={d.lcu_dom_la} onChange={(v) => set('lcu_dom_la', v)} />
+          <Row label="24. Độ dày phiến lá" value={d.lcu_do_day_phien_la} onChange={(v) => set('lcu_do_day_phien_la', v)} />
+          <Row label="25. Màu rốn lá" value={d.lcu_mau_ron_la} onChange={(v) => set('lcu_mau_ron_la', v)} />
+          <Row label="26. Số gân thứ cấp nối với gân chính" value={d.lcu_so_gan_thu_cap} onChange={(v) => set('lcu_so_gan_thu_cap', v)} />
+          <Row label="27. Góc chữ V, đo 10cm từ gân chính" value={d.lcu_goc_chu_v} onChange={(v) => set('lcu_goc_chu_v', v)} />
+          <Row label="28. Vị trí đường viền mép lá" value={d.lcu_vi_tri_vien_mep} onChange={(v) => set('lcu_vi_tri_vien_mep', v)} />
+          <Row label="29. Màu sắc gân mặt trên" value={d.lcu_mau_gan_mat_tren} onChange={(v) => set('lcu_mau_gan_mat_tren', v)} />
+          <Row label="30. Màu sắc gân mặt dưới" value={d.lcu_mau_gan_mat_duoi} onChange={(v) => set('lcu_mau_gan_mat_duoi', v)} />
+          <Row label="31. Gân chính và gân phụ" value={d.lcu_gan_chinh_phu} onChange={(v) => set('lcu_gan_chinh_phu', v)} />
+          <Row label="32. Độ sâu của gian thùy" value={d.lcu_do_sau_gian_thuy} onChange={(v) => set('lcu_do_sau_gian_thuy', v)} />
+          <Row label="33. Điểm nối từ gân chính đến đáy thùy lá" value={d.lcu_diem_noi_gan_day} onChange={(v) => set('lcu_diem_noi_gan_day', v)} />
+          <Row label="34. Hình dạng gốc thùy" value={d.lcu_hinh_dang_goc_thuy} onChange={(v) => set('lcu_hinh_dang_goc_thuy', v)} />
+          <Row label="35. Màu dọc lá" value={d.lcu_mau_doc_la} onChange={(v) => set('lcu_mau_doc_la', v)} />
+          <Row label="36. Sự biến đổi màu trên dọc lá" value={d.lcu_bien_doi_mau} onChange={(v) => set('lcu_bien_doi_mau', v)} />
+          <Row label="37. Phấn trên cuống lá" value={d.lcu_phan_cuong_la} onChange={(v) => set('lcu_phan_cuong_la', v)} />
+          <Row label="38. Dài bẹ cuống lá" value={d.lcu_dai_be_cuong_la} onChange={(v) => set('lcu_dai_be_cuong_la', v)} />
+          <Row label="39. Màu mép bẹ lá" value={d.lcu_mau_mep_be_la} onChange={(v) => set('lcu_mau_mep_be_la', v)} />
+          <Row label="40. Hình dạng bẹ ở vị trí cắt ngang" value={d.lcu_hinh_dang_be} onChange={(v) => set('lcu_hinh_dang_be', v)} />
+          <Row label="41. Dạng củ cái" value={d.lcu_dang_cu_cai} onChange={(v) => set('lcu_dang_cu_cai', v)} />
+          <DualRow label="42–43. Kích thước củ cái" label1="Dài(cm)" value1={d.lcu_dai_cu_cai} onChange1={(v) => set('lcu_dai_cu_cai', v)} label2="Rộng(cm)" value2={d.lcu_rong_cu_cai} onChange2={(v) => set('lcu_rong_cu_cai', v)} />
+          <Row label="44. Khối lượng củ cái" value={d.lcu_khoi_luong_cu_cai} onChange={(v) => set('lcu_khoi_luong_cu_cai', v)} />
+          <Row label="45. Màu thịt củ cái" value={d.lcu_mau_thit_cu_cai} onChange={(v) => set('lcu_mau_thit_cu_cai', v)} />
+          <Row label="46. Màu xơ củ cái" value={d.lcu_mau_xo_cu_cai} onChange={(v) => set('lcu_mau_xo_cu_cai', v)} />
+          <Row label="47. Số củ con" value={d.lcu_so_cu_con} onChange={(v) => set('lcu_so_cu_con', v)} />
+          <Row label="48. Khối lượng củ con" value={d.lcu_khoi_luong_cu_con} onChange={(v) => set('lcu_khoi_luong_cu_con', v)} />
+          <Row label="49. Sự sắp xếp củ" value={d.lcu_sap_xep_cu} onChange={(v) => set('lcu_sap_xep_cu', v)} />
+          <Row label="50. Hình dạng củ con" value={d.lcu_hinh_dang_cu_con} onChange={(v) => set('lcu_hinh_dang_cu_con', v)} />
+          <DualRow label="51–52. Kích thước củ con" label1="Dài(cm)" value1={d.lcu_dai_cu_con} onChange1={(v) => set('lcu_dai_cu_con', v)} label2="Rộng(cm)" value2={d.lcu_rong_cu_con} onChange2={(v) => set('lcu_rong_cu_con', v)} />
+          <Row label="53. Màu thịt củ con" value={d.lcu_mau_thit_cu_con} onChange={(v) => set('lcu_mau_thit_cu_con', v)} />
+          <Row label="54. Màu xơ củ con" value={d.lcu_mau_xo_cu_con} onChange={(v) => set('lcu_mau_xo_cu_con', v)} />
+        </>
+      )}
+
       {/* ── TT: Nông nghiệp / Lúa (Bảng 02) ── */}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && (
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && (
         <>
           <SubLabel>- Dữ liệu mô tả đặc điểm hình thái</SubLabel>
           <Row label="10. Chiều cao mạ" value={d.tt_chieu_cao_ma} onChange={(v) => set('tt_chieu_cao_ma', v)} />
@@ -647,7 +697,15 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="35. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && (
+      {isTTCaylaycu && (
+        <>
+          <Row label="55. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
+          <Row label="56. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
+          <Row label="57. Nhiệt độ" value={d.nhiet_do} onChange={(v) => set('nhiet_do', v)} />
+          <Row label="58. Độ ẩm" value={d.do_am} onChange={(v) => set('do_am', v)} />
+        </>
+      )}
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && (
         <>
           <Row label="49. Ánh sáng" value={d.anh_sang} onChange={(v) => set('anh_sang', v)} />
           <Row label="50. Đất, thổ nhưỡng" value={d.dat_tho_nhuong} onChange={(v) => set('dat_tho_nhuong', v)} />
@@ -790,7 +848,16 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="40. Thời vụ gieo trồng" value={d.coi_thoi_vu_thu_hoach} onChange={(v) => set('coi_thoi_vu_thu_hoach', v)} />
         </>
       )}
-      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && (
+      {isTTCaylaycu && (
+        <>
+          <Row label="59. Thời vụ gieo trồng" value={d.thoi_vu_gieo_trong} onChange={(v) => set('thoi_vu_gieo_trong', v)} />
+          <Row label="60. Thời gian từ khi gieo đến khi mọc(ngày)" value={d.thoi_gian_khi_gieo_moc} onChange={(v) => set('thoi_gian_khi_gieo_moc', v)} />
+          <Row label="61. Thời gian từ trồng đến ra hoa(ngày)" value={d.che_thoi_gian_ra_hoa} onChange={(v) => set('che_thoi_gian_ra_hoa', v)} />
+          <Row label="62. Thời gian từ trồng đến đậu quả(ngày)" value={d.che_thoi_gian_dau_qua} onChange={(v) => set('che_thoi_gian_dau_qua', v)} />
+          <Row label="63. Thời gian từ ra hoa đến thu hoạch(ngày)" value={d.caq_thoi_gian_thu_hoach} onChange={(v) => set('caq_thoi_gian_thu_hoach', v)} />
+        </>
+      )}
+      {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && (
         <>
           <Row label="54. Hình thức sinh trưởng" value={d.hinh_thuc_sinh_truong} onChange={(v) => set('hinh_thuc_sinh_truong', v)} />
           <Row label="55. Tỷ lệ nảy mầm" value={d.ti_le_nay_mam} onChange={(v) => set('ti_le_nay_mam', v)} />
