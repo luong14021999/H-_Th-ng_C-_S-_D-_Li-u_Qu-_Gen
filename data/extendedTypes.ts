@@ -490,6 +490,24 @@ export interface Form3Data {
   // Cây ngô free-text sections (II.B, II.C)
   ngo_sinh_hoc_st: string;
   ngo_sinh_truong_pt: string;
+  // TT — Cây rau (phan_nhom = 'Cây rau') morphology fields
+  rau_dai_la_mam: string;         // 10. Dài lá mầm
+  rau_mau_la_mam: string;         // 11. Màu lá mầm
+  rau_dang_phien_la: string;      // 12. Dạng phiến lá
+  rau_long_mat_duoi_la: string;   // 17. Lông mặt dưới lá
+  rau_long_mat_tren_la: string;   // 18. Lông mặt trên lá
+  rau_chieu_dai_dot: string;      // 19. Chiều dài đốt
+  rau_dang_than: string;          // 20. Dạng thân
+  rau_tua_cuon: string;           // 21. Tua cuốn
+  rau_so_qua: string;             // 27. Số quả thu hoạch trên 1 cây
+  rau_dai_qua_thuong_mai: string; // 28. Dài quả ở giai đoạn quả chín thương mại
+  rau_duong_kinh_qua: string;     // 29. Đường kính quả
+  rau_khoi_luong_qua: string;     // 30. Khối lượng quả
+  rau_do_day_thit_qua: string;    // 31. Độ dày thịt quả
+  rau_vi_thit_qua: string;        // 34. Vị của thịt quả
+  rau_mau_qua_chin: string;       // 35. Màu quả ở giai đoạn chín
+  rau_nang_suat_qua_tuoi: string; // 36. Năng suất quả tươi
+  rau_khoi_luong_100_hat: string; // 41. Khối lượng 100 hạt
   // III & IV
   ghi_chu: string;
   tai_lieu_tham_khao: string;
@@ -677,6 +695,13 @@ export const defaultForm3 = (): Form3Data => ({
   hinh_thuc_sinh_truong: '', ti_le_nay_mam: '', dieu_kien_nay_mam: '',
   thoi_vu_gieo_trong: '', thoi_gian_khi_gieo_moc: '', thoi_gian_gieo_hoa: '', thoi_gian_gieo_qua: '',
   ngo_sinh_hoc_st: '', ngo_sinh_truong_pt: '',
+  // Cây rau fields
+  rau_dai_la_mam: '', rau_mau_la_mam: '', rau_dang_phien_la: '',
+  rau_long_mat_duoi_la: '', rau_long_mat_tren_la: '', rau_chieu_dai_dot: '',
+  rau_dang_than: '', rau_tua_cuon: '',
+  rau_so_qua: '', rau_dai_qua_thuong_mai: '', rau_duong_kinh_qua: '',
+  rau_khoi_luong_qua: '', rau_do_day_thit_qua: '', rau_vi_thit_qua: '',
+  rau_mau_qua_chin: '', rau_nang_suat_qua_tuoi: '', rau_khoi_luong_100_hat: '',
   ghi_chu: '', tai_lieu_tham_khao: '',
 });
 
