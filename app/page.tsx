@@ -199,13 +199,13 @@ export default function Home() {
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
-          if (tab === "trang-chu") { setShowTable(false); setActiveStats(null); }
-          else if (tab === "thong-ke") { setShowTable(false); }
+          if (tab === "trang-chu") { setShowTable(false); setActiveStats(null); setActiveDanhMuc(null); }
+          else if (tab === "thong-ke") { setShowTable(false); setActiveDanhMuc(null); }
           else if (tab === "danh-muc") {
             if (isAdmin) { setShowTable(true); setTableCategory("all"); setActiveStats(null); setActiveDanhMuc(null); }
             else setShowLogin(true);
           }
-          else if (tab === "nguon-gen") { setActiveStats(null); setShowTable(false); }
+          else if (tab === "nguon-gen") { setActiveStats(null); setActiveDanhMuc(null); setShowTable(false); }
         }}
         onAdminClick={handleAdminClick}
         onLogout={handleLogout}
