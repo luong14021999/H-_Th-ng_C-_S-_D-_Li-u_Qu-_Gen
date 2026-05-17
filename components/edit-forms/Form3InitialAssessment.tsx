@@ -354,10 +354,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         </>
       )}
 
-      {/* ── TT: Cây ngô ── */}
-      {isTTCayngo && (
-        <Row label="" value={d.ngo_hinh_thai} onChange={(v) => set('ngo_hinh_thai', v)} rows={6} />
-      )}
+      {/* ── TT: Cây ngô — Section A is title only, no fields ── */}
 
       {/* ── TT: Nông nghiệp / Lúa (Bảng 02) ── */}
       {isTT && !isTTCayAnQua && !isTTCayche && !isTTCaycoi && !isTTCaylaycu && !isTTCaymia && !isTTCayngo && (

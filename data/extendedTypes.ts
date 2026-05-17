@@ -487,8 +487,7 @@ export interface Form3Data {
   thoi_gian_khi_gieo_moc: string;
   thoi_gian_gieo_hoa: string;
   thoi_gian_gieo_qua: string;
-  // Cây ngô free-text sections (II.A, II.B, II.C)
-  ngo_hinh_thai: string;
+  // Cây ngô free-text sections (II.B, II.C)
   ngo_sinh_hoc_st: string;
   ngo_sinh_truong_pt: string;
   // III & IV
@@ -677,7 +676,7 @@ export const defaultForm3 = (): Form3Data => ({
   anh_sang: '', dat_tho_nhuong: '', nhiet_do: '', do_am: '',
   hinh_thuc_sinh_truong: '', ti_le_nay_mam: '', dieu_kien_nay_mam: '',
   thoi_vu_gieo_trong: '', thoi_gian_khi_gieo_moc: '', thoi_gian_gieo_hoa: '', thoi_gian_gieo_qua: '',
-  ngo_hinh_thai: '', ngo_sinh_hoc_st: '', ngo_sinh_truong_pt: '',
+  ngo_sinh_hoc_st: '', ngo_sinh_truong_pt: '',
   ghi_chu: '', tai_lieu_tham_khao: '',
 });
 
