@@ -295,20 +295,21 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="31. Gân chính và gân phụ (tách rời và có khoảng cách/nối dưới, không nối trên/nối cả 2 mặt/ ...)" value={d.lcu_gan_chinh_phu} onChange={(v) => set('lcu_gan_chinh_phu', v)} />
           <Row label="32. Độ sâu của gian thùy (n=5)" value={d.lcu_do_sau_gian_thuy} onChange={(v) => set('lcu_do_sau_gian_thuy', v)} />
           <Row label="33. Điểm nối từ gân chính đến đáy thùy lá" value={d.lcu_diem_noi_gan_day} onChange={(v) => set('lcu_diem_noi_gan_day', v)} />
-          <Row label="34. Hình dạng gốc thùy" value={d.lcu_hinh_dang_goc_thuy} onChange={(v) => set('lcu_hinh_dang_goc_thuy', v)} />
-          <Row label="35. Màu dọc lá" value={d.lcu_mau_doc_la} onChange={(v) => set('lcu_mau_doc_la', v)} />
-          <Row label="36. Sự biến đổi màu trên dọc lá" value={d.lcu_bien_doi_mau} onChange={(v) => set('lcu_bien_doi_mau', v)} />
-          <Row label="37. Phấn trên cuống lá" value={d.lcu_phan_cuong_la} onChange={(v) => set('lcu_phan_cuong_la', v)} />
-          <Row label="38. Dài bẹ cuống lá" value={d.lcu_dai_be_cuong_la} onChange={(v) => set('lcu_dai_be_cuong_la', v)} />
-          <Row label="39. Màu mép bẹ lá" value={d.lcu_mau_mep_be_la} onChange={(v) => set('lcu_mau_mep_be_la', v)} />
-          <Row label="40. Hình dạng bẹ ở vị trí cắt ngang" value={d.lcu_hinh_dang_be} onChange={(v) => set('lcu_hinh_dang_be', v)} />
-          <Row label="41. Dạng củ cái" value={d.lcu_dang_cu_cai} onChange={(v) => set('lcu_dang_cu_cai', v)} />
-          <DualRow label="42–43. Kích thước củ cái" label1="Dài(cm)" value1={d.lcu_dai_cu_cai} onChange1={(v) => set('lcu_dai_cu_cai', v)} label2="Rộng(cm)" value2={d.lcu_rong_cu_cai} onChange2={(v) => set('lcu_rong_cu_cai', v)} />
-          <Row label="44. Khối lượng củ cái" value={d.lcu_khoi_luong_cu_cai} onChange={(v) => set('lcu_khoi_luong_cu_cai', v)} />
-          <Row label="45. Màu thịt củ cái" value={d.lcu_mau_thit_cu_cai} onChange={(v) => set('lcu_mau_thit_cu_cai', v)} />
-          <Row label="46. Màu xơ củ cái" value={d.lcu_mau_xo_cu_cai} onChange={(v) => set('lcu_mau_xo_cu_cai', v)} />
-          <Row label="47. Số củ con" value={d.lcu_so_cu_con} onChange={(v) => set('lcu_so_cu_con', v)} />
-          <Row label="48. Khối lượng củ con" value={d.lcu_khoi_luong_cu_con} onChange={(v) => set('lcu_khoi_luong_cu_con', v)} />
+          <Row label="34. Hình dạng gốc thùy (hẹp, đỉnh nhọn <45o/rộng, đỉnh nhọn >45o/rộng tròn/hẹp tròn/...)" value={d.lcu_hinh_dang_goc_thuy} onChange={(v) => set('lcu_hinh_dang_goc_thuy', v)} />
+          <Row label="35. Màu dọc lá (xanh nhạt/xanh đậm/đỏ/tím/nâu/ ...)" value={d.lcu_mau_doc_la} onChange={(v) => set('lcu_mau_doc_la', v)} />
+          <Row label="36. Sự biến đổi màu trên dọc lá (Không đổi/sọc đỏ/mặt trên đậm hơn/sọc xanh nhạt/ ...)" value={d.lcu_bien_doi_mau} onChange={(v) => set('lcu_bien_doi_mau', v)} />
+          <Row label="37. Phấn trên cuống lá (có/không)" value={d.lcu_phan_cuong_la} onChange={(v) => set('lcu_phan_cuong_la', v)} />
+          <Row label="38. Dài bẹ cuống lá (cm, n=5)" value={d.lcu_dai_be_cuong_la} onChange={(v) => set('lcu_dai_be_cuong_la', v)} />
+          <Row label="39. Màu mép bẹ lá (giống màu dọc lá/ nhạt hơn/đậm hơn/hồng/đỏ/tím/ ...)" value={d.lcu_mau_mep_be_la} onChange={(v) => set('lcu_mau_mep_be_la', v)} />
+          <Row label="40. Hình dạng bẹ ở vị trí cắt ngang (mở/đóng)" value={d.lcu_hinh_dang_be} onChange={(v) => set('lcu_hinh_dang_be', v)} />
+          <Row label="41. Dạng củ cái (không phân nhánh/phân nhánh/phân nhánh ở đầu củ/nhiều đỉnh củ/cụm/ ...)" value={d.lcu_dang_cu_cai} onChange={(v) => set('lcu_dang_cu_cai', v)} />
+          <Row label="42. Dài củ cái (cm, n=5)" value={d.lcu_dai_cu_cai} onChange={(v) => set('lcu_dai_cu_cai', v)} />
+          <Row label="43. Rộng củ cái (cm, n=5)" value={d.lcu_rong_cu_cai} onChange={(v) => set('lcu_rong_cu_cai', v)} />
+          <Row label="44. Khối lượng củ cái (rất nhỏ <0.25kg/nhỏ 0.25-0.5kg/trung bình 0.25-2kg/lớn 2-4kg/rất lớn >4kg)" value={d.lcu_khoi_luong_cu_cai} onChange={(v) => set('lcu_khoi_luong_cu_cai', v)} />
+          <Row label="45. Màu thịt củ (trắng/vàng/da cam/đỏ/tím/ ...)" value={d.lcu_mau_thit_cu_cai} onChange={(v) => set('lcu_mau_thit_cu_cai', v)} />
+          <Row label="46. Màu xơ củ cái (vàng/da cam/đỏ/tím/ ...)" value={d.lcu_mau_xo_cu_cai} onChange={(v) => set('lcu_mau_xo_cu_cai', v)} />
+          <Row label="47. Số củ con (< 5/từ 5-10/> 10)" value={d.lcu_so_cu_con} onChange={(v) => set('lcu_so_cu_con', v)} />
+          <Row label="48. Khối lượng củ con (rất nhỏ <50g/nhỏ 50-100g/trung bình 100-250g/lớn 250-500g/rất lớn >500g)" value={d.lcu_khoi_luong_cu_con} onChange={(v) => set('lcu_khoi_luong_cu_con', v)} />
           <Row label="49. Sự sắp xếp củ" value={d.lcu_sap_xep_cu} onChange={(v) => set('lcu_sap_xep_cu', v)} />
           <Row label="50. Hình dạng củ con" value={d.lcu_hinh_dang_cu_con} onChange={(v) => set('lcu_hinh_dang_cu_con', v)} />
           <DualRow label="51–52. Kích thước củ con" label1="Dài(cm)" value1={d.lcu_dai_cu_con} onChange1={(v) => set('lcu_dai_cu_con', v)} label2="Rộng(cm)" value2={d.lcu_rong_cu_con} onChange2={(v) => set('lcu_rong_cu_con', v)} />
