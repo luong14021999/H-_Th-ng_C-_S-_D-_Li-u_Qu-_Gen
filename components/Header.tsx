@@ -16,6 +16,7 @@ interface HeaderProps {
   onOpenAdmin: () => void;
   onNguonGenCategorySelect: (categoryId: string) => void;
   onThongKeSelect?: (id: string) => void;
+  onDanhMucSelect?: (id: string) => void;
 }
 
 const USER_MENU = [
@@ -70,7 +71,7 @@ const IconFolder = ({ cls = "w-5 h-5" }) => (
 
 export default function Header({
   isAdmin, showNav, activeTab,
-  onTabChange, onAdminClick, onLogout, onMenuToggle, onOpenAdmin, onNguonGenCategorySelect, onThongKeSelect,
+  onTabChange, onAdminClick, onLogout, onMenuToggle, onOpenAdmin, onNguonGenCategorySelect, onThongKeSelect, onDanhMucSelect,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userMenuPos, setUserMenuPos] = useState({ top: 0, right: 0 });
@@ -435,7 +436,7 @@ export default function Header({
             {DANH_MUC_ITEMS.map((item) => (
               <button
                 key={item.id}
-                onClick={() => { setDanhMucOpen(false); onTabChange("danh-muc"); }}
+                onClick={() => { setDanhMucOpen(false); onTabChange("danh-muc"); onDanhMucSelect?.(item.id); }}
                 className="w-full text-left px-4 py-3 text-sm hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 hover:text-green-800"
               >
                 {item.label}

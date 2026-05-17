@@ -15,6 +15,7 @@ import { apiGetAll, apiGetForms, apiCreate, apiUpdate, apiDelete, apiSaveForm, a
 import ThongKeTable from "@/components/ThongKeTable";
 import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
+import NhomNguonGenTable from "@/components/NhomNguonGenTable";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -32,6 +33,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [activeStats, setActiveStats] = useState<string | null>(null);
+  const [activeDanhMuc, setActiveDanhMuc] = useState<string | null>(null);
 
   // Load data from backend on mount
   const loadData = useCallback(async () => {
@@ -200,7 +202,7 @@ export default function Home() {
           if (tab === "trang-chu") { setShowTable(false); setActiveStats(null); }
           else if (tab === "thong-ke") { setShowTable(false); }
           else if (tab === "danh-muc") {
-            if (isAdmin) { setShowTable(true); setTableCategory("all"); setActiveStats(null); }
+            if (isAdmin) { setShowTable(true); setTableCategory("all"); setActiveStats(null); setActiveDanhMuc(null); }
             else setShowLogin(true);
           }
           else if (tab === "nguon-gen") { setActiveStats(null); setShowTable(false); }
@@ -219,12 +221,20 @@ export default function Home() {
         }}
         onThongKeSelect={(id) => {
           setActiveStats(id);
+          setActiveDanhMuc(null);
+          setShowTable(false);
+        }}
+        onDanhMucSelect={(id) => {
+          setActiveDanhMuc(id);
+          setActiveStats(null);
           setShowTable(false);
         }}
       />
 
       <div className="flex flex-1 overflow-hidden pb-nav-safe md:pb-0">
-        {activeStats === "tk-don-vi-quan-ly" ? (
+        {activeDanhMuc === "dm-nhom-nguon-gen" ? (
+          <NhomNguonGenTable />
+        ) : activeStats === "tk-don-vi-quan-ly" ? (
           <ThongKeTable data={data} />
         ) : activeStats === "tk-don-vi-hc" ? (
           <ThongKeDonViHC data={data} />
