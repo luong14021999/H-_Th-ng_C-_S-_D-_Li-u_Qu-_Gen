@@ -242,6 +242,12 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
   }
 
   if (isVS) {
+    // Q10 override for VS
+    const bctRaw = g(m, "10. Biện pháp sử lý mẫu thu thập");
+    if (bctRaw.includes(" — ")) {
+      const [bct, bctk] = bctRaw.split(" — ");
+      result.ban_chat_truyen = bct.trim(); result.ban_chat_truyen_khac = bctk.trim();
+    } else { result.ban_chat_truyen = bctRaw; }
     result.nguon_giong_ruong       = g(m, "12. Nguồn gốc giống/chủng VSV");
     result.dl_loai_hinh_nuoi_trong = g(m, "13. Loại hình sản xuất");
     result.dl_ky_thuat_nuoi_trong  = g(m, "14. Kỹ thuật nuôi trồng");
@@ -249,10 +255,25 @@ function parseForm2(ws: ExcelJS.Worksheet, nhom: string, phan_nhom: string): Par
     result.dl_thoi_vu_thu_hoach    = g(m, "16. Thời vụ thu hoạch");
     const [vl, vlk] = splitCombo(g(m, "17. Vật liệu nhân giống"));
     result.vat_lieu_nhan_giong = vl; result.vat_lieu_nhan_giong_khac = vlk;
-    result.vs_moi_truong_nuoi_cay  = g(m, "18. Môi trường giá thể dinh dưỡng");
+    // Q18 Môi trường giá thể — Khác → vs_nhiet_do_sinh_truong
+    const mtrRaw = g(m, "18. Môi trường giá thể dinh dưỡng");
+    if (mtrRaw.includes(" — ")) {
+      const [mtr, mtrk] = mtrRaw.split(" — ");
+      result.vs_moi_truong_nuoi_cay = mtr.trim(); result.vs_nhiet_do_sinh_truong = mtrk.trim();
+    } else { result.vs_moi_truong_nuoi_cay = mtrRaw; }
     // Section IV VS
-    result.muc_dich_su_dung        = g(m, "19. Mục đích sử dụng chính");
-    result.phan_cay_su_dung        = g(m, "20. Bộ phận được thu hoạch, sử dụng chính");
+    // Q19 Mục đích — Khác → vs_muc_dich_khac
+    const mdsRaw = g(m, "19. Mục đích sử dụng chính");
+    if (mdsRaw.includes(" — ")) {
+      const [mds, mdsk] = mdsRaw.split(" — ");
+      result.muc_dich_su_dung = mds.trim(); result.vs_muc_dich_khac = mdsk.trim();
+    } else { result.muc_dich_su_dung = mdsRaw; }
+    // Q20 Bộ phận — Khác → vs_bo_phan_khac
+    const pcRaw = g(m, "20. Bộ phận được thu hoạch, sử dụng chính");
+    if (pcRaw.includes(" — ")) {
+      const [pc, pck] = pcRaw.split(" — ");
+      result.phan_cay_su_dung = pc.trim(); result.vs_bo_phan_khac = pck.trim();
+    } else { result.phan_cay_su_dung = pcRaw; }
     result.thu_hoach               = g(m, "21. Khai thác sản phẩm");
     result.phuong_phap_bao_quan_sp = g(m, "22. Phương pháp bảo quản sản phẩm");
     result.cach_che_bien           = g(m, "23. Phương pháp sản xuất, chế biến");
@@ -586,27 +607,28 @@ const F3: [string, keyof Form3Data][] = [
   ["31. Thời gian sinh trưởng", "ts_thoi_gian_sinh_truong_ts"],
   ["32. Các giai đoạn sinh trưởng (ấu trùng, con non, trưởng thành)", "ts_cac_giai_doan_sinh_truong"],
   ["33. Thời gian thành thục sinh dục", "ts_thoi_gian_thanh_thuc_sinh_duc"],
-  // VS morphology
-  ["10. Kích thước thân (cm)", "vs_kich_thuoc_than"],
-  ["10. Kích thước rễ (cm)", "vs_kich_thuoc_re"],
-  ["10. Kích thước mũ/đảm (cm)", "vs_kich_thuoc_mu_dam"],
-  ["11. Màu sắc (rễ/thân/mũ đảm/tán nấm)", "vs_mau_sac"],
-  ["12. Sợi nấm — Hình dạng", "vs_soi_nam_hinh_dang"],
-  ["12. Sợi nấm — Kích thước (µm)", "vs_soi_nam_kich_thuoc"],
-  ["12. Sợi nấm — Đa bào/Đơn bào", "vs_soi_nam_co_vach"],
-  ["13. Bào tử vô tính (hình dạng/kích thước/màu sắc/đa-đơn bào)", "vs_bao_tu_vo_tinh"],
-  ["13. Bào tử hữu tính (hình dạng/kích thước/màu sắc/đa-đơn bào)", "vs_bao_tu_huu_tinh"],
-  ["13. Đặc điểm khác", "vs_dac_diem_khac"],
-  ["15. Địa hình", "dat_tho_nhuong"],
-  ["16. Thổ nhưỡng/giá thể sinh dưỡng", "vs_tho_nhuong"],
-  ["17. Nhiệt độ (°C)", "nhiet_do"],
-  ["18. Ẩm độ (%)", "do_am"],
-  ["19. Ánh sáng", "anh_sang"],
-  ["20. Dinh dưỡng", "vs_dinh_duong"],
-  ["21. Biện pháp canh tác/nhân nuôi", "vs_bien_phap_canh_tac"],
-  ["22. Thời gian sinh trưởng (từ lúc nuôi/trồng đến thu hoạch)", "vs_thoi_gian_khuan_lac"],
-  ["23. Sinh trưởng — giai đoạn phát triển sợi nấm", "vs_toc_do_sinh_truong"],
-  ["24. Phát triển — giai đoạn hình thành bào tử", "hinh_thuc_sinh_truong"],
+  // VS morphology — IIA Cơ quan sinh dưỡng (Q10)
+  ["10. Cơ quan sinh dưỡng — Hình dạng", "vs_soi_nam_hinh_dang"],
+  ["10. Cơ quan sinh dưỡng — Kích thước", "vs_soi_nam_kich_thuoc"],
+  ["10. Cơ quan sinh dưỡng — Màu sắc", "vs_mau_sac"],
+  ["10. Cơ quan sinh dưỡng — Đa bào/đơn bào", "vs_soi_nam_co_vach"],
+  // VS morphology — IIA Cơ quan sinh sản (Q11)
+  ["11. Cơ quan sinh sản — Hình dạng", "vs_bao_tu_vo_tinh"],
+  ["11. Cơ quan sinh sản — Kích thước", "vs_kich_thuoc_than"],
+  ["11. Cơ quan sinh sản — Màu sắc", "vs_kich_thuoc_re"],
+  ["11. Cơ quan sinh sản — Đa bào/đơn bào", "vs_kich_thuoc_mu_dam"],
+  // VS morphology — IIB Sinh thái (Q13–Q19)
+  ["13. Địa hình", "dat_tho_nhuong"],
+  ["14. Thổ nhưỡng/giá thể sinh dưỡng", "vs_tho_nhuong"],
+  ["15. Nhiệt độ (°C)", "nhiet_do"],
+  ["16. Ẩm độ (%)", "do_am"],
+  ["17. Ánh sáng", "anh_sang"],
+  ["18. Dinh dưỡng", "vs_dinh_duong"],
+  ["19. Biện pháp phân lập, làm thuần và nhân sinh khối", "vs_bien_phap_canh_tac"],
+  // VS morphology — IIC Sinh trưởng (Q20–Q22)
+  ["20. Sinh trưởng (giai đoạn phát triển sợi nấm)", "vs_toc_do_sinh_truong"],
+  ["21. Phát triển (giai đoạn hình thành bào tử)", "hinh_thuc_sinh_truong"],
+  ["22. Yêu cầu về môi trường nuôi cấy", "vs_thoi_gian_khuan_lac"],
   // Notes (fixed)
   ["Ghi chú (kháng sâu/bệnh, chịu sinh thái bất thuận)", "ghi_chu"],
   ["Danh mục tài liệu tham khảo", "tai_lieu_tham_khao"],

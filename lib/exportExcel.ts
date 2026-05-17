@@ -118,11 +118,15 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
   sectionStyle(ws, r++, "II. THÔNG TIN MẪU THU THẬP");
   dataRow(ws, r++, "8. Nguồn gốc mẫu thu thập", f2.nguon_goc_mau);
   dataRow(ws, r++, "9. Dạng mẫu được thu thập", `${f2.dang_mau}${f2.dang_mau_khac ? ' — ' + f2.dang_mau_khac : ''}`);
-  dataRow(ws, r++, "10. Bản chất di truyền của mẫu", f2.ban_chat_truyen);
-  dataRow(ws, r++, "11. Mức độ thuần của mẫu", f2.muc_do_thuan);
-  dataRow(ws, r++, "12. Thời gian tồn tại của giống/loài", f2.thoi_gian_ton_tai);
-  dataRow(ws, r++, "13. Mức độ phổ biến", f2.muc_do_pho_bien);
-  dataRow(ws, r++, "14. Xu hướng phát triển", f2.xu_huong_phat_trien);
+  if (isVS) {
+    dataRow(ws, r++, "10. Biện pháp sử lý mẫu thu thập", `${f2.ban_chat_truyen}${f2.ban_chat_truyen_khac ? ' — ' + f2.ban_chat_truyen_khac : ''}`);
+  } else {
+    dataRow(ws, r++, "10. Bản chất di truyền của mẫu", f2.ban_chat_truyen);
+    dataRow(ws, r++, "11. Mức độ thuần của mẫu", f2.muc_do_thuan);
+    dataRow(ws, r++, "12. Thời gian tồn tại của giống/loài", f2.thoi_gian_ton_tai);
+    dataRow(ws, r++, "13. Mức độ phổ biến", f2.muc_do_pho_bien);
+    dataRow(ws, r++, "14. Xu hướng phát triển", f2.xu_huong_phat_trien);
+  }
 
   sectionStyle(ws, r++, "III. ĐIỀU KIỆN SINH TRƯỞNG CỦA LOÀI");
   if (isTTLN) {
@@ -171,7 +175,7 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "15. Thời vụ trồng", Array.isArray(f2.thoi_vu_trong) ? (f2.thoi_vu_trong as string[]).join(', ') : f2.thoi_vu_trong);
     dataRow(ws, r++, "16. Thời vụ thu hoạch", Array.isArray(f2.dl_thoi_vu_thu_hoach) ? (f2.dl_thoi_vu_thu_hoach as string[]).join(', ') : f2.dl_thoi_vu_thu_hoach);
     dataRow(ws, r++, "17. Vật liệu nhân giống", `${f2.vat_lieu_nhan_giong}${f2.vat_lieu_nhan_giong_khac ? ' — ' + f2.vat_lieu_nhan_giong_khac : ''}`);
-    dataRow(ws, r++, "18. Môi trường giá thể dinh dưỡng", f2.vs_moi_truong_nuoi_cay);
+    dataRow(ws, r++, "18. Môi trường giá thể dinh dưỡng", `${f2.vs_moi_truong_nuoi_cay}${f2.vs_nhiet_do_sinh_truong ? ' — ' + f2.vs_nhiet_do_sinh_truong : ''}`);
   }
 
   sectionStyle(ws, r++, "IV. SỬ DỤNG, BẢO QUẢN, CHẾ BIẾN");
@@ -192,8 +196,8 @@ function buildForm2Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "28. Phương pháp để giống", f2.phuong_phap_de_giong);
     dataRow(ws, r++, "29. Kinh nghiệm, tiêu chí chọn giống", f2.kinh_nghiem_chon_giong);
   } else if (isVS) {
-    dataRow(ws, r++, "19. Mục đích sử dụng chính", f2.muc_dich_su_dung);
-    dataRow(ws, r++, "20. Bộ phận được thu hoạch, sử dụng chính", f2.phan_cay_su_dung);
+    dataRow(ws, r++, "19. Mục đích sử dụng chính", `${f2.muc_dich_su_dung}${f2.vs_muc_dich_khac ? ' — ' + f2.vs_muc_dich_khac : ''}`);
+    dataRow(ws, r++, "20. Bộ phận được thu hoạch, sử dụng chính", `${f2.phan_cay_su_dung}${f2.vs_bo_phan_khac ? ' — ' + f2.vs_bo_phan_khac : ''}`);
     dataRow(ws, r++, "21. Khai thác sản phẩm", f2.thu_hoach);
     dataRow(ws, r++, "22. Phương pháp bảo quản sản phẩm", f2.phuong_phap_bao_quan_sp);
     dataRow(ws, r++, "23. Phương pháp sản xuất, chế biến", f2.cach_che_bien);
@@ -509,16 +513,14 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "25. Phần phụ sinh dục cái", f3.gx_phan_phu_sinh_duc_cai);
     dataRow(ws, r++, "26. Màu sắc", f3.gx_mau_sac);
   } else if (isVS) {
-    dataRow(ws, r++, "10. Kích thước thân (cm)", f3.vs_kich_thuoc_than);
-    dataRow(ws, r++, "10. Kích thước rễ (cm)", f3.vs_kich_thuoc_re);
-    dataRow(ws, r++, "10. Kích thước mũ/đảm (cm)", f3.vs_kich_thuoc_mu_dam);
-    dataRow(ws, r++, "11. Màu sắc (rễ/thân/mũ đảm/tán nấm)", f3.vs_mau_sac);
-    dataRow(ws, r++, "12. Sợi nấm — Hình dạng", f3.vs_soi_nam_hinh_dang);
-    dataRow(ws, r++, "12. Sợi nấm — Kích thước (µm)", f3.vs_soi_nam_kich_thuoc);
-    dataRow(ws, r++, "12. Sợi nấm — Đa bào/Đơn bào", f3.vs_soi_nam_co_vach);
-    dataRow(ws, r++, "13. Bào tử vô tính (hình dạng/kích thước/màu sắc/đa-đơn bào)", f3.vs_bao_tu_vo_tinh);
-    dataRow(ws, r++, "13. Bào tử hữu tính (hình dạng/kích thước/màu sắc/đa-đơn bào)", f3.vs_bao_tu_huu_tinh);
-    dataRow(ws, r++, "13. Đặc điểm khác", f3.vs_dac_diem_khac);
+    dataRow(ws, r++, "10. Cơ quan sinh dưỡng — Hình dạng", f3.vs_soi_nam_hinh_dang);
+    dataRow(ws, r++, "10. Cơ quan sinh dưỡng — Kích thước", f3.vs_soi_nam_kich_thuoc);
+    dataRow(ws, r++, "10. Cơ quan sinh dưỡng — Màu sắc", f3.vs_mau_sac);
+    dataRow(ws, r++, "10. Cơ quan sinh dưỡng — Đa bào/đơn bào", f3.vs_soi_nam_co_vach);
+    dataRow(ws, r++, "11. Cơ quan sinh sản — Hình dạng", f3.vs_bao_tu_vo_tinh);
+    dataRow(ws, r++, "11. Cơ quan sinh sản — Kích thước", f3.vs_kich_thuoc_than);
+    dataRow(ws, r++, "11. Cơ quan sinh sản — Màu sắc", f3.vs_kich_thuoc_re);
+    dataRow(ws, r++, "11. Cơ quan sinh sản — Đa bào/đơn bào", f3.vs_kich_thuoc_mu_dam);
   }
 
   sectionStyle(ws, r++, "II.B DỮ LIỆU MÔ TẢ ĐẶC ĐIỂM SINH HỌC, SINH THÁI");
@@ -585,13 +587,13 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "29. Đặc điểm về dinh dưỡng", f3.ts_dac_diem_dinh_duong);
     dataRow(ws, r++, "30. Đặc điểm về sinh sản", f3.ts_dac_diem_sinh_san);
   } else if (isVS) {
-    dataRow(ws, r++, "15. Địa hình", f3.dat_tho_nhuong);
-    dataRow(ws, r++, "16. Thổ nhưỡng/giá thể sinh dưỡng", f3.vs_tho_nhuong);
-    dataRow(ws, r++, "17. Nhiệt độ (°C)", f3.nhiet_do);
-    dataRow(ws, r++, "18. Ẩm độ (%)", f3.do_am);
-    dataRow(ws, r++, "19. Ánh sáng", f3.anh_sang);
-    dataRow(ws, r++, "20. Dinh dưỡng", f3.vs_dinh_duong);
-    dataRow(ws, r++, "21. Biện pháp canh tác/nhân nuôi", f3.vs_bien_phap_canh_tac);
+    dataRow(ws, r++, "13. Địa hình", f3.dat_tho_nhuong);
+    dataRow(ws, r++, "14. Thổ nhưỡng/ giá thể sinh dưỡng", f3.vs_tho_nhuong);
+    dataRow(ws, r++, "15. Nhiệt độ", f3.nhiet_do);
+    dataRow(ws, r++, "16. Ẩm độ", f3.do_am);
+    dataRow(ws, r++, "17. Ánh sáng", f3.anh_sang);
+    dataRow(ws, r++, "18. Dinh dưỡng", f3.vs_dinh_duong);
+    dataRow(ws, r++, "19. Biện pháp phân lập, làm thuần và nhân sinh khố", f3.vs_bien_phap_canh_tac);
   }
 
   sectionStyle(ws, r++, "II.C DỮ LIỆU MÔ TẢ ĐẶC ĐIỂM SINH TRƯỞNG, PHÁT TRIỂN");
@@ -675,9 +677,9 @@ function buildForm3Sheet(ws: WS, item: NguonGen, ext: ExtendedFormData) {
     dataRow(ws, r++, "33. Thời gian thành thục sinh dục", f3.ts_thoi_gian_thanh_thuc_sinh_duc);
     dataRow(ws, r++, "...", f3.ts_mua_vu_sinh_san);
   } else if (isVS) {
-    dataRow(ws, r++, "22. Thời gian sinh trưởng (từ lúc nuôi/trồng đến thu hoạch)", f3.vs_thoi_gian_khuan_lac);
-    dataRow(ws, r++, "23. Sinh trưởng — giai đoạn phát triển sợi nấm", f3.vs_toc_do_sinh_truong);
-    dataRow(ws, r++, "24. Phát triển — giai đoạn hình thành bào tử", f3.hinh_thuc_sinh_truong);
+    dataRow(ws, r++, "20. Sinh trưởng (giai đoạn phát triển sợi nấm)", f3.vs_toc_do_sinh_truong);
+    dataRow(ws, r++, "21. Phát triển (giai đoạn hình thành bào tử)", f3.hinh_thuc_sinh_truong);
+    dataRow(ws, r++, "22. Yêu cầu về môi trường nuôi cấy", f3.vs_thoi_gian_khuan_lac);
   }
 
   sectionStyle(ws, r++, "III. GHI CHÚ");
