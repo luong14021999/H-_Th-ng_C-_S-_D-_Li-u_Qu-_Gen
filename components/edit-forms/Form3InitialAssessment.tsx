@@ -310,11 +310,12 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <Row label="46. Màu xơ củ cái (vàng/da cam/đỏ/tím/ ...)" value={d.lcu_mau_xo_cu_cai} onChange={(v) => set('lcu_mau_xo_cu_cai', v)} />
           <Row label="47. Số củ con (< 5/từ 5-10/> 10)" value={d.lcu_so_cu_con} onChange={(v) => set('lcu_so_cu_con', v)} />
           <Row label="48. Khối lượng củ con (rất nhỏ <50g/nhỏ 50-100g/trung bình 100-250g/lớn 250-500g/rất lớn >500g)" value={d.lcu_khoi_luong_cu_con} onChange={(v) => set('lcu_khoi_luong_cu_con', v)} />
-          <Row label="49. Sự sắp xếp củ" value={d.lcu_sap_xep_cu} onChange={(v) => set('lcu_sap_xep_cu', v)} />
-          <Row label="50. Hình dạng củ con" value={d.lcu_hinh_dang_cu_con} onChange={(v) => set('lcu_hinh_dang_cu_con', v)} />
-          <DualRow label="51–52. Kích thước củ con" label1="Dài(cm)" value1={d.lcu_dai_cu_con} onChange1={(v) => set('lcu_dai_cu_con', v)} label2="Rộng(cm)" value2={d.lcu_rong_cu_con} onChange2={(v) => set('lcu_rong_cu_con', v)} />
-          <Row label="53. Màu thịt củ con" value={d.lcu_mau_thit_cu_con} onChange={(v) => set('lcu_mau_thit_cu_con', v)} />
-          <Row label="54. Màu xơ củ con" value={d.lcu_mau_xo_cu_con} onChange={(v) => set('lcu_mau_xo_cu_con', v)} />
+          <Row label="49. Sự sắp xếp củ (phân tán/thành cụm/ ...)" value={d.lcu_sap_xep_cu} onChange={(v) => set('lcu_sap_xep_cu', v)} />
+          <Row label="50. Hình dạng củ con (hình cầu/hình trứng/hình trụ/e líp/hỗn hợp/ ...)" value={d.lcu_hinh_dang_cu_con} onChange={(v) => set('lcu_hinh_dang_cu_con', v)} />
+          <Row label="51. Dài củ con (cm, n=5)" value={d.lcu_dai_cu_con} onChange={(v) => set('lcu_dai_cu_con', v)} />
+          <Row label="52. Rộng củ con (cm, n=5)" value={d.lcu_rong_cu_con} onChange={(v) => set('lcu_rong_cu_con', v)} />
+          <Row label="53. Màu thịt củ con (trắng/vàng/da cam/đỏ/tím/ ...)" value={d.lcu_mau_thit_cu_con} onChange={(v) => set('lcu_mau_thit_cu_con', v)} />
+          <Row label="54. Màu xơ củ con (vàng/da cam/đỏ/tím/ ...)" value={d.lcu_mau_xo_cu_con} onChange={(v) => set('lcu_mau_xo_cu_con', v)} />
         </>
       )}
 
@@ -856,8 +857,8 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         <>
           <Row label="59. Thời vụ gieo trồng" value={d.thoi_vu_gieo_trong} onChange={(v) => set('thoi_vu_gieo_trong', v)} />
           <Row label="60. Thời gian từ khi gieo đến khi mọc(ngày)" value={d.thoi_gian_khi_gieo_moc} onChange={(v) => set('thoi_gian_khi_gieo_moc', v)} />
-          <Row label="61. Thời gian từ trồng đến ra hoa(ngày)" value={d.che_thoi_gian_ra_hoa} onChange={(v) => set('che_thoi_gian_ra_hoa', v)} />
-          <Row label="62. Thời gian từ trồng đến đậu quả(ngày)" value={d.che_thoi_gian_dau_qua} onChange={(v) => set('che_thoi_gian_dau_qua', v)} />
+          <Row label="61. Thời gian từ trồng để ra hoa(năm)" value={d.che_thoi_gian_ra_hoa} onChange={(v) => set('che_thoi_gian_ra_hoa', v)} />
+          <Row label="62. Thời gian từ trồng đến đậu quả(năm)" value={d.che_thoi_gian_dau_qua} onChange={(v) => set('che_thoi_gian_dau_qua', v)} />
           <Row label="63. Thời gian từ ra hoa đến thu hoạch(ngày)" value={d.caq_thoi_gian_thu_hoach} onChange={(v) => set('caq_thoi_gian_thu_hoach', v)} />
         </>
       )}
