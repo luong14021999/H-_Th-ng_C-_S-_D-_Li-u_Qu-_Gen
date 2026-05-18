@@ -156,7 +156,7 @@ export default function DonViSanXuatTable({ data }: Props) {
         <div className="flex-1 overflow-auto px-6 py-4">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-[#4a7c9e] text-white">
+              <tr className="bg-green-700 text-white">
                 <th className="w-10 px-3 py-3 text-center font-medium">#</th>
                 <th className="px-4 py-3 text-left font-medium">
                   <span className="flex items-center gap-1">

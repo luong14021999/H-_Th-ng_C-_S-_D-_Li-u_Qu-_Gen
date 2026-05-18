@@ -83,7 +83,7 @@ export default function NhomNguonGenTable() {
         <div className="flex-1 overflow-auto px-6 py-4">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-[#4a7c9e] text-white">
+              <tr className="bg-green-700 text-white">
                 <th className="w-10 px-3 py-3 text-center font-medium">#</th>
                 <th className="px-4 py-3 text-left font-medium">Tên nhóm nguồn gen</th>
                 <th className="w-28 px-4 py-3 text-center font-medium">Hình ảnh</th>

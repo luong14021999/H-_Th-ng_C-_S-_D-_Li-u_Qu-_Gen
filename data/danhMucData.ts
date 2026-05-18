@@ -65,3 +65,10 @@ export const HINH_THUC_KHAI_THAC: HinhThucKhaiThac[] = [
 ];
 
 export const PHUONG_THUC_MAP = Object.fromEntries(PHUONG_THUC_BAO_TON.map(p => [p.id, p]));
+
+// Shared mutable stores — all components read/write here so status changes persist
+export const danhMucStores = {
+  phuongThuc: [...PHUONG_THUC_BAO_TON] as PhuongThucBaoTon[],
+  hinhThucBaoTon: [...HINH_THUC_BAO_TON] as HinhThucBaoTon[],
+  hinhThucKhaiThac: [...HINH_THUC_KHAI_THAC] as HinhThucKhaiThac[],
+};

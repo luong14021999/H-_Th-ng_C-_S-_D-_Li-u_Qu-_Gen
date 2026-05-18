@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { PHUONG_THUC_BAO_TON, PhuongThucBaoTon } from "@/data/danhMucData";
+import { PhuongThucBaoTon, danhMucStores } from "@/data/danhMucData";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -13,7 +13,11 @@ function formatDate(iso: string) {
 }
 
 export default function PhuongThucBaoTonTable() {
-  const [items, setItems] = useState<PhuongThucBaoTon[]>(PHUONG_THUC_BAO_TON);
+  const [items, setItems] = useState<PhuongThucBaoTon[]>(danhMucStores.phuongThuc);
+
+  const setItemsSync = (updater: (prev: PhuongThucBaoTon[]) => PhuongThucBaoTon[]) => {
+    setItems(prev => { const next = updater(prev); danhMucStores.phuongThuc = next; return next; });
+  };
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "kich_hoat" | "an">("kich_hoat");
   const [fromDate, setFromDate] = useState("");
@@ -33,7 +37,7 @@ export default function PhuongThucBaoTonTable() {
   }, [items, search, statusFilter, fromDate, toDate]);
 
   const toggleStatus = (id: string) => {
-    setItems(prev => prev.map(p => p.id === id ? { ...p, trang_thai: p.trang_thai === "kich_hoat" ? "an" : "kich_hoat" } : p));
+    setItemsSync(prev => prev.map(p => p.id === id ? { ...p, trang_thai: p.trang_thai === "kich_hoat" ? "an" : "kich_hoat" } : p));
     setStatusOpenId(null);
   };
 
@@ -44,7 +48,7 @@ export default function PhuongThucBaoTonTable() {
 
   const saveEdit = () => {
     if (!editItem) return;
-    setItems(prev => prev.map(p => p.id === editItem.id ? { ...p, ten: editForm.ten, ma: editForm.ma } : p));
+    setItemsSync(prev => prev.map(p => p.id === editItem.id ? { ...p, ten: editForm.ten, ma: editForm.ma } : p));
     setEditItem(null);
   };
 
@@ -96,7 +100,7 @@ export default function PhuongThucBaoTonTable() {
         <div className="flex-1 overflow-auto px-6 py-4">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-[#4a7c9e] text-white">
+              <tr className="bg-green-700 text-white">
                 <th className="w-10 px-3 py-3 text-center">#</th>
                 <th className="px-4 py-3 text-left">Tên phương thức <SortIcon /></th>
                 <th className="w-20 px-4 py-3 text-left">Mã <SortIcon /></th>

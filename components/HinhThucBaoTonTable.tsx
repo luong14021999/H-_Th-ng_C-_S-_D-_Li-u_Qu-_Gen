@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { HINH_THUC_BAO_TON, PHUONG_THUC_BAO_TON, HinhThucBaoTon } from "@/data/danhMucData";
+import { PHUONG_THUC_BAO_TON, HinhThucBaoTon, danhMucStores } from "@/data/danhMucData";
 import { CATEGORY_MAP, CATEGORIES } from "@/data/nguonGen";
 
 function formatDate(iso: string) {
@@ -12,7 +12,11 @@ function formatDate(iso: string) {
 const PHUONG_THUC_MAP = Object.fromEntries(PHUONG_THUC_BAO_TON.map(p => [p.id, p.ten]));
 
 export default function HinhThucBaoTonTable() {
-  const [items, setItems] = useState<HinhThucBaoTon[]>(HINH_THUC_BAO_TON);
+  const [items, setItems] = useState<HinhThucBaoTon[]>(danhMucStores.hinhThucBaoTon);
+
+  const setItemsSync = (updater: (prev: HinhThucBaoTon[]) => HinhThucBaoTon[]) => {
+    setItems(prev => { const next = updater(prev); danhMucStores.hinhThucBaoTon = next; return next; });
+  };
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all"|"kich_hoat"|"an">("kich_hoat");
   const [phuongThucSearch, setPhuongThucSearch] = useState("");
@@ -36,7 +40,7 @@ export default function HinhThucBaoTonTable() {
   }, [items, search, statusFilter, phuongThucSearch, nhomSearch, fromDate, toDate]);
 
   const toggleStatus = (id: number) => {
-    setItems(prev => prev.map(h => h.id === id ? { ...h, trang_thai: h.trang_thai === "kich_hoat" ? "an" : "kich_hoat" } : h));
+    setItemsSync(prev => prev.map(h => h.id === id ? { ...h, trang_thai: h.trang_thai === "kich_hoat" ? "an" : "kich_hoat" } : h));
     setStatusOpenId(null);
   };
 
@@ -47,7 +51,7 @@ export default function HinhThucBaoTonTable() {
 
   const saveEdit = () => {
     if (!editItem) return;
-    setItems(prev => prev.map(h => h.id === editItem.id ? { ...h, ten: editForm.ten, ma: Number(editForm.ma), phuong_thuc_id: editForm.phuong_thuc_id, nhom: editForm.nhom } : h));
+    setItemsSync(prev => prev.map(h => h.id === editItem.id ? { ...h, ten: editForm.ten, ma: Number(editForm.ma), phuong_thuc_id: editForm.phuong_thuc_id, nhom: editForm.nhom } : h));
     setEditItem(null);
   };
 
@@ -116,7 +120,7 @@ export default function HinhThucBaoTonTable() {
         <div className="flex-1 overflow-auto px-6 py-4">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-[#4a7c9e] text-white">
+              <tr className="bg-green-700 text-white">
                 <th className="w-10 px-3 py-3 text-center">#</th>
                 <th className="px-4 py-3 text-left">Tên hình thức <SortIcon /></th>
                 <th className="w-16 px-4 py-3 text-left">Mã <SortIcon /></th>

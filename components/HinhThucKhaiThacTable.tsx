@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { HINH_THUC_KHAI_THAC, HinhThucKhaiThac } from "@/data/danhMucData";
+import { HinhThucKhaiThac, danhMucStores } from "@/data/danhMucData";
 import { CATEGORY_MAP, CATEGORIES } from "@/data/nguonGen";
 
 function formatDate(iso: string) {
@@ -10,7 +10,11 @@ function formatDate(iso: string) {
 }
 
 export default function HinhThucKhaiThacTable() {
-  const [items, setItems] = useState<HinhThucKhaiThac[]>(HINH_THUC_KHAI_THAC);
+  const [items, setItems] = useState<HinhThucKhaiThac[]>(danhMucStores.hinhThucKhaiThac);
+
+  const setItemsSync = (updater: (prev: HinhThucKhaiThac[]) => HinhThucKhaiThac[]) => {
+    setItems(prev => { const next = updater(prev); danhMucStores.hinhThucKhaiThac = next; return next; });
+  };
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all"|"kich_hoat"|"an">("kich_hoat");
   const [nhomSearch, setNhomSearch] = useState("");
@@ -32,7 +36,7 @@ export default function HinhThucKhaiThacTable() {
   }, [items, search, statusFilter, nhomSearch, fromDate, toDate]);
 
   const toggleStatus = (id: number) => {
-    setItems(prev => prev.map(h => h.id === id ? { ...h, trang_thai: h.trang_thai === "kich_hoat" ? "an" : "kich_hoat" } : h));
+    setItemsSync(prev => prev.map(h => h.id === id ? { ...h, trang_thai: h.trang_thai === "kich_hoat" ? "an" : "kich_hoat" } : h));
     setStatusOpenId(null);
   };
 
@@ -43,7 +47,7 @@ export default function HinhThucKhaiThacTable() {
 
   const saveEdit = () => {
     if (!editItem) return;
-    setItems(prev => prev.map(h => h.id === editItem.id ? { ...h, ten: editForm.ten, ma: Number(editForm.ma), nhom: editForm.nhom } : h));
+    setItemsSync(prev => prev.map(h => h.id === editItem.id ? { ...h, ten: editForm.ten, ma: Number(editForm.ma), nhom: editForm.nhom } : h));
     setEditItem(null);
   };
 
@@ -107,7 +111,7 @@ export default function HinhThucKhaiThacTable() {
         <div className="flex-1 overflow-auto px-6 py-4">
           <table className="w-full border-collapse text-sm">
             <thead>
-              <tr className="bg-[#4a7c9e] text-white">
+              <tr className="bg-green-700 text-white">
                 <th className="w-10 px-3 py-3 text-center">#</th>
                 <th className="px-4 py-3 text-left">Tên hình thức <SortIcon /></th>
                 <th className="w-16 px-4 py-3 text-left">Mã <SortIcon /></th>

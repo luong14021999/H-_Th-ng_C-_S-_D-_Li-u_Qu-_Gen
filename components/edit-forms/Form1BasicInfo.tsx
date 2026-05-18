@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { NguonGen, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { Form1Data, BaoTonEntry, defaultForm1 } from "@/data/extendedTypes";
 import SearchSelect from "@/components/SearchableSelect";
-import { PHUONG_THUC_BAO_TON, HINH_THUC_BAO_TON, HINH_THUC_KHAI_THAC } from "@/data/danhMucData";
+import { danhMucStores } from "@/data/danhMucData";
 
 
 interface Props {
@@ -199,7 +199,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                     <SearchSelect
                       value={entry.phuong_thuc}
                       onChange={(v) => updateBaoTon(idx, 'phuong_thuc', v)}
-                      options={PHUONG_THUC_BAO_TON.filter(p => p.trang_thai === 'kich_hoat').map(p => p.ten)}
+                      options={danhMucStores.phuongThuc.filter(p => p.trang_thai === 'kich_hoat').map(p => p.ten)}
                       placeholder="Chọn phương thức bảo tồn..."
                     />
                   </div>
@@ -211,10 +211,10 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                     <SearchSelect
                       value={entry.hinh_thuc}
                       onChange={(v) => updateBaoTon(idx, 'hinh_thuc', v)}
-                      options={HINH_THUC_BAO_TON.filter(h =>
+                      options={danhMucStores.hinhThucBaoTon.filter(h =>
                         h.trang_thai === 'kich_hoat' &&
                         h.nhom.includes(basic.nhom) &&
-                        (!entry.phuong_thuc || h.phuong_thuc_id === PHUONG_THUC_BAO_TON.find(p => p.ten === entry.phuong_thuc)?.id)
+                        (!entry.phuong_thuc || h.phuong_thuc_id === danhMucStores.phuongThuc.find(p => p.ten === entry.phuong_thuc)?.id)
                       ).map(h => h.ten)}
                       placeholder="Chọn hình thức bảo tồn..."
                     />
@@ -256,7 +256,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 <SearchSelect
                   value={d.hinh_thuc_khai_thac ?? ''}
                   onChange={(v) => set('hinh_thuc_khai_thac', v)}
-                  options={HINH_THUC_KHAI_THAC.filter(h => h.trang_thai === 'kich_hoat' && h.nhom.includes(basic.nhom)).map(h => h.ten)}
+                  options={danhMucStores.hinhThucKhaiThac.filter(h => h.trang_thai === 'kich_hoat' && h.nhom.includes(basic.nhom)).map(h => h.ten)}
                   placeholder="Chọn hình thức khai thác, sử dụng..."
                 />
               </div>
