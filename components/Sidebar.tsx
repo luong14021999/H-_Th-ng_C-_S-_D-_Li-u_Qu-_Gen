@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CATEGORIES, CATEGORY_MAP, NguonGen } from "@/data/nguonGen";
+import { CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 
 interface SidebarProps {
@@ -22,12 +22,13 @@ function ItemThumb({ item, extendedMap }: { item: NguonGen; extendedMap: Record<
   if (img) {
     return <img src={img} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0 border border-gray-200" />;
   }
+  const icon = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "🌿";
   return (
     <div
       className="w-11 h-11 rounded-lg shrink-0 flex items-center justify-center text-xl border"
       style={{ backgroundColor: (cat?.color ?? "#6b7280") + "18", borderColor: (cat?.color ?? "#6b7280") + "40" }}
     >
-      {cat?.icon ?? "🌿"}
+      {icon}
     </div>
   );
 }
