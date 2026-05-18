@@ -5,6 +5,15 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+
+// Fix broken default marker icons in Next.js/webpack builds
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+});
 import { NguonGen, CATEGORY_MAP, CATEGORIES, PHAN_NHOM_ICONS } from "@/data/nguonGen";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
@@ -298,7 +307,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       const markerEmoji = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍";
       const icon = L.divIcon({
         className: "",
-        html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));">${markerEmoji}</div>`,
+        html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif;">${markerEmoji}</div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12],
       });
