@@ -334,6 +334,7 @@ export default function Home() {
         <EditModal
           item={sidebarEditItem}
           extended={extendedMap[sidebarEditItem.ma] ?? { form1: {}, form2: {}, form3: {}, form4: {} }}
+          isAdmin={isAdmin}
           onSave={async (updated, ext) => { await handleEdit(updated, ext); setSidebarEditItem(null); }}
           onClose={() => setSidebarEditItem(null)}
         />

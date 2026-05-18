@@ -13,6 +13,7 @@ interface EditModalProps {
   item: NguonGen;
   extended: ExtendedFormData;
   isNew?: boolean;
+  isAdmin?: boolean;
   onSave: (updated: NguonGen, ext: ExtendedFormData) => Promise<void>;
   onClose: () => void;
 }
@@ -24,7 +25,7 @@ const TABS = [
   { label: 'Dữ liệu đánh giá chi tiết', short: 'Đánh giá chi tiết' },
 ];
 
-export default function EditModal({ item, extended, isNew, onSave, onClose }: EditModalProps) {
+export default function EditModal({ item, extended, isNew, isAdmin = true, onSave, onClose }: EditModalProps) {
   const [tab, setTab] = useState(0);
   const [basic, setBasic] = useState<NguonGen>({ ...item });
   const [form1, setForm1] = useState<Partial<Form1Data>>(extended.form1 ?? defaultForm1());
@@ -117,44 +118,48 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
       {/* Header */}
       <div className="bg-green-700 text-white px-4 py-3 flex items-center justify-between shrink-0">
         <div className="min-w-0">
-          <h2 className="font-bold text-base">{isNew ? "Thêm mới nguồn gen" : "Chỉnh sửa nguồn gen"}</h2>
+          <h2 className="font-bold text-base">{!isAdmin ? "Thông tin nguồn gen" : isNew ? "Thêm mới nguồn gen" : "Chỉnh sửa nguồn gen"}</h2>
           <p className="text-green-100 text-xs font-mono mt-0.5 truncate">{isNew ? "Nhập đầy đủ thông tin bên dưới" : `${item.ma} — ${item.ten}`}</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          {/* Import XLSX */}
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={importing}
-            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors disabled:opacity-50"
-            title="Nhập từ tệp XLSX"
-          >
-            {importing ? (
-              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
-            )}
-            <span className="hidden sm:inline">Nhập từ tệp XLSX</span>
-          </button>
-          <input ref={fileInputRef} type="file" accept=".xlsx" className="hidden" onChange={handleImport} />
+          {isAdmin && (
+            <>
+              {/* Import XLSX */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={importing}
+                className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors disabled:opacity-50"
+                title="Nhập từ tệp XLSX"
+              >
+                {importing ? (
+                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                  </svg>
+                )}
+                <span className="hidden sm:inline">Nhập từ tệp XLSX</span>
+              </button>
+              <input ref={fileInputRef} type="file" accept=".xlsx" className="hidden" onChange={handleImport} />
 
-          {/* Reset current form */}
-          <button
-            onClick={() => setShowResetConfirm(true)}
-            className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors"
-            title="Làm mới (F9)"
-          >
-            <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span className="hidden sm:inline">Làm mới (F9)</span>
-          </button>
+              {/* Reset current form */}
+              <button
+                onClick={() => setShowResetConfirm(true)}
+                className="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 text-white text-xs font-medium px-2.5 py-1.5 rounded transition-colors"
+                title="Làm mới (F9)"
+              >
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span className="hidden sm:inline">Làm mới (F9)</span>
+              </button>
 
-          <button onClick={handleSave} disabled={saving || saved} className="flex items-center gap-1.5 bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors disabled:opacity-70">
-            {saving && <div className="w-3.5 h-3.5 border-2 border-green-700 border-t-transparent rounded-full animate-spin" />}
-            {saving ? "Đang lưu..." : "Lưu lại"}
-          </button>
+              <button onClick={handleSave} disabled={saving || saved} className="flex items-center gap-1.5 bg-white text-green-700 font-semibold text-xs sm:text-sm px-3 sm:px-4 py-1.5 rounded hover:bg-green-50 transition-colors disabled:opacity-70">
+                {saving && <div className="w-3.5 h-3.5 border-2 border-green-700 border-t-transparent rounded-full animate-spin" />}
+                {saving ? "Đang lưu..." : "Lưu lại"}
+              </button>
+            </>
+          )}
           <button onClick={onClose} className="text-green-100 hover:text-white p-1">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -163,28 +168,40 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200 bg-gray-50 shrink-0 overflow-x-auto">
-        {TABS.map((t, i) => (
-          <button
-            key={i}
-            onClick={() => setTab(i)}
-            className={`px-3 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-              tab === i ? 'border-green-600 text-green-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            <span className="sm:hidden">{t.short}</span>
-            <span className="hidden sm:inline"><span className="mr-1 text-xs text-gray-400">{i + 1}.</span>{t.label}</span>
-          </button>
-        ))}
-      </div>
+      {/* Tabs — admin only */}
+      {isAdmin && (
+        <div className="flex border-b border-gray-200 bg-gray-50 shrink-0 overflow-x-auto">
+          {TABS.map((t, i) => (
+            <button
+              key={i}
+              onClick={() => setTab(i)}
+              className={`px-3 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                tab === i ? 'border-green-600 text-green-700 bg-white' : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <span className="sm:hidden">{t.short}</span>
+              <span className="hidden sm:inline"><span className="mr-1 text-xs text-gray-400">{i + 1}.</span>{t.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Guest read-only banner */}
+      {!isAdmin && (
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 border-b border-amber-200 shrink-0">
+          <svg className="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span className="text-xs text-amber-700">Chỉ xem — Đăng nhập với quyền admin để chỉnh sửa.</span>
+        </div>
+      )}
 
       {/* Form content */}
-      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4">
-        {tab === 0 && <Form1BasicInfo basic={basic} data={form1} isNew={isNew} onBasicChange={setBasic} onDataChange={setForm1} />}
-        {tab === 1 && <Form2Survey nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form2} onChange={setForm2} />}
-        {tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form3} onChange={setForm3} />}
-        {tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form4} onChange={setForm4} />}
+      <div className={`flex-1 overflow-y-auto px-3 sm:px-6 py-4${!isAdmin ? " pointer-events-none select-none" : ""}`}>
+        {(!isAdmin || tab === 0) && <Form1BasicInfo basic={basic} data={form1} isNew={isNew} onBasicChange={setBasic} onDataChange={setForm1} />}
+        {isAdmin && tab === 1 && <Form2Survey nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form2} onChange={setForm2} />}
+        {isAdmin && tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form3} onChange={setForm3} />}
+        {isAdmin && tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form4} onChange={setForm4} />}
       </div>
 
       {/* Validation error modal */}
@@ -252,29 +269,38 @@ export default function EditModal({ item, extended, isNew, onSave, onClose }: Ed
       {/* Footer nav */}
       <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-t border-gray-200 bg-gray-50 shrink-0">
         <div className="flex gap-1.5">
-          {TABS.map((_, i) => (
+          {isAdmin && TABS.map((_, i) => (
             <button key={i} onClick={() => setTab(i)}
               className={`w-2 h-2 rounded-full transition-colors ${i === tab ? 'bg-green-600' : 'bg-gray-300'}`} />
           ))}
         </div>
         <div className="flex gap-2">
-          {tab > 0 && (
-            <button onClick={() => setTab(tab - 1)}
-              className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
-              ← Trước
-            </button>
-          )}
-          {tab < 3 ? (
-            <button onClick={() => setTab(tab + 1)}
-              className="px-3 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors">
-              Tiếp theo →
+          {!isAdmin ? (
+            <button onClick={onClose}
+              className="px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors">
+              Đóng
             </button>
           ) : (
-            <button onClick={handleSave} disabled={saving || saved}
-              className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:opacity-70">
-              {saving && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-              {saving ? "Đang lưu..." : "Lưu lại"}
-            </button>
+            <>
+              {tab > 0 && (
+                <button onClick={() => setTab(tab - 1)}
+                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
+                  ← Trước
+                </button>
+              )}
+              {tab < 3 ? (
+                <button onClick={() => setTab(tab + 1)}
+                  className="px-3 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors">
+                  Tiếp theo →
+                </button>
+              ) : (
+                <button onClick={handleSave} disabled={saving || saved}
+                  className="flex items-center gap-1.5 px-4 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:opacity-70">
+                  {saving && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+                  {saving ? "Đang lưu..." : "Lưu lại"}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>
