@@ -24,6 +24,7 @@ interface MapViewProps {
   onAddNewAtPoint?: (lat: number, lng: number) => void;
   onDeleteItem?: (ma: string) => void;
   onViewDetail?: (item: NguonGen) => void;
+  onLoginRequired?: () => void;
 }
 
 interface PopupInfo {
@@ -72,9 +73,9 @@ const BTN = "w-10 h-10 flex items-center justify-center rounded transition-color
 const BTN_ON = "w-10 h-10 flex items-center justify-center rounded text-white bg-white/25 touch-manipulation";
 
 function ToolButton({
-  title, onClick, active, children,
+  title, onClick, active, locked, children,
 }: {
-  title: string; onClick: () => void; active?: boolean; children: React.ReactNode;
+  title: string; onClick: () => void; active?: boolean; locked?: boolean; children: React.ReactNode;
 }) {
   const [tip, setTip] = useState(false);
   const [pos, setPos] = useState({ top: 0, right: 0 });
@@ -96,9 +97,12 @@ function ToolButton({
         onClick={onClick}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={() => setTip(false)}
-        className={active ? BTN_ON : BTN}
+        className={`${active ? BTN_ON : BTN}${locked ? " opacity-60" : ""}`}
       >
         {children}
+        {locked && (
+          <span className="absolute bottom-0.5 right-0.5 text-[9px] leading-none pointer-events-none">🔒</span>
+        )}
       </button>
       {tip && typeof document !== "undefined" && createPortal(
         <div
@@ -118,7 +122,7 @@ function ToolButton({
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, onViewDetail }: MapViewProps) {
+export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, onViewDetail, onLoginRequired }: MapViewProps) {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -141,6 +145,13 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     setToast(msg);
     setTimeout(() => setToast(null), duration);
   }, []);
+
+  // Call onLoginRequired (or show a toast) when a guest clicks a restricted tool
+  const requireAdmin = useCallback((action: () => void) => {
+    if (isAdmin) { action(); return; }
+    if (onLoginRequired) onLoginRequired();
+    else showToast("Vui lòng đăng nhập với quyền admin để sử dụng tính năng này", 3000);
+  }, [isAdmin, onLoginRequired, showToast]);
 
   const exportMapImage = useCallback(async () => {
     const el = containerRef.current;
@@ -402,34 +413,32 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           </svg>
         </ToolButton>
 
-        <ToolButton title="Xóa nguồn gen" onClick={() => { activateTool(activeTool === "delete" ? "none" : "delete"); showToast("Nhấn vào marker để xóa nguồn gen", 4000); }} active={activeTool === "delete"}>
+        <ToolButton locked={!isAdmin} title="Xóa nguồn gen" onClick={() => requireAdmin(() => { activateTool(activeTool === "delete" ? "none" : "delete"); showToast("Nhấn vào marker để xóa nguồn gen", 4000); })} active={activeTool === "delete"}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </ToolButton>
 
-        {isAdmin && onAddNewAtPoint && (
-          <ToolButton title="Thêm mới nguồn gen" onClick={() => { activateTool(activeTool === "add" ? "none" : "add"); showToast("Nhấn vào bản đồ để đặt vị trí nguồn gen mới", 4000); }} active={activeTool === "add"}>
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </ToolButton>
-        )}
+        <ToolButton locked={!isAdmin} title="Thêm mới nguồn gen" onClick={() => requireAdmin(() => { if (onAddNewAtPoint) { activateTool(activeTool === "add" ? "none" : "add"); showToast("Nhấn vào bản đồ để đặt vị trí nguồn gen mới", 4000); } })} active={activeTool === "add"}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </ToolButton>
 
-        <ToolButton title="Xuất ảnh bản đồ" onClick={exportMapImage}>
+        <ToolButton locked={!isAdmin} title="Xuất ảnh bản đồ" onClick={() => requireAdmin(exportMapImage)}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
         </ToolButton>
 
-        <ToolButton title="Xuất PDF" onClick={exportMapPDF}>
+        <ToolButton locked={!isAdmin} title="Xuất PDF" onClick={() => requireAdmin(exportMapPDF)}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
           </svg>
         </ToolButton>
 
         <div ref={legendBtnRef}>
-          <ToolButton title="Chú giải" onClick={() => setShowLegend((v) => !v)} active={showLegend}>
+          <ToolButton locked={!isAdmin} title="Chú giải" onClick={() => requireAdmin(() => setShowLegend((v) => !v))} active={showLegend}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -437,27 +446,27 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
         </div>
 
         <div ref={linhVucBtnRef}>
-          <ToolButton title="Khai thác dữ liệu theo lĩnh vực" onClick={() => setShowLinhVucPanel((v) => !v)} active={showLinhVucPanel}>
+          <ToolButton locked={!isAdmin} title="Khai thác dữ liệu theo lĩnh vực" onClick={() => requireAdmin(() => setShowLinhVucPanel((v) => !v))} active={showLinhVucPanel}>
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
             </svg>
           </ToolButton>
         </div>
 
-        <ToolButton title="Xem chi tiết nguồn gen" onClick={() => showToast("Nhấn vào marker để xem chi tiết")}>
+        <ToolButton locked={!isAdmin} title="Xem chi tiết nguồn gen" onClick={() => requireAdmin(() => showToast("Nhấn vào marker để xem chi tiết"))}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </ToolButton>
 
-        <ToolButton title="Tìm đường" onClick={() => router.push("/tim-duong")}>
+        <ToolButton locked={!isAdmin} title="Tìm đường" onClick={() => requireAdmin(() => router.push("/tim-duong"))}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </ToolButton>
 
-        <ToolButton title="Danh mục hiện trạng bảo tồn, khai thác, sử dụng nguồn gen Tỉnh Thanh Hóa" onClick={() => window.open("/danh-muc-hien-trang", "_blank")}>
+        <ToolButton locked={!isAdmin} title="Danh mục hiện trạng bảo tồn, khai thác, sử dụng nguồn gen Tỉnh Thanh Hóa" onClick={() => requireAdmin(() => window.open("/danh-muc-hien-trang", "_blank"))}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
