@@ -60,6 +60,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
+  const [mobileMetaOpen, setMobileMetaOpen] = useState(false);
   const [history, setHistory] = useState<BaiVietRow[][]>([]);
   const [future, setFuture]   = useState<BaiVietRow[][]>([]);
   const [showSearch, setShowSearch]   = useState(false);
@@ -370,8 +371,19 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
 
   return (
     <div className="flex flex-1 overflow-hidden bg-gray-100">
+      {/* Mobile backdrop for meta panel */}
+      {mobileMetaOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setMobileMetaOpen(false)} />
+      )}
+
       {/* ── Left panel ── */}
-      <aside className="w-64 shrink-0 bg-white border-r border-gray-200 flex flex-col">
+      <aside className={`fixed inset-y-0 left-0 z-40 md:static md:z-auto w-64 shrink-0 bg-white border-r border-gray-200 flex flex-col transition-transform md:transition-none ${mobileMetaOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+        <div className="md:hidden flex items-center justify-between px-4 pt-3 pb-1">
+          <span className="text-sm font-semibold text-gray-700">Tiêu đề &amp; mô tả</span>
+          <button onClick={() => setMobileMetaOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
         <div className="px-4 py-3 border-b border-gray-200">
           <label className="block text-xs font-medium text-gray-700 mb-1">
             <span className="text-red-500 mr-0.5">*</span>Tiêu đề
@@ -390,9 +402,16 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
       {/* ── Right panel ── */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
         {/* Top bar — z-50 so it stays above the popup overlay (z-40) */}
-        <div className="relative z-50 flex items-center gap-3 px-5 py-2.5 bg-white border-b border-gray-200 shrink-0">
-          <h1 className="text-sm font-semibold text-gray-800">Bài viết khai thác, bảo tồn, sử dụng</h1>
-          <div className="flex-1" />
+        <div className="relative z-50 flex items-center gap-2 px-3 md:px-5 py-2 md:py-2.5 bg-white border-b border-gray-200 shrink-0">
+          <button
+            className="md:hidden p-1.5 rounded text-gray-600 hover:bg-gray-100 shrink-0"
+            onClick={() => setMobileMetaOpen(true)}
+            title="Tiêu đề & mô tả"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          </button>
+          <h1 className="text-xs md:text-sm font-semibold text-gray-800 flex-1 min-w-0 truncate">Bài viết khai thác, bảo tồn, sử dụng</h1>
+          <div className="hidden md:flex flex-1" />
           <button onClick={handleSave} disabled={saving || loading}
             className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 active:bg-green-800 disabled:opacity-60 text-white text-xs font-medium px-3 py-1.5 rounded transition-colors">
             {saving ? (
@@ -415,7 +434,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
         {/* ── Toolbar ── */}
         <div className="relative z-50 bg-gray-50 border-b border-gray-300 px-2 py-1 space-y-0.5 shrink-0">
           {/* Row 1 */}
-          <div className="flex items-center gap-0.5 flex-wrap">
+          <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
             <TBtn label="Mã HTML" onClick={() => openPopup("html")} active={popup === "html"} />
             <Sep />
             <IBtn title="In" icon="🖨" onClick={handlePrint} />
@@ -440,7 +459,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
             <IBtn title="Toàn màn hình" icon="⛶" onClick={toggleFullscreen} />
           </div>
           {/* Row 2 */}
-          <div className="flex items-center gap-0.5 flex-wrap">
+          <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
             <FmtBtn label="B" cls="font-bold" cmd="bold" />
             <FmtBtn label="I" cls="italic" cmd="italic" />
             <FmtBtn label="U" cls="underline" cmd="underline" />
@@ -470,7 +489,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
             <IBtn icon="⚑" title="Đánh dấu" onClick={() => exec("backColor", "#ffff00")} />
           </div>
           {/* Row 3 */}
-          <div className="flex items-center gap-0.5 flex-wrap">
+          <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
             <IBtn icon="🖼" title="Chèn ảnh" onClick={() => openPopup("image")} active={popup === "image"} />
             <IBtn icon="▶" title="Chèn video" onClick={() => openPopup("video")} active={popup === "video"} />
             <IBtn icon="⊞" title="Chèn bảng" onClick={() => openPopup("table")} active={popup === "table"} />
@@ -667,7 +686,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
         )}
 
         {/* ── Content area ── */}
-        <div ref={contentRef} className="flex-1 overflow-auto bg-white p-4">
+        <div ref={contentRef} className="flex-1 overflow-auto bg-white p-3 md:p-4">
           {tieuDe && <p className="text-center font-bold text-xs uppercase mb-1">{tieuDe}</p>}
           {moTa && <p className="text-center text-xs italic text-gray-600 mb-1">{moTa}</p>}
 
@@ -683,6 +702,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
             data-placeholder="Nhập nội dung bài viết ở đây... (chọn văn bản rồi dùng toolbar để định dạng)"
           />
 
+          <div className="overflow-x-auto -mx-3 md:mx-0 px-3 md:px-0">
           <table className="border-collapse" style={{ fontSize: 13 }}>
             <colgroup>
               <col style={{ width: 34 }} /><col style={{ width: 140 }} /><col style={{ width: 166 }} />
@@ -739,6 +759,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
               ))}
             </tbody>
           </table>
+          </div>{/* end overflow-x-auto */}
 
           <div className="mt-3 space-y-0.5 text-[13px] text-gray-700">
             <p>(*) Phương thức bảo tồn: Bảo tồn tại chỗ (NV); Bảo tồn chuyển chỗ (CV)</p>
