@@ -197,11 +197,13 @@ export default function EditModal({ item, extended, isNew, isAdmin = true, onSav
       )}
 
       {/* Form content */}
-      <div className={`flex-1 overflow-y-auto px-3 sm:px-6 py-4${!isAdmin ? " pointer-events-none select-none" : ""}`}>
-        {(!isAdmin || tab === 0) && <Form1BasicInfo basic={basic} data={form1} isNew={isNew} onBasicChange={setBasic} onDataChange={setForm1} />}
-        {isAdmin && tab === 1 && <Form2Survey nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form2} onChange={setForm2} />}
-        {isAdmin && tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form3} onChange={setForm3} />}
-        {isAdmin && tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form4} onChange={setForm4} />}
+      <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-4">
+        <div className={!isAdmin ? "pointer-events-none select-none" : ""}>
+          {(!isAdmin || tab === 0) && <Form1BasicInfo basic={basic} data={form1} isNew={isNew} onBasicChange={setBasic} onDataChange={setForm1} />}
+          {isAdmin && tab === 1 && <Form2Survey nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form2} onChange={setForm2} />}
+          {isAdmin && tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form3} onChange={setForm3} />}
+          {isAdmin && tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form4} onChange={setForm4} />}
+        </div>
       </div>
 
       {/* Validation error modal */}
