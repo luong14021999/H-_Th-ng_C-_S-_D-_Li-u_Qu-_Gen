@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiGetAll } from "@/lib/api";
-import { NguonGen, CATEGORIES, CATEGORY_MAP } from "@/data/nguonGen";
+import { NguonGen, CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS } from "@/data/nguonGen";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function formatDuration(sec: number): string {
@@ -137,7 +137,8 @@ function RouteMap({
       // Dest marker
       if (destItem) {
         const cat = CATEGORY_MAP[destItem.nhom];
-        const icon = L.divIcon({ html: `<div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px #0004)">${cat?.icon ?? "📍"}</div>`, className: "", iconAnchor: [14, 14] });
+        const markerEmoji = PHAN_NHOM_ICONS[destItem.phan_nhom] ?? cat?.icon ?? "📍";
+        const icon = L.divIcon({ html: `<div style="font-size:28px;line-height:1;filter:drop-shadow(0 2px 4px #0004);font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif;">${markerEmoji}</div>`, className: "", iconAnchor: [14, 14] });
         L.marker([destItem.lat, destItem.lng], { icon }).bindTooltip(destItem.ten).addTo(layer);
         fitPts.push(L.latLng(destItem.lat, destItem.lng));
       }
@@ -428,7 +429,7 @@ function TimDuongInner() {
                 className="w-full flex items-center gap-3 px-4 py-4 text-left active:bg-blue-100 hover:bg-blue-50 transition-colors touch-manipulation">
                 <div className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-3xl"
                   style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}>
-                  {cat?.icon ?? "📍"}
+                  {PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍"}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-gray-900 truncate">{item.ten}</p>
