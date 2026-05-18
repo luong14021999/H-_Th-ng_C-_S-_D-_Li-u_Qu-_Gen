@@ -23,6 +23,101 @@ interface BaiVietRow {
 const TH = "border border-gray-400 px-2 py-1.5 text-center text-[13px] font-semibold leading-tight align-middle bg-gray-50";
 const TD = "border border-gray-300 px-1.5 py-1 text-[13px] leading-tight align-middle";
 
+function Field({ label, value }: { label: string; value: string }) {
+  if (!value) return null;
+  return (
+    <div className="flex gap-1 text-[13px]">
+      <span className="text-gray-500 shrink-0">{label}:</span>
+      <span className="text-gray-800">{value}</span>
+    </div>
+  );
+}
+
+function MobileCard({ row, idx }: { row: BaiVietRow; idx: number }) {
+  const [open, setOpen] = useState(false);
+  const hasBT = row.pt_bt || row.ht_bt || row.noi_bt || row.dv_bt || row.chua_bt;
+  const hasKT = row.ht_kt || row.dia_diem || row.dv_kt || row.chua_kt;
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+      {/* Card header */}
+      <button
+        className="w-full text-left px-3 py-3 flex items-start gap-2"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="shrink-0 w-6 h-6 rounded-full bg-green-100 text-green-800 text-[11px] font-bold flex items-center justify-center mt-0.5">
+          {idx}
+        </span>
+        <div className="flex-1 min-w-0">
+          <p className="font-semibold text-gray-900 text-sm leading-snug">{row.ten}</p>
+          {row.khoa_hoc && (
+            <p className="italic text-gray-500 text-[12px] leading-snug mt-0.5">{row.khoa_hoc}</p>
+          )}
+          <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
+            {row.dang_mau && <span className="text-[11px] text-gray-500">Dạng mẫu: <span className="text-gray-700">{row.dang_mau}</span></span>}
+            {row.tu_lieu && <span className="text-[11px] text-gray-500">Tư liệu: <span className="text-gray-700">{row.tu_lieu}</span></span>}
+          </div>
+        </div>
+        <svg
+          className={`w-4 h-4 shrink-0 mt-1 text-gray-400 transition-transform ${open ? "rotate-180" : ""}`}
+          fill="none" stroke="currentColor" viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="border-t border-gray-100 px-3 py-3 space-y-3 bg-gray-50">
+          {/* Đánh giá nguồn gen */}
+          {(row.dg_ban_dau || row.dg_chi_tiet) && (
+            <div>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Đánh giá nguồn gen</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                <Field label="Ban đầu" value={row.dg_ban_dau} />
+                <Field label="Chi tiết" value={row.dg_chi_tiet} />
+              </div>
+            </div>
+          )}
+
+          {/* Hiện trạng bảo tồn */}
+          {hasBT && (
+            <div>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Hiện trạng bảo tồn</p>
+              <div className="space-y-1">
+                <Field label="Chưa bảo tồn" value={row.chua_bt} />
+                <Field label="Phương thức" value={row.pt_bt} />
+                <Field label="Hình thức" value={row.ht_bt} />
+                <Field label="Nơi lưu giữ" value={row.noi_bt} />
+                <Field label="Đơn vị thực hiện" value={row.dv_bt} />
+              </div>
+            </div>
+          )}
+
+          {/* Hiện trạng khai thác */}
+          {hasKT && (
+            <div>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Hiện trạng khai thác, sử dụng</p>
+              <div className="space-y-1">
+                <Field label="Chưa khai thác" value={row.chua_kt} />
+                <Field label="Hình thức" value={row.ht_kt} />
+                <Field label="Địa điểm" value={row.dia_diem} />
+                <Field label="Đơn vị thực hiện" value={row.dv_kt} />
+              </div>
+            </div>
+          )}
+
+          {row.ghi_chu && (
+            <div>
+              <p className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Ghi chú</p>
+              <p className="text-[13px] text-gray-700">{row.ghi_chu}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function BaiVietPublicPage() {
   const [tieuDe, setTieuDe] = useState(
     "DANH MỤC HIỆN TRẠNG BẢO TỒN; KHAI THÁC, SỬ DỤNG NGUỒN GEN TRÊN ĐỊA BÀN TỈNH THANH HÓA"
@@ -100,11 +195,34 @@ export default function BaiVietPublicPage() {
       {/* ── Content ── */}
       <div className="px-3 sm:px-8 py-4 sm:py-6 max-w-[1400px] mx-auto">
         {/* Title */}
-        <h1 className="text-base sm:text-xl font-bold uppercase text-center mb-1 leading-snug">{tieuDe}</h1>
-        {moTa && <p className="text-center text-xs sm:text-sm italic text-gray-500 mb-4">{moTa}</p>}
+        <h1 className="text-sm sm:text-xl font-bold uppercase text-center mb-1 leading-snug">{tieuDe}</h1>
+        {moTa && <p className="text-center text-xs sm:text-sm italic text-gray-500 mb-3">{moTa}</p>}
 
-        {/* Table — horizontal scroll on mobile */}
-        <div className="overflow-x-auto mt-4 -mx-3 sm:mx-0 px-3 sm:px-0">
+        {/* ── Mobile: card layout ── */}
+        <div className="block lg:hidden mt-4 space-y-6">
+          {grouped.map(({ id, roman, label, rows: sRows, start }) => (
+            <div key={id}>
+              <div className="flex items-center gap-2 mb-3">
+                <span className="w-7 h-7 rounded-full bg-green-700 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                  {roman}
+                </span>
+                <h2 className="text-sm font-bold uppercase text-green-800">{label}</h2>
+              </div>
+              {sRows.length === 0 ? (
+                <p className="text-sm text-gray-400 italic px-2">Chưa có dữ liệu</p>
+              ) : (
+                <div className="space-y-2">
+                  {sRows.map((row, idx) => (
+                    <MobileCard key={row.id} row={row} idx={start + idx + 1} />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* ── Desktop: full table ── */}
+        <div className="hidden lg:block overflow-x-auto mt-4">
           <table className="border-collapse w-full" style={{ fontSize: 13 }}>
             <colgroup>
               <col style={{ width: 34 }} /><col style={{ width: 140 }} /><col style={{ width: 166 }} />
