@@ -11,6 +11,12 @@ function formatDate(iso: string) {
 
 const PHUONG_THUC_MAP = Object.fromEntries(PHUONG_THUC_BAO_TON.map(p => [p.id, p.ten]));
 
+const IconFilter = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+  </svg>
+);
+
 export default function HinhThucBaoTonTable() {
   const [items, setItems] = useState<HinhThucBaoTon[]>(danhMucStores.hinhThucBaoTon);
 
@@ -26,6 +32,7 @@ export default function HinhThucBaoTonTable() {
   const [statusOpenId, setStatusOpenId] = useState<number | null>(null);
   const [editItem, setEditItem] = useState<HinhThucBaoTon | null>(null);
   const [editForm, setEditForm] = useState<{ ten: string; ma: string; phuong_thuc_id: string; nhom: string[] }>({ ten: "", ma: "", phuong_thuc_id: "", nhom: [] });
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return items.filter((h) => {
@@ -69,7 +76,19 @@ export default function HinhThucBaoTonTable() {
 
   return (
     <div className="flex flex-1 overflow-hidden bg-gray-50" onClick={() => setStatusOpenId(null)}>
-      <aside className="w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col">
+      {/* Mobile backdrop */}
+      {mobileFilterOpen && (
+        <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setMobileFilterOpen(false)} />
+      )}
+
+      {/* Filter aside */}
+      <aside className={`fixed inset-y-0 left-0 z-40 md:static md:z-auto w-72 shrink-0 bg-white border-r border-gray-200 flex flex-col transition-transform md:transition-none ${mobileFilterOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+        <div className="md:hidden flex items-center justify-between px-4 pt-3 pb-1">
+          <span className="text-sm font-semibold text-gray-700">Bộ lọc</span>
+          <button onClick={() => setMobileFilterOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
         <FilterSection title="Trạng thái">
           {(["all","kich_hoat","an"] as const).map((v) => (
             <label key={v} className="flex items-center gap-2 cursor-pointer">
@@ -84,7 +103,7 @@ export default function HinhThucBaoTonTable() {
             className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400" />
         </FilterSection>
         <FilterSection title="Nhóm nguồn gen">
-          <input type="text" placeholder="Tìm kiếm theo nhóm nguồn gen" value={nhomSearch}
+          <input type="text" placeholder="Tìm kiếm theo nhóm" value={nhomSearch}
             onChange={(e) => setNhomSearch(e.target.value)}
             className="w-full text-sm border border-gray-300 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-400" />
         </FilterSection>
@@ -99,85 +118,91 @@ export default function HinhThucBaoTonTable() {
         </FilterSection>
       </aside>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="flex items-center gap-3 px-6 py-4 bg-white border-b border-gray-200">
-          <h1 className="text-xl font-semibold text-gray-800 shrink-0">Hình thức bảo tồn</h1>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="flex items-center gap-2 px-3 md:px-6 py-3 md:py-4 bg-white border-b border-gray-200">
+          <button className="md:hidden p-2 rounded text-gray-600 hover:bg-gray-100 shrink-0" onClick={() => setMobileFilterOpen(true)}>
+            <IconFilter />
+          </button>
+          <h1 className="text-base md:text-xl font-semibold text-gray-800 shrink-0">Hình thức bảo tồn</h1>
           <input type="text" placeholder="Tìm kiếm theo tên hình thức" value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
-          <div className="flex gap-2 shrink-0">
-            <button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-4 py-2 rounded">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-              Xuất file excel
+            className="flex-1 min-w-0 border border-gray-300 rounded px-3 py-1.5 text-sm focus:outline-none focus:ring-1 focus:ring-blue-400" />
+          <div className="flex gap-1.5 shrink-0">
+            <button className="flex items-center gap-1.5 bg-green-600 hover:bg-green-700 text-white text-sm font-medium px-2.5 md:px-4 py-2 rounded">
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+              <span className="hidden sm:inline">Xuất file excel</span>
             </button>
-            <button className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-4 py-2 rounded">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
-              Thêm mới (F2)
+            <button className="flex items-center gap-1.5 bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-2.5 md:px-4 py-2 rounded">
+              <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+              <span className="hidden sm:inline">Thêm mới (F2)</span>
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-auto px-6 py-4">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="bg-green-700 text-white">
-                <th className="w-10 px-3 py-3 text-center">#</th>
-                <th className="px-4 py-3 text-left">Tên hình thức <SortIcon /></th>
-                <th className="w-16 px-4 py-3 text-left">Mã <SortIcon /></th>
-                <th className="w-52 px-4 py-3 text-left">Nhóm nguồn gen</th>
-                <th className="w-44 px-4 py-3 text-left whitespace-nowrap">Ngày tạo <SortIcon /></th>
-                <th className="w-32 px-4 py-3 text-center">Trạng thái <SortIcon /></th>
-                <th className="w-20 px-4 py-3 text-center">Thao tác</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((h, i) => (
-                <tr key={h.id} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
-                  <td className="px-3 py-3 text-center text-gray-600">{i + 1}</td>
-                  <td className="px-4 py-3 text-gray-800">
-                    <div>{h.ten}</div>
-                    <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded mt-0.5 inline-block">
-                      {PHUONG_THUC_MAP[h.phuong_thuc_id]}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600">{h.ma}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-1">
-                      {h.nhom.map((n) => (
-                        <span key={n} className="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded">
-                          {CATEGORY_MAP[n]?.label ?? n}
-                        </span>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{formatDate(h.created_at)}</td>
-                  <td className="px-4 py-3 text-center">
-                    <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => setStatusOpenId(statusOpenId === h.id ? null : h.id)}
-                        className={`inline-flex items-center gap-1 text-white text-xs font-medium px-3 py-1 rounded-full ${h.trang_thai === "kich_hoat" ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 hover:bg-gray-500"}`}
-                      >
-                        {h.trang_thai === "kich_hoat" ? "Kích hoạt" : "Ẩn"}
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
-                      </button>
-                      {statusOpenId === h.id && (
-                        <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded shadow-lg z-50">
-                          <button onClick={() => toggleStatus(h.id)} className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                            {h.trang_thai === "kich_hoat" ? "Ẩn" : "Kích hoạt"}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-center">
-                    <button className="text-green-600 hover:text-green-800" onClick={(e) => { e.stopPropagation(); openEdit(h); }}>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                    </button>
-                  </td>
+        <div className="flex-1 overflow-auto px-3 md:px-6 py-4">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="bg-green-700 text-white">
+                  <th className="w-10 px-3 py-3 text-center">#</th>
+                  <th className="px-4 py-3 text-left">Tên hình thức <SortIcon /></th>
+                  <th className="w-16 px-4 py-3 text-left hidden sm:table-cell">Mã <SortIcon /></th>
+                  <th className="w-52 px-4 py-3 text-left hidden lg:table-cell">Nhóm nguồn gen</th>
+                  <th className="w-44 px-4 py-3 text-left whitespace-nowrap hidden md:table-cell">Ngày tạo <SortIcon /></th>
+                  <th className="w-32 px-4 py-3 text-center">Trạng thái <SortIcon /></th>
+                  <th className="w-20 px-4 py-3 text-center">Thao tác</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filtered.map((h, i) => (
+                  <tr key={h.id} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
+                    <td className="px-3 py-3 text-center text-gray-600">{i + 1}</td>
+                    <td className="px-4 py-3 text-gray-800">
+                      <div>{h.ten}</div>
+                      <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded mt-0.5 inline-block">
+                        {PHUONG_THUC_MAP[h.phuong_thuc_id]}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 hidden sm:table-cell">{h.ma}</td>
+                    <td className="px-4 py-3 hidden lg:table-cell">
+                      <div className="flex flex-wrap gap-1">
+                        {h.nhom.map((n) => (
+                          <span key={n} className="text-xs bg-gray-200 text-gray-700 px-1.5 py-0.5 rounded">
+                            {CATEGORY_MAP[n]?.label ?? n}
+                          </span>
+                        ))}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-gray-600 whitespace-nowrap hidden md:table-cell">{formatDate(h.created_at)}</td>
+                    <td className="px-4 py-3 text-center">
+                      <div className="relative inline-block" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={() => setStatusOpenId(statusOpenId === h.id ? null : h.id)}
+                          className={`inline-flex items-center gap-1 text-white text-xs font-medium px-3 py-1 rounded-full ${h.trang_thai === "kich_hoat" ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 hover:bg-gray-500"}`}
+                        >
+                          {h.trang_thai === "kich_hoat" ? "Kích hoạt" : "Ẩn"}
+                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                        </button>
+                        {statusOpenId === h.id && (
+                          <div className="absolute right-0 top-full mt-1 w-28 bg-white border border-gray-200 rounded shadow-lg z-50">
+                            <button onClick={() => toggleStatus(h.id)} className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                              {h.trang_thai === "kich_hoat" ? "Ẩn" : "Kích hoạt"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <button className="text-green-600 hover:text-green-800" onClick={(e) => { e.stopPropagation(); openEdit(h); }}>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           <div className="flex items-center gap-1 mt-4">
             <button disabled className="px-2 py-1 text-gray-400 disabled:opacity-30">{"<"}</button>
             <button className="px-3 py-1 border border-gray-300 rounded text-sm bg-white text-gray-700">1</button>
@@ -188,8 +213,8 @@ export default function HinhThucBaoTonTable() {
       </div>
 
       {editItem && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setEditItem(null)}>
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4" onClick={() => setEditItem(null)}>
+          <div className="bg-white rounded-t-2xl sm:rounded-lg shadow-xl w-full sm:max-w-xl max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-800">Sửa thông tin hình thức</h2>
               <button onClick={() => setEditItem(null)} className="text-gray-400 hover:text-gray-600">
@@ -197,11 +222,9 @@ export default function HinhThucBaoTonTable() {
               </button>
             </div>
             <div className="px-6 py-5 space-y-5">
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    <span className="text-red-500 mr-1">*</span>Tên hình thức
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1"><span className="text-red-500 mr-1">*</span>Tên hình thức</label>
                   <input type="text" value={editForm.ten} onChange={(e) => setEditForm(f => ({ ...f, ten: e.target.value }))}
                     className="w-full border-b border-gray-300 focus:border-green-600 outline-none text-sm py-1" />
                 </div>
@@ -212,9 +235,7 @@ export default function HinhThucBaoTonTable() {
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  <span className="text-red-500 mr-1">*</span>Phương thức bảo tồn
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1"><span className="text-red-500 mr-1">*</span>Phương thức bảo tồn</label>
                 <select value={editForm.phuong_thuc_id} onChange={(e) => setEditForm(f => ({ ...f, phuong_thuc_id: e.target.value }))}
                   className="w-full border-b border-gray-300 focus:border-green-600 outline-none text-sm py-1 bg-transparent">
                   <option value="">-- Chọn phương thức --</option>
@@ -224,9 +245,7 @@ export default function HinhThucBaoTonTable() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  <span className="text-red-500 mr-1">*</span>Nhóm nguồn gen
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2"><span className="text-red-500 mr-1">*</span>Nhóm nguồn gen</label>
                 <div className="flex flex-wrap gap-2 p-2 border border-gray-200 rounded min-h-[40px]">
                   {editForm.nhom.map(n => (
                     <span key={n} className="flex items-center gap-1 bg-gray-100 text-gray-700 text-sm px-2 py-0.5 rounded">
