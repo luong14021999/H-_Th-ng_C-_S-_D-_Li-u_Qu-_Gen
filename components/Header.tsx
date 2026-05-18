@@ -83,6 +83,7 @@ export default function Header({
   const [thongKePos, setThongKePos] = useState({ top: 0, left: 0 });
   const [mobileGenSheetOpen, setMobileGenSheetOpen] = useState(false);
   const [mobileThongKeSheetOpen, setMobileThongKeSheetOpen] = useState(false);
+  const [mobileDanhMucSheetOpen, setMobileDanhMucSheetOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const userTriggerRef = useRef<HTMLButtonElement>(null);
@@ -147,7 +148,7 @@ export default function Header({
   // Mobile bottom nav tabs
   const adminTabs = [
     { id: "trang-chu", label: "Trang chủ", icon: <IconHome />, action: () => onTabChange("trang-chu") },
-    { id: "danh-muc", label: "Danh mục", icon: <IconFolder />, action: () => onTabChange("danh-muc") },
+    { id: "danh-muc", label: "Danh mục", icon: <IconFolder />, action: () => isAdmin ? setMobileDanhMucSheetOpen(true) : onAdminClick() },
     { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => setMobileThongKeSheetOpen(true) },
     { id: "nguon-gen", label: "Nguồn gen", icon: <IconShield />, action: () => setMobileGenSheetOpen(true) },
   ];
@@ -362,6 +363,39 @@ export default function Header({
                   className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 touch-manipulation"
                 >
                   <IconChart cls="w-5 h-5 text-green-600 shrink-0" />
+                  <span className="font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="safe-area-bottom" />
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* ── Mobile Danh mục bottom sheet ── */}
+      {mounted && mobileDanhMucSheetOpen && createPortal(
+        <>
+          <div className="fixed inset-0 bg-black/40 z-[9998]" onClick={() => setMobileDanhMucSheetOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white rounded-t-2xl overflow-hidden">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            </div>
+            <div className="px-4 py-2.5 border-b border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Danh mục</p>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh]">
+              {DANH_MUC_ITEMS.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    setMobileDanhMucSheetOpen(false);
+                    onTabChange("danh-muc");
+                    onDanhMucSelect?.(item.id);
+                  }}
+                  className="w-full text-left px-5 py-3.5 text-sm flex items-center gap-3 hover:bg-green-50 transition-colors border-b border-gray-100 last:border-0 text-gray-700 touch-manipulation"
+                >
+                  <IconFolder cls="w-5 h-5 text-green-600 shrink-0" />
                   <span className="font-medium">{item.label}</span>
                 </button>
               ))}
