@@ -373,11 +373,11 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
     <div className="flex flex-1 overflow-hidden bg-gray-100">
       {/* Mobile backdrop for meta panel */}
       {mobileMetaOpen && (
-        <div className="fixed inset-0 bg-black/40 z-30 md:hidden" onClick={() => setMobileMetaOpen(false)} />
+        <div className="fixed inset-0 bg-black/40 z-[55] md:hidden" onClick={() => setMobileMetaOpen(false)} />
       )}
 
       {/* ── Left panel ── */}
-      <aside className={`fixed inset-y-0 left-0 z-40 md:static md:z-auto w-64 shrink-0 bg-white border-r border-gray-200 flex flex-col transition-transform md:transition-none ${mobileMetaOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-[60] md:static md:z-auto w-64 shrink-0 bg-white border-r border-gray-200 flex flex-col transition-transform md:transition-none ${mobileMetaOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}`}>
         <div className="md:hidden flex items-center justify-between px-4 pt-3 pb-1">
           <span className="text-sm font-semibold text-gray-700">Tiêu đề &amp; mô tả</span>
           <button onClick={() => setMobileMetaOpen(false)} className="text-gray-400 hover:text-gray-600 p-1">
