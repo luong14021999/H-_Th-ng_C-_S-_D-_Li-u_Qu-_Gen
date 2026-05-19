@@ -300,11 +300,11 @@ export default function Header({
                 key={tab.id}
                 onClick={tab.action}
                 className={`relative flex-1 flex flex-col items-center justify-center py-2.5 gap-1 transition-colors min-h-[3rem] touch-manipulation ${
-                  isActive ? "text-white" : "text-white/50 hover:text-white/80"
+                  isActive ? "text-white" : "text-white/90 hover:text-white"
                 }`}
               >
-                <div className={`${isActive ? "opacity-100" : "opacity-60"}`}>{tab.icon}</div>
-                <span className="text-[11px] font-medium leading-none">{tab.label}</span>
+                <div className={isActive ? "opacity-100" : "opacity-95"}>{tab.icon}</div>
+                <span className="text-xs font-semibold leading-none tracking-tight">{tab.label}</span>
                 {isActive && <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-white rounded-full" />}
               </button>
             );
