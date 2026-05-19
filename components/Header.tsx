@@ -420,7 +420,7 @@ export default function Header({
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tài khoản quản trị</p>
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
-              {USER_MENU.map((menuItem) => (
+              {USER_MENU.filter((m) => m.id !== "admin").map((menuItem) => (
                 <button
                   key={menuItem.id}
                   onClick={() => { setMobileUserSheetOpen(false); handleUserMenuAction(menuItem.id); }}
