@@ -224,6 +224,7 @@ export default function Home() {
           setShowTable(true);
           setActiveTab("nguon-gen");
           setActiveDanhMuc(null);
+          setActiveStats(null);
         }}
         onThongKeSelect={(id) => {
           setActiveStats(id);
