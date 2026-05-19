@@ -14,6 +14,7 @@ interface HeaderProps {
   onLogout: () => void;
   onMenuToggle: () => void;
   onOpenAdmin: () => void;
+  onOpenGuide: () => void;
   onNguonGenCategorySelect: (categoryId: string) => void;
   onThongKeSelect?: (id: string) => void;
   onDanhMucSelect?: (id: string) => void;
@@ -21,8 +22,6 @@ interface HeaderProps {
 
 const USER_MENU = [
   { id: "admin", label: "Quản trị dữ liệu", danger: false },
-  { id: "profile", label: "Thông tin cá nhân", danger: false },
-  { id: "password", label: "Đổi mật khẩu", danger: false },
   { id: "guide", label: "Hướng dẫn sử dụng", danger: false },
   { id: "logout", label: "Đăng xuất", danger: true },
 ];
@@ -71,7 +70,7 @@ const IconFolder = ({ cls = "w-5 h-5" }) => (
 
 export default function Header({
   isAdmin, showNav, activeTab,
-  onTabChange, onAdminClick, onLogout, onMenuToggle, onOpenAdmin, onNguonGenCategorySelect, onThongKeSelect, onDanhMucSelect,
+  onTabChange, onAdminClick, onLogout, onMenuToggle, onOpenAdmin, onOpenGuide, onNguonGenCategorySelect, onThongKeSelect, onDanhMucSelect,
 }: HeaderProps) {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [userMenuPos, setUserMenuPos] = useState({ top: 0, right: 0 });
@@ -84,6 +83,7 @@ export default function Header({
   const [mobileGenSheetOpen, setMobileGenSheetOpen] = useState(false);
   const [mobileThongKeSheetOpen, setMobileThongKeSheetOpen] = useState(false);
   const [mobileDanhMucSheetOpen, setMobileDanhMucSheetOpen] = useState(false);
+  const [mobileUserSheetOpen, setMobileUserSheetOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   const userTriggerRef = useRef<HTMLButtonElement>(null);
@@ -105,6 +105,7 @@ export default function Header({
     setUserMenuOpen(false);
     if (id === "logout") onLogout();
     else if (id === "admin") onOpenAdmin();
+    else if (id === "guide") onOpenGuide();
   };
 
   const handleNguonGenToggle = () => {
@@ -151,6 +152,7 @@ export default function Header({
     { id: "danh-muc", label: "Danh mục", icon: <IconFolder />, action: () => isAdmin ? setMobileDanhMucSheetOpen(true) : onAdminClick() },
     { id: "thong-ke", label: "Thống kê", icon: <IconChart />, action: () => setMobileThongKeSheetOpen(true) },
     { id: "nguon-gen", label: "Nguồn gen", icon: <IconShield />, action: () => setMobileGenSheetOpen(true) },
+    { id: "tai-khoan", label: "Tài khoản", icon: <IconPerson />, action: () => setMobileUserSheetOpen(true) },
   ];
   const guestTabs = [
     { id: "trang-chu", label: "Bản đồ", icon: <IconHome />, action: () => onTabChange("trang-chu") },
@@ -397,6 +399,36 @@ export default function Header({
                 >
                   <IconFolder cls="w-5 h-5 text-green-600 shrink-0" />
                   <span className="font-medium">{item.label}</span>
+                </button>
+              ))}
+            </div>
+            <div className="safe-area-bottom" />
+          </div>
+        </>,
+        document.body
+      )}
+
+      {/* ── Mobile Tài khoản bottom sheet ── */}
+      {mounted && mobileUserSheetOpen && createPortal(
+        <>
+          <div className="fixed inset-0 bg-black/40 z-[9998]" onClick={() => setMobileUserSheetOpen(false)} />
+          <div className="fixed bottom-0 left-0 right-0 z-[9999] bg-white rounded-t-2xl overflow-hidden">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            </div>
+            <div className="px-4 py-2.5 border-b border-gray-100">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tài khoản quản trị</p>
+            </div>
+            <div className="overflow-y-auto max-h-[60vh]">
+              {USER_MENU.map((menuItem) => (
+                <button
+                  key={menuItem.id}
+                  onClick={() => { setMobileUserSheetOpen(false); handleUserMenuAction(menuItem.id); }}
+                  className={`w-full text-left px-5 py-3.5 text-sm transition-colors border-b border-gray-100 last:border-0 touch-manipulation ${
+                    menuItem.danger ? "text-red-600 hover:bg-red-50" : "hover:bg-green-50 text-gray-700"
+                  }`}
+                >
+                  {menuItem.label}
                 </button>
               ))}
             </div>

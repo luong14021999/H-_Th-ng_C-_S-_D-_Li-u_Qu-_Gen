@@ -21,6 +21,7 @@ import PhuongThucBaoTonTable from "@/components/PhuongThucBaoTonTable";
 import HinhThucBaoTonTable from "@/components/HinhThucBaoTonTable";
 import HinhThucKhaiThacTable from "@/components/HinhThucKhaiThacTable";
 import BaiVietKhaiThacPage from "@/components/BaiVietKhaiThacPage";
+import GuideModal from "@/components/GuideModal";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -39,6 +40,7 @@ export default function Home() {
   const [seeding, setSeeding] = useState(false);
   const [activeStats, setActiveStats] = useState<string | null>(null);
   const [activeDanhMuc, setActiveDanhMuc] = useState<string | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
 
   // Load data from backend on mount
   const loadData = useCallback(async () => {
@@ -219,6 +221,7 @@ export default function Home() {
           if (isAdmin) { setShowTable(true); setActiveTab("danh-muc"); setActiveDanhMuc(null); }
           else setShowLogin(true);
         }}
+        onOpenGuide={() => setShowGuide(true)}
         onNguonGenCategorySelect={(categoryId) => {
           setTableCategory(categoryId);
           setShowTable(true);
@@ -345,6 +348,8 @@ export default function Home() {
       {showLogin && (
         <LoginModal onClose={() => setShowLogin(false)} onLogin={handleLogin} />
       )}
+
+      {showGuide && <GuideModal onClose={() => setShowGuide(false)} />}
     </div>
   );
 }
