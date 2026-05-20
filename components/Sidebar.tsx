@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
+import Twemoji from "./Twemoji";
 
 interface SidebarProps {
   open: boolean;
@@ -25,10 +26,10 @@ function ItemThumb({ item, extendedMap }: { item: NguonGen; extendedMap: Record<
   const icon = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "🌿";
   return (
     <div
-      className="w-11 h-11 rounded-lg shrink-0 flex items-center justify-center text-xl border"
+      className="w-11 h-11 rounded-lg shrink-0 flex items-center justify-center border"
       style={{ backgroundColor: (cat?.color ?? "#6b7280") + "18", borderColor: (cat?.color ?? "#6b7280") + "40" }}
     >
-      {icon}
+      <Twemoji emoji={icon} size={22} />
     </div>
   );
 }
@@ -109,7 +110,7 @@ export default function Sidebar({
             style={selectedCategory === cat.id ? { backgroundColor: cat.color } : {}}
           >
             <span className="flex items-center gap-2">
-              <span>{cat.icon}</span>
+              <Twemoji emoji={cat.icon} size={18} />
               <span className="font-medium">{cat.label}</span>
             </span>
             <span className={`text-xs font-bold px-1.5 py-0.5 rounded-full ${

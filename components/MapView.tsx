@@ -15,6 +15,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 import { NguonGen, CATEGORY_MAP, CATEGORIES, PHAN_NHOM_ICONS } from "@/data/nguonGen";
+import { twemojiImgHtml } from "@/lib/twemoji";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
 
@@ -316,9 +317,10 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     data.forEach((item) => {
       const cat = CATEGORY_MAP[item.nhom];
       const markerEmoji = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍";
+      const imgHtml = twemojiImgHtml(markerEmoji, 22, "filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));");
       const icon = L.divIcon({
         className: "",
-        html: `<div style="font-size:22px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));font-family:'Segoe UI Emoji','Apple Color Emoji','Noto Color Emoji',sans-serif;">${markerEmoji}</div>`,
+        html: `<div style="line-height:0;">${imgHtml}</div>`,
         iconSize: [24, 24],
         iconAnchor: [12, 12],
       });

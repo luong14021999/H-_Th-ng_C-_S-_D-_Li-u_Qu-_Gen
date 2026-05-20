@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CATEGORIES, PHAN_NHOM_BY_NHOM, PHAN_NHOM_ICONS } from "@/data/nguonGen";
+import Twemoji from "./Twemoji";
 
 const IconFilter = () => (
   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,7 +123,7 @@ export default function NhomNguonGenTable() {
                         </button>
                       </td>
                       <td className="px-4 py-3 font-medium text-gray-800">{parentIndex}. {cat.label}</td>
-                      <td className="px-4 py-3 text-center text-2xl">{cat.icon}</td>
+                      <td className="px-4 py-3 text-center"><Twemoji emoji={cat.icon} size={28} /></td>
                       <td className="px-4 py-3 text-center">
                         <div className="flex items-center justify-center gap-3">
                           <button className="text-green-600 hover:text-green-800" title="Chỉnh sửa">
@@ -142,7 +143,7 @@ export default function NhomNguonGenTable() {
                             <tr key={`${cat.id}-${phanNhom}`} className="border-b border-gray-100 bg-blue-50/40 hover:bg-blue-100/60 transition-colors">
                               <td className="px-3 py-2.5 text-center text-gray-400 text-xs">{idx + 1}</td>
                               <td className="px-4 py-2.5 pl-10 text-gray-700">{phanNhom}</td>
-                              <td className="px-4 py-2.5 text-center text-xl">{PHAN_NHOM_ICONS[phanNhom] ?? "📁"}</td>
+                              <td className="px-4 py-2.5 text-center"><Twemoji emoji={PHAN_NHOM_ICONS[phanNhom] ?? "📁"} size={22} /></td>
                               <td className="px-4 py-2.5 text-center">
                                 <div className="flex items-center justify-center gap-3">
                                   <button className="text-green-600 hover:text-green-800" title="Chỉnh sửa">
