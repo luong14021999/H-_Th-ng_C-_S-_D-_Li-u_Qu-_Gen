@@ -5,6 +5,7 @@ import { NguonGen, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { Form1Data, BaoTonEntry, defaultForm1 } from "@/data/extendedTypes";
 import SearchSelect from "@/components/SearchableSelect";
 import { danhMucStores } from "@/data/danhMucData";
+import { apiUploadImage, apiDeleteImage } from "@/lib/api";
 
 
 interface Props {
@@ -120,6 +121,76 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
   const d = { ...defaultForm1(), ...data };
   const set = (field: keyof Form1Data, val: unknown) => onDataChange({ ...d, [field]: val });
   const setBasic = (field: keyof NguonGen, val: string) => onBasicChange({ ...basic, [field]: val });
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  const handleFiles = async (files: File[]) => {
+    if (!files.length) return;
+    setUploadError(null);
+
+    const MAX_BYTES = 4 * 1024 * 1024; // ~4MB — keeps within Vercel serverless body limit
+    const oversize = files.filter((f) => f.size > MAX_BYTES);
+    if (oversize.length) {
+      setUploadError(`Ảnh quá lớn (giới hạn 4MB/ảnh): ${oversize.map((f) => f.name).join(", ")}. Vui lòng nén hoặc thu nhỏ ảnh trước khi tải.`);
+      return;
+    }
+
+    const ma = basic.ma?.trim();
+    if (!ma) {
+      // New record without a code yet — keep base64 fallback so the user can
+      // still preview before the first save. We warn but do not block.
+      setUploading(true);
+      try {
+        const dataUrls = await Promise.all(
+          files.map(
+            (file) =>
+              new Promise<string>((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (ev) => resolve(ev.target?.result as string);
+                reader.onerror = () => reject(new Error("Không đọc được tệp"));
+                reader.readAsDataURL(file);
+              })
+          )
+        );
+        set("hinh_anh", [...(d.hinh_anh ?? []), ...dataUrls]);
+        setUploadError("Nhập mã nguồn gen rồi lưu một lần để ảnh được tải lên kho. Hiện ảnh đang giữ tạm trong trình duyệt.");
+      } catch (err) {
+        setUploadError(err instanceof Error ? err.message : "Không đọc được tệp");
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const urls = await Promise.all(files.map((file) => apiUploadImage(ma, file)));
+      set("hinh_anh", [...(d.hinh_anh ?? []), ...urls]);
+    } catch (err) {
+      setUploadError(err instanceof Error ? err.message : "Tải ảnh thất bại");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = async (idx: number) => {
+    const list = d.hinh_anh ?? [];
+    const target = list[idx];
+    const next = list.filter((_, i) => i !== idx);
+    set("hinh_anh", next);
+
+    // If it's a remote storage URL, also delete from Supabase Storage.
+    const ma = basic.ma?.trim();
+    if (ma && typeof target === "string" && !target.startsWith("data:")) {
+      const marker = `/nguon-gen-images/${ma}/`;
+      const i = target.indexOf(marker);
+      const filename = i >= 0 ? target.slice(i + marker.length).split("?")[0] : "";
+      if (filename) {
+        try { await apiDeleteImage(ma, filename); } catch { /* ignore */ }
+      }
+    }
+  };
 
   const updateBaoTon = (idx: number, field: keyof BaoTonEntry, val: string) => {
     const list = [...(d.bao_ton_list ?? [])];
@@ -270,35 +341,34 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
       {/* Hình ảnh */}
       <div>
         <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Hình ảnh</h3>
-        <div className="py-2">
-          <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-dashed border-green-500 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            Chọn ảnh
+        <div className="py-2 flex flex-wrap items-center gap-2">
+          <label className={`cursor-pointer inline-flex items-center gap-2 px-3 py-2 border border-dashed border-green-500 rounded-lg text-sm text-green-700 hover:bg-green-50 transition-colors ${uploading ? "opacity-60 pointer-events-none" : ""}`}>
+            {uploading ? (
+              <div className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            )}
+            {uploading ? "Đang tải lên..." : "Chọn ảnh"}
             <input
               type="file"
               accept="image/*"
               multiple
+              disabled={uploading}
               className="hidden"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const files = Array.from(e.target.files ?? []);
-                Promise.all(
-                  files.map(
-                    (file) =>
-                      new Promise<string>((resolve) => {
-                        const reader = new FileReader();
-                        reader.onload = (ev) => resolve(ev.target?.result as string);
-                        reader.readAsDataURL(file);
-                      })
-                  )
-                ).then((newImgs) => set('hinh_anh', [...(d.hinh_anh ?? []), ...newImgs]));
-                e.target.value = '';
+                e.target.value = "";
+                await handleFiles(files);
               }}
             />
           </label>
-          <span className="ml-2 text-xs text-gray-400">Có thể chọn nhiều ảnh</span>
+          <span className="text-xs text-gray-400">Có thể chọn nhiều ảnh</span>
         </div>
+        {uploadError && (
+          <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">{uploadError}</p>
+        )}
         {(d.hinh_anh ?? []).length > 0 && (
           <div className="grid grid-cols-3 gap-2 mt-2">
             {(d.hinh_anh ?? []).map((src, idx) => (
@@ -306,7 +376,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 <img src={src} alt={`Ảnh ${idx + 1}`} className="absolute inset-0 w-full h-full object-cover rounded-lg border border-gray-200" />
                 <button
                   type="button"
-                  onClick={() => set('hinh_anh', (d.hinh_anh ?? []).filter((_, i) => i !== idx))}
+                  onClick={() => handleRemoveImage(idx)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
                 >
                   ✕
