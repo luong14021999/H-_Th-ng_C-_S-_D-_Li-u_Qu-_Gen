@@ -6,6 +6,7 @@ import { ExtendedFormData, defaultForm1, defaultForm2, defaultForm3, defaultForm
 import EditModal from "./EditModal";
 import ImportModal from "./ImportModal";
 import { exportNguonGenExcel, exportDanhSachExcel } from "@/lib/exportExcel";
+import { normalizeVi } from "@/lib/text";
 
 interface DataTableProps {
   data: NguonGen[];
@@ -141,11 +142,13 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
     let list = data.filter((item) => {
       const matchCat = filterCategory === "all" || item.nhom === filterCategory;
       const matchPhan = filterPhanNhom === "all" || item.phan_nhom === filterPhanNhom;
-      const matchMa = !searchMa || item.ma.toLowerCase().includes(searchMa.toLowerCase());
+      const qMa = normalizeVi(searchMa);
+      const qTen = normalizeVi(searchTen);
+      const matchMa = !qMa || normalizeVi(item.ma).includes(qMa);
       const matchTen =
-        !searchTen ||
-        item.ten.toLowerCase().includes(searchTen.toLowerCase()) ||
-        item.khoa_hoc.toLowerCase().includes(searchTen.toLowerCase());
+        !qTen ||
+        normalizeVi(item.ten).includes(qTen) ||
+        normalizeVi(item.khoa_hoc).includes(qTen);
       return matchCat && matchPhan && matchMa && matchTen;
     });
     if (sortField === "ma") {

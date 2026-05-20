@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
+import { normalizeVi } from "@/lib/text";
 import Twemoji from "./Twemoji";
 
 interface SidebarProps {
@@ -47,12 +48,15 @@ export default function Sidebar({
     : [];
 
   const filteredItems = search.trim()
-    ? categoryItems.filter(
-        (i) =>
-          i.ten.toLowerCase().includes(search.toLowerCase()) ||
-          i.khoa_hoc.toLowerCase().includes(search.toLowerCase()) ||
-          i.ma.toLowerCase().includes(search.toLowerCase())
-      )
+    ? (() => {
+        const q = normalizeVi(search);
+        return categoryItems.filter(
+          (i) =>
+            normalizeVi(i.ten).includes(q) ||
+            normalizeVi(i.khoa_hoc).includes(q) ||
+            normalizeVi(i.ma).includes(q)
+        );
+      })()
     : categoryItems;
 
   const handleBack = () => {
