@@ -124,6 +124,19 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
 
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (lightboxIdx === null) return;
+    const onKey = (e: KeyboardEvent) => {
+      const total = (d.hinh_anh ?? []).length;
+      if (e.key === "Escape") setLightboxIdx(null);
+      else if (e.key === "ArrowRight") setLightboxIdx((i) => (i === null ? null : (i + 1) % total));
+      else if (e.key === "ArrowLeft") setLightboxIdx((i) => (i === null ? null : (i - 1 + total) % total));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIdx, d.hinh_anh]);
 
   const handleFiles = async (files: File[]) => {
     if (!files.length) return;
@@ -370,23 +383,91 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
           <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">{uploadError}</p>
         )}
         {(d.hinh_anh ?? []).length > 0 && (
-          <div className="grid grid-cols-3 gap-2 mt-2">
+          <div className="flex flex-wrap gap-2 mt-2">
             {(d.hinh_anh ?? []).map((src, idx) => (
-              <div key={idx} className="relative group aspect-square">
-                <img src={src} alt={`Ảnh ${idx + 1}`} className="absolute inset-0 w-full h-full object-cover rounded-lg border border-gray-200" />
+              <div key={idx} className="relative group w-20 h-20 sm:w-24 sm:h-24 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setLightboxIdx(idx)}
+                  className="block w-full h-full rounded-lg border border-gray-200 overflow-hidden hover:ring-2 hover:ring-green-500 transition-all"
+                  title="Nhấn để xem to"
+                >
+                  <img src={src} alt={`Ảnh ${idx + 1}`} className="w-full h-full object-cover" />
+                </button>
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(idx)}
-                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                  className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center shadow-md hover:bg-red-600 transition-colors z-10"
+                  title="Xóa ảnh"
                 >
                   ✕
                 </button>
-                <span className="absolute bottom-1 left-1 bg-black/40 text-white text-xs px-1 rounded z-10">Ảnh {idx + 1}</span>
+                <span className="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-1 rounded pointer-events-none">{idx + 1}</span>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Lightbox */}
+      {lightboxIdx !== null && (d.hinh_anh ?? [])[lightboxIdx] && (
+        <div
+          className="fixed inset-0 z-[3500] bg-black/85 flex items-center justify-center p-4 select-none"
+          onClick={() => setLightboxIdx(null)}
+        >
+          <button
+            type="button"
+            onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
+            className="absolute top-4 right-4 text-white/90 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+            title="Đóng (Esc)"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          {(d.hinh_anh ?? []).length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const total = (d.hinh_anh ?? []).length;
+                  setLightboxIdx((i) => (i === null ? null : (i - 1 + total) % total));
+                }}
+                className="absolute left-2 sm:left-6 text-white/90 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+                title="Ảnh trước"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const total = (d.hinh_anh ?? []).length;
+                  setLightboxIdx((i) => (i === null ? null : (i + 1) % total));
+                }}
+                className="absolute right-2 sm:right-6 text-white/90 hover:text-white bg-white/10 hover:bg-white/20 rounded-full w-10 h-10 flex items-center justify-center"
+                title="Ảnh tiếp theo"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </>
+          )}
+          <img
+            src={(d.hinh_anh ?? [])[lightboxIdx]}
+            alt={`Ảnh ${lightboxIdx + 1}`}
+            className="max-w-full max-h-full object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          <span className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+            Ảnh {lightboxIdx + 1} / {(d.hinh_anh ?? []).length}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
