@@ -7,6 +7,58 @@ import SearchSelect from "@/components/SearchableSelect";
 import { danhMucStores } from "@/data/danhMucData";
 import { apiUploadImage, apiDeleteImage } from "@/lib/api";
 
+// Browser-side image compression: caps longest edge and reduces JPEG
+// quality until the file fits under MAX_UPLOAD_BYTES.
+const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
+async function compressImage(file: File): Promise<File> {
+  if (!file.type.startsWith("image/")) return file;
+  if (file.size <= MAX_UPLOAD_BYTES) return file;
+
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(r.result as string);
+    r.onerror = () => reject(new Error("Không đọc được tệp"));
+    r.readAsDataURL(file);
+  });
+
+  const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+    const i = new Image();
+    i.onload = () => resolve(i);
+    i.onerror = () => reject(new Error("Không phải ảnh hợp lệ"));
+    i.src = dataUrl;
+  });
+
+  let maxEdge = 1920;
+  let quality = 0.85;
+  for (let attempt = 0; attempt < 8; attempt++) {
+    const longest = Math.max(img.width, img.height);
+    const scale = longest > maxEdge ? maxEdge / longest : 1;
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Trình duyệt không hỗ trợ canvas");
+    ctx.drawImage(img, 0, 0, w, h);
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Không nén được ảnh"))), "image/jpeg", quality);
+    });
+
+    if (blob.size <= MAX_UPLOAD_BYTES) {
+      const baseName = file.name.replace(/\.[^.]+$/, "");
+      return new File([blob], `${baseName}.jpg`, { type: "image/jpeg", lastModified: Date.now() });
+    }
+
+    if (quality > 0.55) quality -= 0.1;
+    else maxEdge = Math.round(maxEdge * 0.8);
+  }
+  throw new Error(`Không nén được ảnh ${file.name} xuống dưới giới hạn`);
+}
+
 
 interface Props {
   basic: NguonGen;
@@ -141,22 +193,20 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
   const handleFiles = async (files: File[]) => {
     if (!files.length) return;
     setUploadError(null);
+    setUploading(true);
 
-    const MAX_BYTES = 4 * 1024 * 1024; // ~4MB — keeps within Vercel serverless body limit
-    const oversize = files.filter((f) => f.size > MAX_BYTES);
-    if (oversize.length) {
-      setUploadError(`Ảnh quá lớn (giới hạn 4MB/ảnh): ${oversize.map((f) => f.name).join(", ")}. Vui lòng nén hoặc thu nhỏ ảnh trước khi tải.`);
-      return;
-    }
+    try {
+      // Compress sequentially — running canvas on several huge images in
+      // parallel can crash mobile browsers from memory pressure.
+      const prepared: File[] = [];
+      for (const f of files) prepared.push(await compressImage(f));
 
-    const ma = basic.ma?.trim();
-    if (!ma) {
-      // New record without a code yet — keep base64 fallback so the user can
-      // still preview before the first save. We warn but do not block.
-      setUploading(true);
-      try {
+      const ma = basic.ma?.trim();
+      if (!ma) {
+        // New record without a code yet — keep base64 fallback so the user can
+        // preview before the first save.
         const dataUrls = await Promise.all(
-          files.map(
+          prepared.map(
             (file) =>
               new Promise<string>((resolve, reject) => {
                 const reader = new FileReader();
@@ -168,17 +218,10 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         );
         set("hinh_anh", [...(d.hinh_anh ?? []), ...dataUrls]);
         setUploadError("Nhập mã nguồn gen rồi lưu một lần để ảnh được tải lên kho. Hiện ảnh đang giữ tạm trong trình duyệt.");
-      } catch (err) {
-        setUploadError(err instanceof Error ? err.message : "Không đọc được tệp");
-      } finally {
-        setUploading(false);
+        return;
       }
-      return;
-    }
 
-    setUploading(true);
-    try {
-      const urls = await Promise.all(files.map((file) => apiUploadImage(ma, file)));
+      const urls = await Promise.all(prepared.map((file) => apiUploadImage(ma, file)));
       set("hinh_anh", [...(d.hinh_anh ?? []), ...urls]);
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : "Tải ảnh thất bại");
@@ -363,7 +406,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             )}
-            {uploading ? "Đang tải lên..." : "Chọn ảnh"}
+            {uploading ? "Đang xử lý & tải lên..." : "Chọn ảnh"}
             <input
               type="file"
               accept="image/*"
@@ -377,7 +420,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
               }}
             />
           </label>
-          <span className="text-xs text-gray-400">Có thể chọn nhiều ảnh</span>
+          <span className="text-xs text-gray-400">Có thể chọn nhiều ảnh — ảnh lớn sẽ được tự động nén</span>
         </div>
         {uploadError && (
           <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 mb-2">{uploadError}</p>
