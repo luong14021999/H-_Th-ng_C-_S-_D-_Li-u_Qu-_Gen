@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { PHUONG_THUC_BAO_TON, HinhThucBaoTon, danhMucStores } from "@/data/danhMucData";
 import { CATEGORY_MAP, CATEGORIES } from "@/data/nguonGen";
+import { normalizeVi } from "@/lib/text";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -37,9 +38,9 @@ export default function HinhThucBaoTonTable() {
   const filtered = useMemo(() => {
     return items.filter((h) => {
       if (statusFilter !== "all" && h.trang_thai !== statusFilter) return false;
-      if (search.trim() && !h.ten.toLowerCase().includes(search.toLowerCase())) return false;
-      if (phuongThucSearch.trim() && !PHUONG_THUC_MAP[h.phuong_thuc_id]?.toLowerCase().includes(phuongThucSearch.toLowerCase())) return false;
-      if (nhomSearch.trim() && !h.nhom.some(n => CATEGORY_MAP[n]?.label.toLowerCase().includes(nhomSearch.toLowerCase()))) return false;
+      if (search.trim() && !normalizeVi(h.ten).includes(normalizeVi(search))) return false;
+      if (phuongThucSearch.trim() && !normalizeVi(PHUONG_THUC_MAP[h.phuong_thuc_id] ?? "").includes(normalizeVi(phuongThucSearch))) return false;
+      if (nhomSearch.trim() && !h.nhom.some(n => normalizeVi(CATEGORY_MAP[n]?.label ?? "").includes(normalizeVi(nhomSearch)))) return false;
       if (fromDate && h.created_at.slice(0, 10) < fromDate) return false;
       if (toDate && h.created_at.slice(0, 10) > toDate) return false;
       return true;

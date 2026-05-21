@@ -6,6 +6,7 @@ import { Form1Data, BaoTonEntry, defaultForm1 } from "@/data/extendedTypes";
 import SearchSelect from "@/components/SearchableSelect";
 import { danhMucStores } from "@/data/danhMucData";
 import { apiUploadImage, apiDeleteImage } from "@/lib/api";
+import { normalizeVi } from "@/lib/text";
 
 // Browser-side image compression: caps longest edge and reduces JPEG
 // quality until the file fits under MAX_UPLOAD_BYTES.
@@ -129,7 +130,7 @@ function SearchableSelect({ label, value, onChange, options, required }: {
   }, [value]);
 
   const filtered = query
-    ? options.filter(o => o.toLowerCase().includes(query.toLowerCase()))
+    ? (() => { const q = normalizeVi(query); return options.filter(o => normalizeVi(o).includes(q)); })()
     : options;
 
   return (

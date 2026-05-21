@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { CATEGORIES, PHAN_NHOM_BY_NHOM, PHAN_NHOM_ICONS } from "@/data/nguonGen";
+import { normalizeVi } from "@/lib/text";
 import Twemoji from "./Twemoji";
 
 const IconFilter = () => (
@@ -24,10 +25,10 @@ export default function NhomNguonGenTable() {
 
   const filtered = useMemo(() => {
     if (!search.trim()) return CATEGORIES;
-    const q = search.toLowerCase();
+    const q = normalizeVi(search);
     return CATEGORIES.filter((cat) => {
-      if (cat.label.toLowerCase().includes(q)) return true;
-      return (PHAN_NHOM_BY_NHOM[cat.id] ?? []).some((p) => p.toLowerCase().includes(q));
+      if (normalizeVi(cat.label).includes(q)) return true;
+      return (PHAN_NHOM_BY_NHOM[cat.id] ?? []).some((p) => normalizeVi(p).includes(q));
     });
   }, [search]);
 
@@ -110,7 +111,7 @@ export default function NhomNguonGenTable() {
                   const subGroups = PHAN_NHOM_BY_NHOM[cat.id] ?? [];
                   rowIndex++;
                   const parentIndex = rowIndex;
-                  const matchSearch = search.trim() ? cat.label.toLowerCase().includes(search.toLowerCase()) : true;
+                  const matchSearch = search.trim() ? normalizeVi(cat.label).includes(normalizeVi(search)) : true;
 
                   return [
                     <tr key={cat.id} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
@@ -138,7 +139,7 @@ export default function NhomNguonGenTable() {
                     </tr>,
                     ...(isOpen
                       ? subGroups
-                          .filter((p) => !search.trim() || p.toLowerCase().includes(search.toLowerCase()) || matchSearch)
+                          .filter((p) => !search.trim() || normalizeVi(p).includes(normalizeVi(search)) || matchSearch)
                           .map((phanNhom, idx) => (
                             <tr key={`${cat.id}-${phanNhom}`} className="border-b border-gray-100 bg-blue-50/40 hover:bg-blue-100/60 transition-colors">
                               <td className="px-3 py-2.5 text-center text-gray-400 text-xs">{idx + 1}</td>

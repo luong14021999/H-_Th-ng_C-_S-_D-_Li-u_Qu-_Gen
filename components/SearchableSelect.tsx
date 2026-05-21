@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { normalizeVi } from "@/lib/text";
 
 interface Props {
   value: string;
@@ -22,7 +23,8 @@ export default function SearchableSelect({ value, onChange, options, placeholder
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const filtered = options.filter((o) => o.toLowerCase().includes(search.toLowerCase()));
+  const q = normalizeVi(search);
+  const filtered = options.filter((o) => normalizeVi(o).includes(q));
 
   return (
     <div ref={ref} className="relative w-full">

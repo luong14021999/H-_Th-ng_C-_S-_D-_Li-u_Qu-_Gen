@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
+import { normalizeVi } from "@/lib/text";
 
 interface HCRow {
   district: string;
@@ -154,7 +155,7 @@ function SearchableDropdown({ placeholder, options, value, onChange }: {
     return () => document.removeEventListener("mousedown", handler);
   }, [value]);
 
-  const filtered = query ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase())) : options;
+  const filtered = query ? (() => { const q = normalizeVi(query); return options.filter((o) => normalizeVi(o).includes(q)); })() : options;
 
   return (
     <div className="relative" ref={ref}>
@@ -358,7 +359,7 @@ export default function ThongKeDonViHC({ data }: Props) {
     return data.filter((item) => {
       if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
       if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
-      if (filterWard && !(item.don_vi ?? "").toLowerCase().includes(filterWard.toLowerCase())) return false;
+      if (filterWard && !normalizeVi(item.don_vi ?? "").includes(normalizeVi(filterWard))) return false;
       return true;
     });
   }, [data, filterNhomId, filterPhanNhom, filterWard]);

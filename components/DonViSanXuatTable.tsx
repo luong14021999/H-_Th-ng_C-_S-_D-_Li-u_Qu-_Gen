@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { NguonGen } from "@/data/nguonGen";
+import { normalizeVi } from "@/lib/text";
 
 interface Props { data: NguonGen[]; }
 
@@ -45,8 +46,8 @@ export default function DonViSanXuatTable({ data }: Props) {
   const filtered = useMemo(() => {
     let rows = allRows;
     if (search.trim()) {
-      const q = search.toLowerCase();
-      rows = rows.filter((r) => r.ten.toLowerCase().includes(q));
+      const q = normalizeVi(search);
+      rows = rows.filter((r) => normalizeVi(r.ten).includes(q));
     }
     if (dateMode === "custom" && (fromDate || toDate)) {
       rows = rows.filter((r) => {

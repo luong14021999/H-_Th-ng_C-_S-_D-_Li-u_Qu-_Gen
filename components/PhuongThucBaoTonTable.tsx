@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { PhuongThucBaoTon, danhMucStores } from "@/data/danhMucData";
+import { normalizeVi } from "@/lib/text";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -36,7 +37,7 @@ export default function PhuongThucBaoTonTable() {
   const filtered = useMemo(() => {
     return items.filter((p) => {
       if (statusFilter !== "all" && p.trang_thai !== statusFilter) return false;
-      if (search.trim() && !p.ten.toLowerCase().includes(search.toLowerCase())) return false;
+      if (search.trim() && !normalizeVi(p.ten).includes(normalizeVi(search))) return false;
       if (fromDate && p.created_at.slice(0, 10) < fromDate) return false;
       if (toDate && p.created_at.slice(0, 10) > toDate) return false;
       return true;

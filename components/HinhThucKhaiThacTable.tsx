@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { HinhThucKhaiThac, danhMucStores } from "@/data/danhMucData";
 import { CATEGORY_MAP, CATEGORIES } from "@/data/nguonGen";
+import { normalizeVi } from "@/lib/text";
 
 function formatDate(iso: string) {
   const d = new Date(iso);
@@ -34,8 +35,8 @@ export default function HinhThucKhaiThacTable() {
   const filtered = useMemo(() => {
     return items.filter((h) => {
       if (statusFilter !== "all" && h.trang_thai !== statusFilter) return false;
-      if (search.trim() && !h.ten.toLowerCase().includes(search.toLowerCase())) return false;
-      if (nhomSearch.trim() && !h.nhom.some(n => CATEGORY_MAP[n]?.label.toLowerCase().includes(nhomSearch.toLowerCase()))) return false;
+      if (search.trim() && !normalizeVi(h.ten).includes(normalizeVi(search))) return false;
+      if (nhomSearch.trim() && !h.nhom.some(n => normalizeVi(CATEGORY_MAP[n]?.label ?? "").includes(normalizeVi(nhomSearch)))) return false;
       if (fromDate && h.created_at.slice(0, 10) < fromDate) return false;
       if (toDate && h.created_at.slice(0, 10) > toDate) return false;
       return true;

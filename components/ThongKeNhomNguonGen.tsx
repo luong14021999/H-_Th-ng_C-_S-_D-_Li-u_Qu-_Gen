@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
+import { normalizeVi } from "@/lib/text";
 
 interface NhomRow {
   nhomId: string;
@@ -139,7 +140,7 @@ function SearchableDropdown({ placeholder, options, value, onChange }: {
   }, [value]);
 
   const filtered = query
-    ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase()))
+    ? (() => { const q = normalizeVi(query); return options.filter((o) => normalizeVi(o).includes(q)); })()
     : options;
 
   return (
@@ -265,9 +266,9 @@ export default function ThongKeTable({ data }: Props) {
 
   const filteredData = useMemo(() => {
     return data.filter((item) => {
-      const dv = (item.don_vi ?? "").toLowerCase();
-      if (filterDistrict && !dv.includes(filterDistrict.toLowerCase())) return false;
-      if (filterWard && !dv.includes(filterWard.toLowerCase())) return false;
+      const dv = normalizeVi(item.don_vi ?? "");
+      if (filterDistrict && !dv.includes(normalizeVi(filterDistrict))) return false;
+      if (filterWard && !dv.includes(normalizeVi(filterWard))) return false;
       if (filterDonVi && item.don_vi !== filterDonVi) return false;
       return true;
     });

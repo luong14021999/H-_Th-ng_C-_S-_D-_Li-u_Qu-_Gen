@@ -4,6 +4,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
 import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
+import { normalizeVi } from "@/lib/text";
 
 interface DonViRow {
   ten: string;
@@ -20,10 +21,9 @@ const PAGE_SIZES = [10, 20, 50];
 // Strip "Huyện / Thị xã / Thành phố / Quận / Xã / Phường / Thị trấn" prefixes so
 // free-text form values ("Thọ Xuân") match dropdown values ("Huyện Thọ Xuân").
 function normAdmin(val: string) {
-  return val
-    .replace(/^(Thành phố|Thị xã|Thị trấn|Huyện|Quận|Phường|Xã)\s+/i, "")
-    .trim()
-    .toLowerCase();
+  return normalizeVi(val)
+    .replace(/^(thanh pho|thi xa|thi tran|huyen|quan|phuong|xa)\s+/i, "")
+    .trim();
 }
 
 function BarChart({ rows }: { rows: DonViRow[] }) {
@@ -163,7 +163,7 @@ function SearchableDropdown({ placeholder, options, value, onChange }: {
   }, [value]);
 
   const filtered = query
-    ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase()))
+    ? (() => { const q = normalizeVi(query); return options.filter((o) => normalizeVi(o).includes(q)); })()
     : options;
 
   return (

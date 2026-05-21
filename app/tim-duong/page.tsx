@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "rea
 import { useRouter, useSearchParams } from "next/navigation";
 import { apiGetAll } from "@/lib/api";
 import { NguonGen, CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS } from "@/data/nguonGen";
+import { normalizeVi } from "@/lib/text";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function formatDuration(sec: number): string {
@@ -177,8 +178,8 @@ function TimDuongInner() {
 
   const filtered = useMemo(() => data.filter((item) => {
     const matchCat = !selectedCategory || item.nhom === selectedCategory;
-    const q = search.toLowerCase();
-    return matchCat && (!q || item.ten.toLowerCase().includes(q) || item.phan_nhom.toLowerCase().includes(q) || item.don_vi.toLowerCase().includes(q));
+    const q = normalizeVi(search);
+    return matchCat && (!q || normalizeVi(item.ten).includes(q) || normalizeVi(item.phan_nhom).includes(q) || normalizeVi(item.don_vi).includes(q));
   }), [data, search, selectedCategory]);
 
   const fetchAll = useCallback(async (from: [number, number], to: [number, number]) => {

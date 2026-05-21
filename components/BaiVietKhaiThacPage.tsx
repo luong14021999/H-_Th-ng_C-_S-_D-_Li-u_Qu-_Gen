@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import { BAI_VIET_DATA } from "@/data/baiVietData";
+import { normalizeVi } from "@/lib/text";
 
 const NHOM_SECTIONS = [
   { id: "TT", roman: "I",   label: "CÂY TRỒNG NÔNG NGHIỆP" },
@@ -343,13 +344,13 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
   }, [rows]);
 
   const filteredGrouped = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalizeVi(search.trim());
     if (!q) return grouped;
     let offset = 0;
     return grouped.map((g) => {
       const sRows = g.rows.filter((r) =>
-        r.ten.toLowerCase().includes(q) || r.khoa_hoc.toLowerCase().includes(q) ||
-        r.dia_diem.toLowerCase().includes(q) || r.noi_bt.toLowerCase().includes(q)
+        normalizeVi(r.ten).includes(q) || normalizeVi(r.khoa_hoc).includes(q) ||
+        normalizeVi(r.dia_diem).includes(q) || normalizeVi(r.noi_bt).includes(q)
       );
       const startIndex = offset;
       offset += sRows.length;
