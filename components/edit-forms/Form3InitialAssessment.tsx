@@ -1,6 +1,7 @@
 "use client";
 
 import { Form3Data, defaultForm3 } from "@/data/extendedTypes";
+import AutoTextarea from "@/components/AutoTextarea";
 
 interface Props {
   ma: string;
@@ -18,8 +19,8 @@ const Row = ({ label, value, onChange, rows, bold }: {
     <label className={`text-sm pt-1.5 ${bold ? 'font-semibold text-gray-700' : 'text-gray-600'}`}>{label}</label>
     <div className="sm:col-span-2">
       {rows ? (
-        <textarea rows={rows} value={value} onChange={(e) => onChange(e.target.value)}
-          className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm resize-none bg-transparent" />
+        <AutoTextarea minRows={rows} value={value} onChange={(e) => onChange(e.target.value)}
+          className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
       ) : (
         <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
@@ -749,46 +750,46 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
           <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
             <div>
               <label className="text-sm text-gray-600">Hình dạng</label>
-              <textarea rows={2} value={d.vs_soi_nam_hinh_dang} onChange={(e) => set('vs_soi_nam_hinh_dang', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_soi_nam_hinh_dang} onChange={(e) => set('vs_soi_nam_hinh_dang', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
             <div>
               <label className="text-sm text-gray-600">Kích thước</label>
-              <textarea rows={2} value={d.vs_soi_nam_kich_thuoc} onChange={(e) => set('vs_soi_nam_kich_thuoc', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_soi_nam_kich_thuoc} onChange={(e) => set('vs_soi_nam_kich_thuoc', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
             <div>
               <label className="text-sm text-gray-600">Màu sắc</label>
-              <textarea rows={2} value={d.vs_mau_sac} onChange={(e) => set('vs_mau_sac', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_mau_sac} onChange={(e) => set('vs_mau_sac', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
             <div>
               <label className="text-sm text-gray-600">Đa bào/đơn bào</label>
-              <textarea rows={2} value={d.vs_soi_nam_co_vach} onChange={(e) => set('vs_soi_nam_co_vach', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_soi_nam_co_vach} onChange={(e) => set('vs_soi_nam_co_vach', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
           </div>
           <p className="text-sm font-semibold text-gray-700 mt-2 mb-1">11. Cơ quan sinh sản (bào tử)</p>
           <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
             <div>
               <label className="text-sm text-gray-600">Hình dạng</label>
-              <textarea rows={2} value={d.vs_bao_tu_vo_tinh} onChange={(e) => set('vs_bao_tu_vo_tinh', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_bao_tu_vo_tinh} onChange={(e) => set('vs_bao_tu_vo_tinh', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
             <div>
               <label className="text-sm text-gray-600">Kích thước</label>
-              <textarea rows={2} value={d.vs_kich_thuoc_than} onChange={(e) => set('vs_kich_thuoc_than', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_kich_thuoc_than} onChange={(e) => set('vs_kich_thuoc_than', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
             <div>
               <label className="text-sm text-gray-600">Màu sắc</label>
-              <textarea rows={2} value={d.vs_kich_thuoc_re} onChange={(e) => set('vs_kich_thuoc_re', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_kich_thuoc_re} onChange={(e) => set('vs_kich_thuoc_re', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
             <div>
               <label className="text-sm text-gray-600">Đa bào/đơn bào</label>
-              <textarea rows={2} value={d.vs_kich_thuoc_mu_dam} onChange={(e) => set('vs_kich_thuoc_mu_dam', e.target.value)}
-                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent mt-0.5" />
+              <AutoTextarea minRows={2} value={d.vs_kich_thuoc_mu_dam} onChange={(e) => set('vs_kich_thuoc_mu_dam', e.target.value)}
+                className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent mt-0.5" />
             </div>
           </div>
         </>
@@ -1143,15 +1144,15 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       <SectionTitle>III. Ghi chú</SectionTitle>
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-1">{(isLNCayDacSan || isTTCayngo) ? '. Quan sát đánh giá khả năng chống chịu điều kiện bất thuận, sâu bệnh, chất lượng' : '(Quan sát khả năng chống chịu sinh thái bất thuận, khả năng kháng sâu/bệnh)'}</p>
-        <textarea rows={3} value={d.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)}
-          className="w-full border border-gray-200 rounded p-1.5 text-sm resize-none focus:outline-none focus:border-green-500 bg-gray-50" />
+        <AutoTextarea minRows={3} value={d.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)}
+          className="w-full border border-gray-200 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
       </div>
 
       <SectionTitle>IV. Tài liệu tham khảo</SectionTitle>
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-1">(Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu mô tả đánh giá ban đầu nguồn gen)</p>
-        <textarea rows={3} value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
-          className="w-full border border-gray-200 rounded p-1.5 text-sm resize-none focus:outline-none focus:border-green-500 bg-gray-50" />
+        <AutoTextarea minRows={3} value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
+          className="w-full border border-gray-200 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
       </div>
     </div>
   );

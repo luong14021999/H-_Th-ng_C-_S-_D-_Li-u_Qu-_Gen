@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import { BAI_VIET_DATA } from "@/data/baiVietData";
 import { normalizeVi } from "@/lib/text";
+import AutoTextarea from "@/components/AutoTextarea";
 
 const NHOM_SECTIONS = [
   { id: "TT", roman: "I",   label: "CÂY TRỒNG NÔNG NGHIỆP" },
@@ -389,13 +390,13 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
           <label className="block text-xs font-medium text-gray-700 mb-1">
             <span className="text-red-500 mr-0.5">*</span>Tiêu đề
           </label>
-          <textarea value={tieuDe} onChange={(e) => setTieuDe(e.target.value)} rows={6}
-            className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-400 resize-none" />
+          <AutoTextarea value={tieuDe} onChange={(e) => setTieuDe(e.target.value)} minRows={6}
+            className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-400" />
         </div>
         <div className="px-4 py-3">
           <label className="block text-xs font-medium text-gray-700 mb-1">Mô tả ngắn</label>
-          <textarea value={moTa} onChange={(e) => setMoTa(e.target.value)} rows={8}
-            className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-400 resize-none"
+          <AutoTextarea value={moTa} onChange={(e) => setMoTa(e.target.value)} minRows={8}
+            className="w-full border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-green-400"
             placeholder="Nhập mô tả ngắn..." />
         </div>
       </aside>
@@ -644,8 +645,8 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
               {popup === "html" && (
                 <div className="bg-white border border-gray-300 rounded shadow-xl p-3 mt-1 w-[500px]">
                   <p className="text-[10px] font-semibold text-gray-700 mb-2">Mã HTML (nội dung bài viết)</p>
-                  <textarea value={htmlView} onChange={(e) => setHtmlView(e.target.value)} rows={10}
-                    className="w-full border border-gray-300 rounded text-[10px] font-mono px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-2 resize-none" />
+                  <AutoTextarea value={htmlView} onChange={(e) => setHtmlView(e.target.value)} minRows={10}
+                    className="w-full border border-gray-300 rounded text-[10px] font-mono px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-2" />
                   <div className="flex gap-2 justify-end">
                     <button onClick={closePopup} className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1">Hủy</button>
                     <button onClick={applyHtml} className="bg-blue-600 text-white text-xs px-3 py-1 rounded hover:bg-blue-700">Áp dụng</button>

@@ -7,6 +7,7 @@ import SearchSelect from "@/components/SearchableSelect";
 import { danhMucStores } from "@/data/danhMucData";
 import { apiUploadImage, apiDeleteImage } from "@/lib/api";
 import { normalizeVi } from "@/lib/text";
+import AutoTextarea from "@/components/AutoTextarea";
 
 // Browser-side image compression: caps longest edge and reduces JPEG
 // quality until the file fits under MAX_UPLOAD_BYTES.
@@ -95,11 +96,11 @@ const Textarea = ({ label, value, onChange }: {
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
     <div className="sm:col-span-2">
-      <textarea
+      <AutoTextarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        rows={2}
-        className="w-full border border-gray-200 rounded p-1.5 text-base sm:text-sm resize-none focus:outline-none focus:border-green-500 bg-gray-50"
+        minRows={2}
+        className="w-full border border-gray-200 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50"
       />
     </div>
   </div>

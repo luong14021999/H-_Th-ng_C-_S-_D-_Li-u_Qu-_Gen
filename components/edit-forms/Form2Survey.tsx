@@ -1,6 +1,7 @@
 "use client";
 
 import { Form2Data, defaultForm2 } from "@/data/extendedTypes";
+import AutoTextarea from "@/components/AutoTextarea";
 
 interface Props {
   nhom?: string;
@@ -710,8 +711,8 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
       <SectionTitle>V. Các đặc tính nổi bật của nguồn gen</SectionTitle>
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-2">{isTTCayngo ? '34. ' : ''}(Năng suất, chất lượng, đặc tính kháng sâu bệnh, đặc tính chống chịu sinh thái bất thuận)</p>
-        <textarea value={d.dac_tinh_noi_bat} onChange={(e) => set('dac_tinh_noi_bat', e.target.value)}
-          rows={4} className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent" />
+        <AutoTextarea value={d.dac_tinh_noi_bat} onChange={(e) => set('dac_tinh_noi_bat', e.target.value)}
+          minRows={4} className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
       </div>
 
       {isTTCayngo && (
@@ -719,8 +720,8 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <SectionTitle>VI. Tài liệu tham khảo</SectionTitle>
           <div className="py-2 border-b border-gray-100">
             <p className="text-sm text-gray-600 mb-2">35. Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu điều tra, thu thập nguồn gen)</p>
-            <textarea value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
-              rows={3} className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm resize-none bg-transparent" />
+            <AutoTextarea value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
+              minRows={3} className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
           </div>
         </>
       )}
