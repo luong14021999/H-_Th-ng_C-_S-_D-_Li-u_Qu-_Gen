@@ -9,9 +9,10 @@ import { apiUploadImage, apiDeleteImage } from "@/lib/api";
 import { normalizeVi } from "@/lib/text";
 import AutoTextarea from "@/components/AutoTextarea";
 
-// Browser-side image compression: caps longest edge and reduces JPEG
-// quality until the file fits under MAX_UPLOAD_BYTES.
-const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+// Browser-side image compression: kicks in only for very large files to keep
+// upload fast and storage reasonable. Files at or below this threshold are
+// sent to Supabase Storage untouched, preserving original quality.
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 async function compressImage(file: File): Promise<File> {
   if (!file.type.startsWith("image/")) return file;

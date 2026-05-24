@@ -51,20 +51,33 @@ export const apiSaveForm = (
 };
 
 // ── Images ────────────────────────────────────────────────
+// Uploads go straight from the browser to Supabase Storage so they bypass the
+// Vercel serverless 4.5MB body limit and our own server-side cap. Auth is
+// enforced by storage RLS policies (only `authenticated` can INSERT/DELETE).
+import { supabase } from "./supabase-browser";
+
+const BUCKET = "nguon-gen-images";
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
+
 export const apiUploadImage = async (ma: string, file: File): Promise<string> => {
-  const form = new FormData();
-  form.append("file", file);
-  const res = await fetch(`${BASE}/nguon-gen/${ma}/images`, {
-    method: "POST",
-    body: form,
-  });
-  if (!res.ok) throw new Error(await res.text());
-  const { url } = await res.json();
-  return url as string;
+  if (!/^[A-Za-z0-9._-]+$/.test(ma)) throw new Error("Mã không hợp lệ");
+  if (!ALLOWED_TYPES.has(file.type)) throw new Error("Định dạng ảnh không hỗ trợ");
+
+  const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
+  const path = `${ma}/${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw new Error(error.message);
+
+  return supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
 };
 
-export const apiDeleteImage = (ma: string, filename: string) =>
-  req(`/nguon-gen/${ma}/images/${filename}`, { method: "DELETE" });
+export const apiDeleteImage = async (ma: string, filename: string): Promise<void> => {
+  const { error } = await supabase.storage.from(BUCKET).remove([`${ma}/${filename}`]);
+  if (error) throw new Error(error.message);
+};
 
 
 // ── Seed (chạy 1 lần) ────────────────────────────────────

@@ -6,8 +6,11 @@ type Ctx = { params: Promise<{ ma: string }> };
 
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 const ALLOWED_EXTS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
-const MAX_BYTES = 5 * 1024 * 1024;
 
+// NOTE: Modern uploads go straight from the browser to Supabase Storage to
+// bypass the platform body-size limit. This route is kept as a fallback for
+// non-browser clients; it has no explicit size cap because the host
+// (Vercel/Node) will still enforce its own request-body ceiling.
 export async function POST(req: NextRequest, { params }: Ctx) {
   const unauth = await requireAuth(req);
   if (unauth) return unauth;
@@ -20,7 +23,6 @@ export async function POST(req: NextRequest, { params }: Ctx) {
   const form = await req.formData();
   const file = form.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "Thiếu tệp" }, { status: 400 });
-  if (file.size > MAX_BYTES) return NextResponse.json({ error: "Tệp quá lớn" }, { status: 413 });
   if (!ALLOWED_TYPES.has(file.type)) return NextResponse.json({ error: "Định dạng không hỗ trợ" }, { status: 415 });
 
   const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
