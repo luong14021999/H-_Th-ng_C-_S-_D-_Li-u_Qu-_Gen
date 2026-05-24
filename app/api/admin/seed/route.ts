@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase-server";
 import { requireAuth } from "@/lib/requireAuth";
 
 export async function POST(req: NextRequest) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
 
   const { records } = await req.json();

@@ -5,7 +5,7 @@ import { requireAuth } from "@/lib/requireAuth";
 type Ctx = { params: Promise<{ ma: string }> };
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
   const { ma } = await params;
   const body = await req.json();

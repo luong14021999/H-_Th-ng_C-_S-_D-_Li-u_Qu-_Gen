@@ -1,9 +1,25 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
+const MUTATING = new Set(["POST", "PUT", "PATCH", "DELETE"]);
+
 // Runs on every matched request. Forwards the response while letting the
 // Supabase SSR client refresh expired access tokens via Set-Cookie.
 export async function middleware(req: NextRequest) {
+  // CSRF defense: any state-changing request must come from the same origin.
+  // SameSite=lax already blocks most cross-site cookies, but this is a belt-
+  // and-suspenders check that also stops sub-domain takeovers.
+  if (req.nextUrl.pathname.startsWith("/api/") && MUTATING.has(req.method)) {
+    const origin = req.headers.get("origin");
+    const host = req.headers.get("host");
+    if (origin) {
+      const expected = `${req.nextUrl.protocol}//${host}`;
+      if (origin !== expected) {
+        return NextResponse.json({ error: "Origin không hợp lệ" }, { status: 403 });
+      }
+    }
+  }
+
   let res = NextResponse.next({ request: req });
 
   const supabase = createServerClient(

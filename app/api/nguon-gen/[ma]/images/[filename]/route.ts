@@ -4,8 +4,8 @@ import { requireAuth } from "@/lib/requireAuth";
 
 type Ctx = { params: Promise<{ ma: string; filename: string }> };
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
-  const unauth = await requireAuth();
+export async function DELETE(req: NextRequest, { params }: Ctx) {
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
 
   const { ma, filename } = await params;

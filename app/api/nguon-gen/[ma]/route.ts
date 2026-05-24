@@ -16,7 +16,7 @@ export async function GET(_req: NextRequest, { params }: Ctx) {
 }
 
 export async function PATCH(req: NextRequest, { params }: Ctx) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
   const { ma } = await params;
   const body = await req.json();
@@ -30,8 +30,8 @@ export async function PATCH(req: NextRequest, { params }: Ctx) {
   return NextResponse.json(data);
 }
 
-export async function DELETE(_req: NextRequest, { params }: Ctx) {
-  const unauth = await requireAuth();
+export async function DELETE(req: NextRequest, { params }: Ctx) {
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
   const { ma } = await params;
   const { error } = await supabaseAdmin.from("nguon_gen").delete().eq("ma", ma);

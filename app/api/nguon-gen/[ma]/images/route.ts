@@ -9,7 +9,7 @@ const ALLOWED_EXTS = new Set(["jpg", "jpeg", "png", "webp", "gif"]);
 const MAX_BYTES = 5 * 1024 * 1024;
 
 export async function POST(req: NextRequest, { params }: Ctx) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
 
   const { ma } = await params;

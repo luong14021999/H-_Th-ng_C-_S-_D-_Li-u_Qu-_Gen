@@ -4,6 +4,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { BAI_VIET_DATA } from "@/data/baiVietData";
 import { normalizeVi } from "@/lib/text";
 import AutoTextarea from "@/components/AutoTextarea";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 const NHOM_SECTIONS = [
   { id: "TT", roman: "I",   label: "CÂY TRỒNG NÔNG NGHIỆP" },
@@ -331,7 +332,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
     exec("insertHTML", `<table style="border-collapse:collapse;width:100%"><thead>${header}</thead><tbody>${body}</tbody></table>`);
     closePopup();
   };
-  const applyHtml = () => { if (editorRef.current) editorRef.current.innerHTML = htmlView; closePopup(); };
+  const applyHtml = () => { if (editorRef.current) editorRef.current.innerHTML = sanitizeHtml(htmlView); closePopup(); };
 
   // ── Grouped data ──────────────────────────────────────────────────────────
   const grouped = useMemo(() => {
@@ -799,7 +800,7 @@ function GroupRows({ roman, label, nhomId, rows, startIndex, onCellChange, onDel
         }}
         onMouseUp={onSaveSelection}
         onKeyUp={onSaveSelection}
-        dangerouslySetInnerHTML={{ __html: val }}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(val) }}
       />
     );
   };

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { requireAuth } from "@/lib/requireAuth";
+import { sanitizeHtml } from "@/lib/sanitize";
 
 /*
   Supabase SQL — chạy 1 lần trong SQL Editor:
@@ -53,7 +54,7 @@ const ROW_COLS = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
 
   const { rows, meta } = (await req.json()) as {
@@ -61,9 +62,14 @@ export async function POST(req: NextRequest) {
     meta: Record<string, string>;
   };
 
-  // Strip any extra fields (e.g. `tt` from static seed data) so Supabase doesn't reject unknown columns
+  // Strip unknown columns AND sanitize each cell so persisted HTML can never
+  // ship a script payload, even if the editor is compromised.
   const cleanRows = rows.map((r) =>
-    Object.fromEntries(Object.entries(r).filter(([k]) => ROW_COLS.has(k)))
+    Object.fromEntries(
+      Object.entries(r)
+        .filter(([k]) => ROW_COLS.has(k))
+        .map(([k, v]) => [k, typeof v === "string" && k !== "id" ? sanitizeHtml(v) : v])
+    )
   );
 
   // Full replace: delete all existing rows then insert current set

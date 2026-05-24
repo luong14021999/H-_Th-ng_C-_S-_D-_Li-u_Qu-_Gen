@@ -12,7 +12,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(request);
   if (unauth) return unauth;
   const body = await request.json();
   const { data, error } = await supabaseAdmin
@@ -26,7 +26,7 @@ export async function POST(request: Request) {
 
 // Used to delete records whose ma is an empty string (can't route via /[ma])
 export async function DELETE(req: NextRequest) {
-  const unauth = await requireAuth();
+  const unauth = await requireAuth(req);
   if (unauth) return unauth;
   const ma = req.nextUrl.searchParams.get("ma") ?? "";
   const { error } = await supabaseAdmin.from("nguon_gen").delete().eq("ma", ma);
