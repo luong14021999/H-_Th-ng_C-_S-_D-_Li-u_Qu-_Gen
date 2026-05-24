@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
+import { requireAuth } from "@/lib/requireAuth";
 
 type Ctx = { params: Promise<{ ma: string }> };
 
 export async function PUT(req: NextRequest, { params }: Ctx) {
+  const unauth = await requireAuth();
+  if (unauth) return unauth;
   const { ma } = await params;
   const body = await req.json();
   const payload = { ...body, ma_nguon_gen: ma };
@@ -14,6 +17,6 @@ export async function PUT(req: NextRequest, { params }: Ctx) {
     .select()
     .single();
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  if (error) return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
   return NextResponse.json(data);
 }

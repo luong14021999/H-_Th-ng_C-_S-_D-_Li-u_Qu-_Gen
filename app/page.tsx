@@ -106,14 +106,26 @@ export default function Home() {
     return data.filter((item) => item.nhom === selectedCategory);
   }, [data, selectedCategory]);
 
+  // Sync admin state with Supabase session.
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAdmin(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, session) => {
+      setIsAdmin(!!session);
+      if (!session) setShowTable(false);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   const handleLogin = () => {
-    setIsAdmin(true);
     setShowLogin(false);
+    // onAuthStateChange will flip isAdmin.
   };
 
-  const handleLogout = () => {
-    setIsAdmin(false);
-    setShowTable(false);
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    // onAuthStateChange will clear isAdmin / showTable.
   };
 
   const handleAdminClick = () => {

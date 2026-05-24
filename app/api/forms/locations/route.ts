@@ -14,7 +14,7 @@ export async function GET() {
     .select("ma_nguon_gen, noi_thu_thap_huyen, noi_thu_thap_xa");
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
   }
 
   const rows: LocationRow[] = (data ?? []).map((r) => ({

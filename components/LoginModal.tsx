@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase-browser";
 
 interface LoginModalProps {
   onClose: () => void;
@@ -8,7 +9,7 @@ interface LoginModalProps {
 }
 
 export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,12 +35,11 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
     setLoading(true);
     setError("");
 
-    await new Promise((r) => setTimeout(r, 400));
-
-    if (username === "admin" && password === "admin123") {
-      onLogin();
+    const { error: authErr } = await supabase.auth.signInWithPassword({ email, password });
+    if (authErr) {
+      setError("Email hoặc mật khẩu không đúng.");
     } else {
-      setError("Tên đăng nhập hoặc mật khẩu không đúng.");
+      onLogin();
     }
     setLoading(false);
   };
@@ -64,14 +64,15 @@ export default function LoginModal({ onClose, onLogin }: LoginModalProps) {
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Tên đăng nhập</label>
+            <label className="block text-xs font-medium text-gray-600 mb-1">Email</label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="Nhập tên đăng nhập"
+              placeholder="Nhập email quản trị"
               required
+              autoComplete="email"
             />
           </div>
 

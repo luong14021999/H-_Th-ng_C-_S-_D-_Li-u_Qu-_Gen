@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-server";
+import { requireAuth } from "@/lib/requireAuth";
 
 /*
   Supabase SQL — chạy 1 lần trong SQL Editor:
@@ -37,8 +38,8 @@ export async function GET() {
     supabaseAdmin.from("bai_viet_meta").select("*"),
   ]);
 
-  if (rowsRes.error) return NextResponse.json({ error: rowsRes.error.message }, { status: 500 });
-  if (metaRes.error) return NextResponse.json({ error: metaRes.error.message }, { status: 500 });
+  if (rowsRes.error) return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
+  if (metaRes.error) return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
 
   const meta: Record<string, string> = {};
   for (const r of metaRes.data ?? []) meta[r.key as string] = r.value as string;
@@ -52,6 +53,9 @@ const ROW_COLS = new Set([
 ]);
 
 export async function POST(req: NextRequest) {
+  const unauth = await requireAuth();
+  if (unauth) return unauth;
+
   const { rows, meta } = (await req.json()) as {
     rows: Record<string, string>[];
     meta: Record<string, string>;
@@ -68,7 +72,7 @@ export async function POST(req: NextRequest) {
     .delete()
     .gte("id", ""); // matches all rows (id >= '' is always true for text)
 
-  if (delErr) return NextResponse.json({ error: delErr.message }, { status: 500 });
+  if (delErr) return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
 
   if (cleanRows.length > 0) {
     // Insert in chunks of 200 to stay within Supabase limits
@@ -76,7 +80,7 @@ export async function POST(req: NextRequest) {
       const { error: insErr } = await supabaseAdmin
         .from("bai_viet_rows")
         .insert(cleanRows.slice(i, i + 200));
-      if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
+      if (insErr) return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
     }
   }
 
@@ -86,7 +90,7 @@ export async function POST(req: NextRequest) {
     const { error: metaErr } = await supabaseAdmin
       .from("bai_viet_meta")
       .upsert(metaRows, { onConflict: "key" });
-    if (metaErr) return NextResponse.json({ error: metaErr.message }, { status: 500 });
+    if (metaErr) return NextResponse.json({ error: "Lỗi máy chủ" }, { status: 500 });
   }
 
   return NextResponse.json({ ok: true });

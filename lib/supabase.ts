@@ -1,6 +1,2 @@
-import { createClient } from "@supabase/supabase-js";
-
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Re-export the cookie-aware browser client so existing imports keep working.
+export { supabase } from "./supabase-browser";
