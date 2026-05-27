@@ -315,16 +315,16 @@ export default function EditModal({ item, extended, isNew, isAdmin = true, onSav
 
       {/* Success overlay — portal'd to body so map / other stacking contexts cannot cover it */}
       {saved && typeof document !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-200">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <svg className="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-2xl shadow-2xl px-6 sm:px-10 py-6 sm:py-8 flex flex-col items-center gap-3 sm:gap-4 animate-in fade-in zoom-in duration-200 max-w-sm w-full">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-green-100 rounded-full flex items-center justify-center shrink-0">
+              <svg className="w-8 h-8 sm:w-9 sm:h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <div className="text-center">
-              <p className="text-lg font-bold text-gray-800">Lưu thành công!</p>
-              <p className="text-sm text-gray-400 mt-1">{isNew ? `Đã tạo mới: ${basic.ten}` : `Đã cập nhật: ${basic.ten}`}</p>
+            <div className="text-center min-w-0 w-full">
+              <p className="text-base sm:text-lg font-bold text-gray-800">Lưu thành công!</p>
+              <p className="text-xs sm:text-sm text-gray-400 mt-1 break-words">{isNew ? `Đã tạo mới: ${basic.ten}` : `Đã cập nhật: ${basic.ten}`}</p>
             </div>
           </div>
         </div>,
