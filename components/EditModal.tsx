@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData, Form1Data, Form2Data, Form3Data, Form4Data, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
 import dynamic from "next/dynamic";
@@ -312,9 +313,9 @@ export default function EditModal({ item, extended, isNew, isAdmin = true, onSav
         </div>
       </div>
 
-      {/* Success overlay */}
-      {saved && (
-        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      {/* Success overlay — portal'd to body so map / other stacking contexts cannot cover it */}
+      {saved && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4 animate-in fade-in zoom-in duration-200">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
               <svg className="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -326,7 +327,8 @@ export default function EditModal({ item, extended, isNew, isAdmin = true, onSav
               <p className="text-sm text-gray-400 mt-1">{isNew ? `Đã tạo mới: ${basic.ten}` : `Đã cập nhật: ${basic.ten}`}</p>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

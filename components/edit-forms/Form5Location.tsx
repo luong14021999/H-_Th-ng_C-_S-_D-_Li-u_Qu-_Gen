@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { NguonGen } from "@/data/nguonGen";
@@ -227,8 +228,8 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
         </div>
       )}
 
-      {savedOk && (
-        <div className="fixed inset-0 z-[3001] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+      {savedOk && typeof document !== "undefined" && createPortal(
+        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
               <svg className="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,7 +243,8 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
               </p>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
