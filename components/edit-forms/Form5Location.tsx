@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { NguonGen } from "@/data/nguonGen";
+import { apiUpdate } from "@/lib/api";
 
 // Fix broken default marker icons in Next.js bundles.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -27,6 +28,15 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedOk, setSavedOk] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Capture the values that were on the record when the tab opened so we can
+  // detect whether the user has unsaved changes.
+  const [initialLat] = useState<number | undefined>(basic.lat);
+  const [initialLng] = useState<number | undefined>(basic.lng);
+  const dirty = basic.lat !== initialLat || basic.lng !== initialLng;
 
   // Local input mirrors so the user can type freely without immediately
   // committing invalid intermediate values to basic.
@@ -35,6 +45,24 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
 
   useEffect(() => { setLatStr(String(basic.lat ?? "")); }, [basic.lat]);
   useEffect(() => { setLngStr(String(basic.lng ?? "")); }, [basic.lng]);
+
+  const handleSaveLocation = async () => {
+    if (!basic.ma) {
+      setSaveError("Cần nhập mã nguồn gen ở tab Thông tin cơ bản và lưu trước khi cập nhật vị trí riêng.");
+      return;
+    }
+    setSaveError(null);
+    setSaving(true);
+    try {
+      await apiUpdate(basic.ma, { lat: basic.lat, lng: basic.lng });
+      setSavedOk(true);
+      setTimeout(() => setSavedOk(false), 1800);
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : "Lưu thất bại");
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // Initialize map once.
   useEffect(() => {
@@ -181,6 +209,41 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
         Nhấn vào marker để phóng to xem chi tiết.
         {!readOnly && " Kéo marker hoặc nhấn vào bản đồ để đổi vị trí. Có thể nhập trực tiếp vĩ độ / kinh độ bằng nút bút chì ở góc trên bên phải."}
       </p>
+
+      {!readOnly && (
+        <div className="flex items-center justify-end gap-3">
+          {saveError && (
+            <span className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-2 py-1">{saveError}</span>
+          )}
+          <button
+            type="button"
+            onClick={handleSaveLocation}
+            disabled={!dirty || saving}
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-green-700 text-white hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            {saving && <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+            {saving ? "Đang lưu..." : "Lưu vị trí"}
+          </button>
+        </div>
+      )}
+
+      {savedOk && (
+        <div className="fixed inset-0 z-[3001] flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl px-10 py-8 flex flex-col items-center gap-4">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+              <svg className="w-9 h-9 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-gray-800">Lưu vị trí thành công!</p>
+              <p className="text-sm text-gray-500 mt-1 font-mono">
+                {basic.lat?.toFixed(5)}, {basic.lng?.toFixed(5)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
