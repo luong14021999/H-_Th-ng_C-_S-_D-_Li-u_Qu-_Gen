@@ -3,11 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import { NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData, Form1Data, Form2Data, Form3Data, Form4Data, defaultForm1, defaultForm2, defaultForm3, defaultForm4 } from "@/data/extendedTypes";
+import dynamic from "next/dynamic";
 import Form1BasicInfo from "./edit-forms/Form1BasicInfo";
 import Form2Survey from "./edit-forms/Form2Survey";
 import Form3InitialAssessment from "./edit-forms/Form3InitialAssessment";
 import Form4DetailedAssessment from "./edit-forms/Form4DetailedAssessment";
 import { importNguonGenExcel } from "@/lib/importExcel";
+
+const Form5Location = dynamic(() => import("./edit-forms/Form5Location"), { ssr: false });
 
 interface EditModalProps {
   item: NguonGen;
@@ -23,6 +26,7 @@ const TABS = [
   { label: 'Dữ liệu điều tra, thu thập', short: 'Điều tra' },
   { label: 'Dữ liệu đánh giá ban đầu', short: 'Đánh giá ban đầu' },
   { label: 'Dữ liệu đánh giá chi tiết', short: 'Đánh giá chi tiết' },
+  { label: 'Vị trí', short: 'Vị trí' },
 ];
 
 export default function EditModal({ item, extended, isNew, isAdmin = true, onSave, onClose }: EditModalProps) {
@@ -203,6 +207,7 @@ export default function EditModal({ item, extended, isNew, isAdmin = true, onSav
           {isAdmin && tab === 1 && <Form2Survey nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form2} onChange={setForm2} />}
           {isAdmin && tab === 2 && <Form3InitialAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form3} onChange={setForm3} />}
           {isAdmin && tab === 3 && <Form4DetailedAssessment ma={basic.ma} onMaChange={(v) => setBasic((prev) => ({ ...prev, ma: v }))} nhom={basic.nhom} phan_nhom={basic.phan_nhom} data={form4} onChange={setForm4} />}
+          {isAdmin && tab === 4 && <Form5Location basic={basic} onBasicChange={setBasic} />}
         </div>
       </div>
 
@@ -290,7 +295,7 @@ export default function EditModal({ item, extended, isNew, isAdmin = true, onSav
                   ← Trước
                 </button>
               )}
-              {tab < 3 ? (
+              {tab < TABS.length - 1 ? (
                 <button onClick={() => setTab(tab + 1)}
                   className="px-3 py-1.5 text-sm bg-green-700 text-white rounded-lg hover:bg-green-600 transition-colors">
                   Tiếp theo →
