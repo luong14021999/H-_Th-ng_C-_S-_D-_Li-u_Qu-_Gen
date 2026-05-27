@@ -45,16 +45,20 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
 
     const map = L.map(mapHostRef.current, { zoomControl: true }).setView([initLat, initLng], 13);
 
-    // Esri World Imagery — free, no token, gives the satellite look.
-    L.tileLayer(
-      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-      {
-        attribution: "Tiles © Esri",
-        maxZoom: 19,
-      }
-    ).addTo(map);
+    // OpenStreetMap — same tiles as the home-page map for visual consistency.
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
 
     const marker = L.marker([initLat, initLng], { draggable: !readOnly }).addTo(map);
+
+    // Click marker to zoom in for a closer look.
+    marker.on("click", (e) => {
+      L.DomEvent.stopPropagation(e);
+      const { lat, lng } = marker.getLatLng();
+      map.flyTo([lat, lng], Math.max(map.getZoom() + 2, 17), { duration: 0.6 });
+    });
 
     if (!readOnly) {
       marker.on("dragend", () => {
@@ -173,11 +177,10 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
         style={{ height: "min(60vh, 560px)" }}
       />
 
-      {!readOnly && (
-        <p className="text-xs text-gray-500 italic">
-          Kéo marker hoặc nhấn vào bản đồ để đổi vị trí. Có thể nhập trực tiếp vĩ độ / kinh độ bằng nút bút chì ở góc trên bên phải.
-        </p>
-      )}
+      <p className="text-xs text-gray-500 italic">
+        Nhấn vào marker để phóng to xem chi tiết.
+        {!readOnly && " Kéo marker hoặc nhấn vào bản đồ để đổi vị trí. Có thể nhập trực tiếp vĩ độ / kinh độ bằng nút bút chì ở góc trên bên phải."}
+      </p>
     </div>
   );
 }
