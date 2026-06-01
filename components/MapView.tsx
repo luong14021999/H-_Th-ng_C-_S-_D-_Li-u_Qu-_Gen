@@ -512,21 +512,9 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       )}
 
       {/* ── Legend panel ── */}
-      {showLegend && (
-        <div
-          className="absolute z-[1000] bg-white rounded-2xl shadow-xl overflow-hidden"
-          style={{ minWidth: 220, maxWidth: "calc(100vw - 4rem)", right: "3.25rem", top: legendTopPx }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
-            <span className="font-bold text-base text-gray-900">Chú giải</span>
-            <button
-              onClick={() => setShowLegend(false)}
-              className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-base font-bold"
-            >›</button>
-          </div>
-          {/* Rows */}
-          <div className="flex flex-col px-4 py-2 gap-0">
+      {showLegend && (() => {
+        const rows = (
+          <div className="flex flex-col px-4 py-2 gap-0 overflow-y-auto">
             {/* Location marker row */}
             <div className="flex items-center gap-3 py-2">
               <span className="text-2xl leading-none">📍</span>
@@ -543,8 +531,39 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
               </div>
             ))}
           </div>
-        </div>
-      )}
+        );
+        return (
+          <>
+            {/* Mobile bottom sheet */}
+            <div className="sm:hidden absolute bottom-0 left-0 right-0 z-[1000] bg-white rounded-t-2xl shadow-2xl border-t border-gray-200 flex flex-col" style={{ maxHeight: "70%" }}>
+              <div className="w-10 h-1 bg-gray-300 rounded-full mx-auto mt-3 mb-1 shrink-0" />
+              <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 shrink-0">
+                <span className="font-bold text-base text-gray-900">Chú giải</span>
+                <button
+                  onClick={() => setShowLegend(false)}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-lg leading-none"
+                >✕</button>
+              </div>
+              {rows}
+            </div>
+
+            {/* Desktop floating card */}
+            <div
+              className="hidden sm:flex absolute z-[1000] bg-white rounded-2xl shadow-xl overflow-hidden flex-col"
+              style={{ minWidth: 220, maxWidth: "calc(100vw - 4rem)", right: "3.25rem", top: legendTopPx, maxHeight: `calc(100% - ${legendTopPx}px - 0.75rem)` }}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
+                <span className="font-bold text-base text-gray-900">Chú giải</span>
+                <button
+                  onClick={() => setShowLegend(false)}
+                  className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 text-base font-bold"
+                >›</button>
+              </div>
+              {rows}
+            </div>
+          </>
+        );
+      })()}
 
       {/* ── Khai thác dữ liệu theo lĩnh vực panel ── */}
       {showLinhVucPanel && (
