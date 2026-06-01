@@ -297,7 +297,15 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     mapRef.current = map;
     layerGroupRef.current = L.layerGroup().addTo(map);
 
+    // Leaflet measures the container once at init. If the container later grows
+    // (layout settling, mobile category bar, orientation change, font/data load
+    // shifting flex heights), the map keeps its stale size and leaves a blank
+    // band below the tiles. Re-sync on every container resize.
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(containerRef.current);
+
     return () => {
+      ro.disconnect();
       map.remove();
       mapRef.current = null;
       layerGroupRef.current = null;

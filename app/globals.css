@@ -27,9 +27,15 @@ body {
   overscroll-behavior: none;
 }
 
-/* Main content bottom padding: nav height (4rem) + iOS home indicator */
-.pb-nav-safe {
-  padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+/* Main content bottom padding: reserve space for the mobile bottom nav
+   (nav height 4rem + iOS home indicator). Scoped to < md only — this rule is
+   defined after Tailwind's utilities, so an unscoped version would win the
+   cascade tie against `md:pb-0` and leave a 4rem white gap on desktop, where
+   the nav is `md:hidden`. */
+@media (max-width: 767.98px) {
+  .pb-nav-safe {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
 }
 
 /* Spacer at the bottom of bottom sheets so content clears the home indicator */
