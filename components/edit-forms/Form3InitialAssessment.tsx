@@ -45,7 +45,7 @@ const PairRow = ({ label1, value1, onChange1, label2, value2, onChange2 }: {
   label1: string; value1: string; onChange1: (v: string) => void;
   label2: string; value2: string; onChange2: (v: string) => void;
 }) => (
-  <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 py-2 border-b border-gray-100">
     <div>
       <label className="text-sm text-gray-600">{label1}</label>
       <input type="text" value={value1} onChange={(e) => onChange1(e.target.value)}
@@ -747,7 +747,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
         <>
           <SubLabel>- Dữ liệu hình thái (Mô tả hình thái cơ quan sinh dưỡng, cơ quan sinh sản)</SubLabel>
           <p className="text-sm font-semibold text-gray-700 mt-2 mb-1">10. Cơ quan sinh dưỡng (sợi nấm/tế bào khuẩn)</p>
-          <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 py-2 border-b border-gray-100">
             <div>
               <label className="text-sm text-gray-600">Hình dạng</label>
               <AutoTextarea minRows={2} value={d.vs_soi_nam_hinh_dang} onChange={(e) => set('vs_soi_nam_hinh_dang', e.target.value)}
@@ -770,7 +770,7 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
             </div>
           </div>
           <p className="text-sm font-semibold text-gray-700 mt-2 mb-1">11. Cơ quan sinh sản (bào tử)</p>
-          <div className="grid grid-cols-2 gap-3 py-2 border-b border-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 py-2 border-b border-gray-100">
             <div>
               <label className="text-sm text-gray-600">Hình dạng</label>
               <AutoTextarea minRows={2} value={d.vs_bao_tu_vo_tinh} onChange={(e) => set('vs_bao_tu_vo_tinh', e.target.value)}
