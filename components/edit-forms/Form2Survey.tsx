@@ -30,8 +30,10 @@ const TextRow = ({ label, value, onChange }: {
 // stays a compact inline field next to the "Khác" radio/checkbox.
 const OTHER_INPUT_CLS = "ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 sm:py-0 text-base sm:text-sm bg-transparent flex-1 min-w-0 sm:flex-none sm:w-32";
 // The "Khác" option breaks onto its own full-width line on mobile so the text box has room.
-const OTHER_LABEL_CLS = "flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap basis-full sm:basis-auto";
-const OPT_LABEL_CLS = "flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap";
+// No whitespace-nowrap: long option labels wrap within the row instead of forcing the
+// page to overflow/pan sideways on narrow screens.
+const OTHER_LABEL_CLS = "flex items-start gap-1.5 text-sm cursor-pointer basis-full sm:basis-auto";
+const OPT_LABEL_CLS = "flex items-start gap-1.5 text-sm cursor-pointer";
 
 // "Khác" detail handling: rows may store the free text either in a dedicated
 // field (otherValue/onOtherChange) or — by default, with no extra field — inline
@@ -56,7 +58,7 @@ const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherCh
             <label key={opt} className={isKhac && otherChecked ? OTHER_LABEL_CLS : OPT_LABEL_CLS}>
               <input type="radio" name={name} value={opt} checked={isKhac ? otherChecked : value === opt}
                 onChange={() => onChange(isKhac && !onOtherChange && detail ? `Khác: ${detail}` : opt)}
-                className="accent-green-600 shrink-0" />
+                className="accent-green-600 shrink-0 mt-0.5" />
               {opt}
               {isKhac && otherChecked && (
                 onOtherChange ? (
@@ -105,7 +107,7 @@ const CheckboxRow = ({ label, options, value, onChange }: {
           return (
             <label key={opt} className={isKhac && otherChecked ? OTHER_LABEL_CLS : OPT_LABEL_CLS}>
               <input type="checkbox" checked={isKhac ? otherChecked : selected.includes(opt)} onChange={() => toggle(opt)}
-                className="accent-green-600 shrink-0" />
+                className="accent-green-600 shrink-0 mt-0.5" />
               {opt}
               {isKhac && otherChecked && (
                 <input type="text" value={detail} onChange={(e) => setDetail(e.target.value)}
