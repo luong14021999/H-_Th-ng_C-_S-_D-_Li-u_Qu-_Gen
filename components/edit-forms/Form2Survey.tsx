@@ -20,15 +20,16 @@ const TextRow = ({ label, value, onChange }: {
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
     <div className="sm:col-span-2">
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
+      {/* Auto-growing: wraps to multiple lines so long content stays fully visible. */}
+      <AutoTextarea minRows={1} value={value} onChange={(e) => onChange(e.target.value)}
+        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent leading-snug" />
     </div>
   </div>
 );
 
 // On mobile the input grows to fill the row (easy to tap & type); on desktop it
 // stays a compact inline field next to the "Khác" radio/checkbox.
-const OTHER_INPUT_CLS = "ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 sm:py-0 text-base sm:text-sm bg-transparent flex-1 min-w-0 sm:flex-none sm:w-32";
+const OTHER_INPUT_CLS = "ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 sm:py-0 text-base sm:text-sm bg-transparent leading-snug align-top flex-1 min-w-0 sm:flex-none sm:w-40";
 // The "Khác" option breaks onto its own full-width line on mobile so the text box has room.
 // No whitespace-nowrap: long option labels wrap within the row instead of forcing the
 // page to overflow/pan sideways on narrow screens.
@@ -62,10 +63,10 @@ const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherCh
               {opt}
               {isKhac && otherChecked && (
                 onOtherChange ? (
-                  <input type="text" value={otherValue ?? ''} onChange={(e) => onOtherChange(e.target.value)}
+                  <AutoTextarea minRows={1} value={otherValue ?? ''} onChange={(e) => onOtherChange(e.target.value)}
                     placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()} className={OTHER_INPUT_CLS} />
                 ) : (
-                  <input type="text" value={detail} onChange={(e) => onChange(e.target.value ? `Khác: ${e.target.value}` : 'Khác')}
+                  <AutoTextarea minRows={1} value={detail} onChange={(e) => onChange(e.target.value ? `Khác: ${e.target.value}` : 'Khác')}
                     placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()} className={OTHER_INPUT_CLS} />
                 )
               )}
@@ -110,7 +111,7 @@ const CheckboxRow = ({ label, options, value, onChange }: {
                 className="accent-green-600 shrink-0 mt-0.5" />
               {opt}
               {isKhac && otherChecked && (
-                <input type="text" value={detail} onChange={(e) => setDetail(e.target.value)}
+                <AutoTextarea minRows={1} value={detail} onChange={(e) => setDetail(e.target.value)}
                   placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()} className={OTHER_INPUT_CLS} />
               )}
             </label>

@@ -80,12 +80,14 @@ const Input = ({ label, value, onChange, required, placeholder }: {
       {required && <span className="text-red-500 mr-0.5">*</span>}{label}
     </label>
     <div className="sm:col-span-2">
-      <input
-        type="text"
+      {/* Auto-growing single-line field: stays one line for short values, wraps to
+          multiple lines so long content is fully visible on desktop and mobile. */}
+      <AutoTextarea
+        minRows={1}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent"
+        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent leading-snug"
       />
     </div>
   </div>
