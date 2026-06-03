@@ -26,48 +26,89 @@ const TextRow = ({ label, value, onChange }: {
   </div>
 );
 
+const OTHER_INPUT_CLS = "ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0 text-base sm:text-sm bg-transparent w-28";
+
+// "Khác" detail handling: rows may store the free text either in a dedicated
+// field (otherValue/onOtherChange) or — by default, with no extra field — inline
+// in the same value as "Khác: <detail>". This gives every row with a "Khác"
+// option a text box automatically.
+const isOtherSelected = (value: string) => value === 'Khác' || value.startsWith('Khác:');
+const inlineOtherDetail = (value: string) => (value.startsWith('Khác:') ? value.slice(value.indexOf(':') + 1).trim() : '');
+
 const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherChange }: {
   label: string; name: string; options: string[]; value: string; onChange: (v: string) => void;
   otherValue?: string; onOtherChange?: (v: string) => void;
-}) => (
-  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-    <label className="text-sm text-gray-600 pt-1">{label}</label>
-    <div className="sm:col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
-      {options.map((opt) => (
-        <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap">
-          <input type="radio" name={name} value={opt} checked={value === opt}
-            onChange={() => onChange(opt)} className="accent-green-600 shrink-0" />
-          {opt}
-          {opt === 'Khác' && value === 'Khác' && onOtherChange && (
-            <input type="text" value={otherValue ?? ''} onChange={(e) => onOtherChange(e.target.value)}
-              placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()}
-              className="ml-1 border-b border-gray-400 focus:border-green-600 outline-none px-1 py-0 text-base sm:text-sm bg-transparent w-28" />
-          )}
-        </label>
-      ))}
+}) => {
+  const otherChecked = isOtherSelected(value);
+  const detail = inlineOtherDetail(value);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
+      <label className="text-sm text-gray-600 pt-1">{label}</label>
+      <div className="sm:col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
+        {options.map((opt) => {
+          const isKhac = opt === 'Khác';
+          return (
+            <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap">
+              <input type="radio" name={name} value={opt} checked={isKhac ? otherChecked : value === opt}
+                onChange={() => onChange(isKhac && !onOtherChange && detail ? `Khác: ${detail}` : opt)}
+                className="accent-green-600 shrink-0" />
+              {opt}
+              {isKhac && otherChecked && (
+                onOtherChange ? (
+                  <input type="text" value={otherValue ?? ''} onChange={(e) => onOtherChange(e.target.value)}
+                    placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()} className={OTHER_INPUT_CLS} />
+                ) : (
+                  <input type="text" value={detail} onChange={(e) => onChange(e.target.value ? `Khác: ${e.target.value}` : 'Khác')}
+                    placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()} className={OTHER_INPUT_CLS} />
+                )
+              )}
+            </label>
+          );
+        })}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const CheckboxRow = ({ label, options, value, onChange }: {
   label: string; options: string[]; value: string; onChange: (v: string) => void;
 }) => {
   const selected = value ? value.split(',').map((s) => s.trim()).filter(Boolean) : [];
+  const isOther = (s: string) => s === 'Khác' || s.startsWith('Khác:');
+  const otherChecked = selected.some(isOther);
+  const otherItem = selected.find(isOther);
+  const detail = otherItem && otherItem.startsWith('Khác:') ? otherItem.slice(otherItem.indexOf(':') + 1).trim() : '';
   const toggle = (opt: string) => {
-    const next = selected.includes(opt) ? selected.filter((s) => s !== opt) : [...selected, opt];
+    let next: string[];
+    if (opt === 'Khác') {
+      next = otherChecked ? selected.filter((s) => !isOther(s)) : [...selected, 'Khác'];
+    } else {
+      next = selected.includes(opt) ? selected.filter((s) => s !== opt) : [...selected, opt];
+    }
     onChange(next.join(', '));
+  };
+  const setDetail = (text: string) => {
+    const rest = selected.filter((s) => !isOther(s));
+    onChange([...rest, text ? `Khác: ${text}` : 'Khác'].join(', '));
   };
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
       <label className="text-sm text-gray-600 pt-1">{label}</label>
       <div className="sm:col-span-2 flex flex-wrap gap-x-5 gap-y-1.5 py-0.5">
-        {options.map((opt) => (
-          <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap">
-            <input type="checkbox" checked={selected.includes(opt)} onChange={() => toggle(opt)}
-              className="accent-green-600 shrink-0" />
-            {opt}
-          </label>
-        ))}
+        {options.map((opt) => {
+          const isKhac = opt === 'Khác';
+          return (
+            <label key={opt} className="flex items-center gap-1.5 text-sm cursor-pointer whitespace-nowrap">
+              <input type="checkbox" checked={isKhac ? otherChecked : selected.includes(opt)} onChange={() => toggle(opt)}
+                className="accent-green-600 shrink-0" />
+              {opt}
+              {isKhac && otherChecked && (
+                <input type="text" value={detail} onChange={(e) => setDetail(e.target.value)}
+                  placeholder="Ghi rõ..." onClick={(e) => e.stopPropagation()} className={OTHER_INPUT_CLS} />
+              )}
+            </label>
+          );
+        })}
       </div>
     </div>
   );
