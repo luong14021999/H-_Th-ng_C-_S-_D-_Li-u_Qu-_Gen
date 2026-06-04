@@ -261,8 +261,24 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
 
   const addBaoTon = () => set('bao_ton_list', [...(d.bao_ton_list ?? []), { phuong_thuc: '', hinh_thuc: [], don_vi: '', noi: '' }]);
 
-  // Tolerate legacy records where a "hình thức" field was saved as a plain string.
-  const asArr = (v: unknown): string[] => (Array.isArray(v) ? v as string[] : v ? [String(v)] : []);
+  // Normalise a "hình thức" value to an array. Handles three shapes:
+  //  - a real array (jsonb columns like bao_ton_list)
+  //  - a JSON-encoded array string ("[\"A\",\"B\"]") — text columns store arrays this way
+  //  - a plain legacy string (single value)
+  const asArr = (v: unknown): string[] => {
+    if (Array.isArray(v)) return v as string[];
+    if (typeof v === "string") {
+      const s = v.trim();
+      if (s.startsWith("[")) {
+        try {
+          const parsed = JSON.parse(s);
+          if (Array.isArray(parsed)) return parsed.map((x) => String(x));
+        } catch { /* not valid JSON — treat as a plain string below */ }
+      }
+      return s ? [s] : [];
+    }
+    return [];
+  };
   const removeBaoTon = (idx: number) => set('bao_ton_list', (d.bao_ton_list ?? []).filter((_, i) => i !== idx));
 
   return (
