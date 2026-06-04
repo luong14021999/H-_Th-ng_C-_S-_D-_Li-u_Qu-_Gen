@@ -1,6 +1,6 @@
 export interface BaoTonEntry {
   phuong_thuc: string;
-  hinh_thuc: string;
+  hinh_thuc: string[];   // several forms can apply; stored as an array so each counts on its own
   don_vi: string;
   noi: string;
 }
@@ -20,7 +20,7 @@ export interface Form1Data {
   dang_bao_ton: boolean;
   bao_ton_list: BaoTonEntry[];
   dang_khai_thac: boolean;
-  hinh_thuc_khai_thac: string;
+  hinh_thuc_khai_thac: string[];
   noi_khai_thac: string;
   don_vi_khai_thac: string;
   hinh_anh: string[];
@@ -562,8 +562,8 @@ export const defaultForm1 = (): Form1Data => ({
   ten_khac: '', ten_ho: '', ten_bo: '', nguon_giao: '',
   noi_thu_thap_tinh: '', noi_thu_thap_huyen: '', noi_thu_thap_xa: '',
   dia_chi_chi_tiet: '', mo_ta_thu_thap: '', noi_phan_bo: '',
-  dang_bao_ton: false, bao_ton_list: [{ phuong_thuc: '', hinh_thuc: '', don_vi: '', noi: '' }],
-  dang_khai_thac: false, hinh_thuc_khai_thac: '', noi_khai_thac: '', don_vi_khai_thac: '',
+  dang_bao_ton: false, bao_ton_list: [{ phuong_thuc: '', hinh_thuc: [], don_vi: '', noi: '' }],
+  dang_khai_thac: false, hinh_thuc_khai_thac: [], noi_khai_thac: '', don_vi_khai_thac: '',
   hinh_anh: [],
 });
 

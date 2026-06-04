@@ -253,13 +253,16 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
     }
   };
 
-  const updateBaoTon = (idx: number, field: keyof BaoTonEntry, val: string) => {
+  const updateBaoTon = (idx: number, field: keyof BaoTonEntry, val: string | string[]) => {
     const list = [...(d.bao_ton_list ?? [])];
     list[idx] = { ...list[idx], [field]: val };
     set('bao_ton_list', list);
   };
 
-  const addBaoTon = () => set('bao_ton_list', [...(d.bao_ton_list ?? []), { phuong_thuc: '', hinh_thuc: '', don_vi: '', noi: '' }]);
+  const addBaoTon = () => set('bao_ton_list', [...(d.bao_ton_list ?? []), { phuong_thuc: '', hinh_thuc: [], don_vi: '', noi: '' }]);
+
+  // Tolerate legacy records where a "hình thức" field was saved as a plain string.
+  const asArr = (v: unknown): string[] => (Array.isArray(v) ? v as string[] : v ? [String(v)] : []);
   const removeBaoTon = (idx: number) => set('bao_ton_list', (d.bao_ton_list ?? []).filter((_, i) => i !== idx));
 
   return (
@@ -341,7 +344,8 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                   <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Hình thức bảo tồn</label>
                   <div className="col-span-2">
                     <SearchSelect
-                      value={entry.hinh_thuc}
+                      multiple
+                      value={asArr(entry.hinh_thuc)}
                       onChange={(v) => updateBaoTon(idx, 'hinh_thuc', v)}
                       options={danhMucStores.hinhThucBaoTon.filter(h =>
                         h.trang_thai === 'kich_hoat' &&
@@ -386,7 +390,8 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
               <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Hình thức khai thác, sử dụng</label>
               <div className="sm:col-span-2">
                 <SearchSelect
-                  value={d.hinh_thuc_khai_thac ?? ''}
+                  multiple
+                  value={asArr(d.hinh_thuc_khai_thac)}
                   onChange={(v) => set('hinh_thuc_khai_thac', v)}
                   options={danhMucStores.hinhThucKhaiThac.filter(h => h.trang_thai === 'kich_hoat' && h.nhom.includes(basic.nhom)).map(h => h.ten)}
                   placeholder="Chọn hình thức khai thác, sử dụng..."
