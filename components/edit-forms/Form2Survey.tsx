@@ -41,7 +41,9 @@ const OPT_LABEL_CLS = "flex items-start gap-1.5 text-sm cursor-pointer";
 // in the same value as "Khác: <detail>". This gives every row with a "Khác"
 // option a text box automatically.
 const isOtherSelected = (value: string) => value === 'Khác' || value.startsWith('Khác:');
-const inlineOtherDetail = (value: string) => (value.startsWith('Khác:') ? value.slice(value.indexOf(':') + 1).trim() : '');
+// Strip only the single format space after "Khác:" — NOT trim(), which would eat
+// the spaces the user types (making it impossible to type a space between words).
+const inlineOtherDetail = (value: string) => (value.startsWith('Khác:') ? value.slice('Khác:'.length).replace(/^ /, '') : '');
 
 const RadioRow = ({ label, name, options, value, onChange, otherValue, onOtherChange }: {
   label: string; name: string; options: string[]; value: string; onChange: (v: string) => void;
@@ -85,7 +87,7 @@ const CheckboxRow = ({ label, options, value, onChange }: {
   const isOther = (s: string) => s === 'Khác' || s.startsWith('Khác:');
   const otherChecked = selected.some(isOther);
   const otherItem = selected.find(isOther);
-  const detail = otherItem && otherItem.startsWith('Khác:') ? otherItem.slice(otherItem.indexOf(':') + 1).trim() : '';
+  const detail = otherItem && otherItem.startsWith('Khác:') ? otherItem.slice('Khác:'.length).replace(/^ /, '') : '';
   const toggle = (opt: string) => {
     let next: string[];
     if (opt === 'Khác') {
