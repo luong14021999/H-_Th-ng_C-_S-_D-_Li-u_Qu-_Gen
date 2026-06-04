@@ -22,7 +22,7 @@ const Row = ({ label, value, onChange, rows, bold }: {
         <AutoTextarea minRows={rows} value={value} onChange={(e) => onChange(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
       ) : (
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
+        <AutoTextarea minRows={1} value={value} onChange={(e) => onChange(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
       )}
     </div>
@@ -48,12 +48,12 @@ const PairRow = ({ label1, value1, onChange1, label2, value2, onChange2 }: {
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2 py-2 border-b border-gray-100">
     <div>
       <label className="text-sm text-gray-600">{label1}</label>
-      <input type="text" value={value1} onChange={(e) => onChange1(e.target.value)}
+      <AutoTextarea minRows={1} value={value1} onChange={(e) => onChange1(e.target.value)}
         className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent mt-0.5" />
     </div>
     <div>
       <label className="text-sm text-gray-600">{label2}</label>
-      <input type="text" value={value2} onChange={(e) => onChange2(e.target.value)}
+      <AutoTextarea minRows={1} value={value2} onChange={(e) => onChange2(e.target.value)}
         className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent mt-0.5" />
     </div>
   </div>
@@ -71,18 +71,18 @@ const TriRow = ({ label, label1, value1, onChange1, label2, value2, onChange2, l
       <div className="flex gap-3">
         <div className="flex-1">
           <p className="text-xs text-gray-400 mb-0.5">{label1}</p>
-          <input type="text" value={value1} onChange={(e) => onChange1(e.target.value)}
+          <AutoTextarea minRows={1} value={value1} onChange={(e) => onChange1(e.target.value)}
             className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
         </div>
         <div className="flex-1">
           <p className="text-xs text-gray-400 mb-0.5">{label2}</p>
-          <input type="text" value={value2} onChange={(e) => onChange2(e.target.value)}
+          <AutoTextarea minRows={1} value={value2} onChange={(e) => onChange2(e.target.value)}
             className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
         </div>
       </div>
       <div className="mt-2">
         <p className="text-xs text-gray-400 mb-0.5">{label3}</p>
-        <input type="text" value={value3} onChange={(e) => onChange3(e.target.value)}
+        <AutoTextarea minRows={1} value={value3} onChange={(e) => onChange3(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
       </div>
     </div>
@@ -99,12 +99,12 @@ const DualRow = ({ label, value1, onChange1, label1, value2, onChange2, label2 }
     <div className="sm:col-span-2 flex gap-3">
       <div className="flex-1">
         <p className="text-xs text-gray-400 mb-0.5">{label1}</p>
-        <input type="text" value={value1} onChange={(e) => onChange1(e.target.value)}
+        <AutoTextarea minRows={1} value={value1} onChange={(e) => onChange1(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
       </div>
       <div className="flex-1">
         <p className="text-xs text-gray-400 mb-0.5">{label2}</p>
-        <input type="text" value={value2} onChange={(e) => onChange2(e.target.value)}
+        <AutoTextarea minRows={1} value={value2} onChange={(e) => onChange2(e.target.value)}
           className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
       </div>
     </div>

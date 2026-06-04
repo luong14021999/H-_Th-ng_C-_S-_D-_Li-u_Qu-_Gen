@@ -375,13 +375,13 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 {/* Đơn vị bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
                   <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Đơn vị bảo tồn</label>
-                  <input type="text" value={entry.don_vi} onChange={(e) => updateBaoTon(idx, 'don_vi', e.target.value)}
+                  <AutoTextarea minRows={1} value={entry.don_vi} onChange={(e) => updateBaoTon(idx, 'don_vi', e.target.value)}
                     className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
                 </div>
                 {/* Nơi bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
                   <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Nơi bảo tồn</label>
-                  <input type="text" value={entry.noi} onChange={(e) => updateBaoTon(idx, 'noi', e.target.value)}
+                  <AutoTextarea minRows={1} value={entry.noi} onChange={(e) => updateBaoTon(idx, 'noi', e.target.value)}
                     className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
                 </div>
               </div>
