@@ -18,13 +18,9 @@ const Row = ({ label, value, onChange, rows }: {
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
     <label className="text-sm text-gray-600 pt-1.5">{label}</label>
     <div className="sm:col-span-2">
-      {rows ? (
-        <AutoTextarea minRows={rows} value={value} onChange={(e) => onChange(e.target.value)}
-          className="w-full border border-gray-200 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
-      ) : (
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)}
-          className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent" />
-      )}
+      {/* All fields use the boxed auto-growing textarea so long content stays fully visible. */}
+      <AutoTextarea minRows={rows ?? 1} value={value} onChange={(e) => onChange(e.target.value)}
+        className="w-full border border-gray-200 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
     </div>
   </div>
 );
