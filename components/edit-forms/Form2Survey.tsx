@@ -348,7 +348,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <RadioRow
             label="18. Thông tin về độ chua của đất (rất chua/chua/trung tính/kiềm/phèn mặn/...)"
             name="do_chua"
-            options={["Rất chua", "Chua", "Trung tính", "Kiềm", "Phèn mặn"]}
+            options={["Rất chua", "Chua", "Trung tính", "Kiềm", "Phèn mặn", "Khác"]}
             value={d.do_chua} onChange={(v) => set('do_chua', v)}
           />
           <RadioRow
@@ -427,7 +427,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <RadioRow
             label="19. Thông tin về độ chua của đất (rất chua/chua/trung tính/kiềm/phèn mặn/...)"
             name="do_chua"
-            options={["Rất chua", "Chua", "Trung tính", "Kiềm", "Phèn mặn"]}
+            options={["Rất chua", "Chua", "Trung tính", "Kiềm", "Phèn mặn", "Khác"]}
             value={d.do_chua} onChange={(v) => set('do_chua', v)}
           />
           <RadioRow
