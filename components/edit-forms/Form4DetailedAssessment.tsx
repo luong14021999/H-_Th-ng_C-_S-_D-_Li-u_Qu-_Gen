@@ -20,7 +20,7 @@ const Row = ({ label, value, onChange, rows }: {
     <div className="sm:col-span-2">
       {/* All fields use the boxed auto-growing textarea so long content stays fully visible. */}
       <AutoTextarea minRows={rows ?? 1} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full border border-gray-800 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
+        className="w-full border-b-2 border-gray-800 px-1 py-1 text-base sm:text-sm outline-none focus:border-green-600 bg-transparent" />
     </div>
   </div>
 );
@@ -129,14 +129,14 @@ export default function Form4DetailedAssessment({ ma, onMaChange, nhom, phan_nho
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-1">Dữ liệu đánh giá ban đầu nguồn gen</p>
         <AutoTextarea minRows={3} value={d.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)}
-          className="w-full border border-gray-800 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
+          className="w-full border-b-2 border-gray-800 px-1 py-1 text-sm outline-none focus:border-green-600 bg-transparent" />
       </div>
 
       <SectionTitle>IV. Tài liệu tham khảo</SectionTitle>
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-1">(Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu mô tả, đánh giá chi tiết nguồn gen)</p>
         <AutoTextarea minRows={3} value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
-          className="w-full border border-gray-800 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
+          className="w-full border-b-2 border-gray-800 px-1 py-1 text-sm outline-none focus:border-green-600 bg-transparent" />
       </div>
     </div>
   );

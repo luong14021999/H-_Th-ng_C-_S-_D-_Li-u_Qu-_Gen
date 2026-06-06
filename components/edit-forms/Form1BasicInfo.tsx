@@ -88,7 +88,7 @@ const Input = ({ label, value, onChange, required, placeholder }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent leading-snug"
+        className="w-full border-b-2 border-gray-800 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent leading-snug"
       />
     </div>
   </div>
@@ -104,7 +104,7 @@ const Textarea = ({ label, value, onChange }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         minRows={2}
-        className="w-full border border-gray-800 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50"
+        className="w-full border-b-2 border-gray-800 px-1 py-1 text-base sm:text-sm outline-none focus:border-green-600 bg-transparent"
       />
     </div>
   </div>
@@ -144,7 +144,7 @@ function SearchableSelect({ label, value, onChange, options, required }: {
         {required && <span className="text-red-500 mr-0.5">*</span>}{label}
       </label>
       <div className="sm:col-span-2 relative" ref={containerRef}>
-        <div className="flex items-center border-b border-gray-300 focus-within:border-green-600">
+        <div className="flex items-center border-b-2 border-gray-800 focus-within:border-green-600">
           <input
             type="text"
             value={query}
@@ -313,7 +313,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
               <input key={f} type="text" placeholder={['Tỉnh/TP', 'Huyện', 'Xã'][i]}
                 value={d[f as keyof Form1Data] as string}
                 onChange={(e) => set(f as keyof Form1Data, e.target.value)}
-                className="flex-1 min-w-[80px] border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
+                className="flex-1 min-w-[80px] border-b-2 border-gray-800 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
             ))}
           </div>
         </div>
@@ -337,7 +337,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         {d.dang_bao_ton && (
           <>
             {(d.bao_ton_list ?? []).map((entry, idx) => (
-              <div key={idx} className="border border-gray-800 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
+              <div key={idx} className="border border-gray-200 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-semibold text-gray-500">Danh sách {idx + 1}</span>
                   {(d.bao_ton_list ?? []).length > 1 && (
@@ -377,13 +377,13 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
                   <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Đơn vị bảo tồn</label>
                   <AutoTextarea minRows={1} value={entry.don_vi} onChange={(e) => updateBaoTon(idx, 'don_vi', e.target.value)}
-                    className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                    className="col-span-2 border-b-2 border-gray-800 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
                 </div>
                 {/* Nơi bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
                   <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Nơi bảo tồn</label>
                   <AutoTextarea minRows={1} value={entry.noi} onChange={(e) => updateBaoTon(idx, 'noi', e.target.value)}
-                    className="col-span-2 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+                    className="col-span-2 border-b-2 border-gray-800 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
                 </div>
               </div>
             ))}
