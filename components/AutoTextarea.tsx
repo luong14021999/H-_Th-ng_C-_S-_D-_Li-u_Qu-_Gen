@@ -29,7 +29,7 @@ export default function AutoTextarea({ minRows = 2, value, style, rows, classNam
       // appearance:none removes the browser's native textarea chrome (the faint
       // dotted/beveled border + resize grip) that otherwise shows through on an
       // underline-only field; border-style stays solid so border-b renders clean.
-      style={{ overflow: "hidden", resize: "none", appearance: "none", WebkitAppearance: "none", borderStyle: "solid", ...style }}
+      style={{ overflow: "hidden", resize: "none", appearance: "none", WebkitAppearance: "none", borderStyle: "dashed", ...style }}
       {...rest}
     />
   );
