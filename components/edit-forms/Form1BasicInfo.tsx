@@ -8,6 +8,7 @@ import { danhMucStores } from "@/data/danhMucData";
 import { apiUploadImage, apiDeleteImage } from "@/lib/api";
 import { normalizeVi } from "@/lib/text";
 import AutoTextarea from "@/components/AutoTextarea";
+import { imageUrl } from "@/lib/images";
 
 // Browser-side image compression: kicks in only for very large files to keep
 // upload fast and storage reasonable. Files at or below this threshold are
@@ -461,7 +462,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                   className="block w-full h-full rounded-lg border border-gray-200 overflow-hidden hover:ring-2 hover:ring-green-500 transition-all"
                   title="Nhấn để xem to"
                 >
-                  <img src={src} alt={`Ảnh ${idx + 1}`} className="w-full h-full object-cover" />
+                  <img src={imageUrl(src, { width: 240, height: 240, resize: "cover" })} alt={`Ảnh ${idx + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </button>
                 <button
                   type="button"
@@ -527,8 +528,9 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
             </>
           )}
           <img
-            src={(d.hinh_anh ?? [])[lightboxIdx]}
+            src={imageUrl((d.hinh_anh ?? [])[lightboxIdx], { width: 1600, quality: 80 })}
             alt={`Ảnh ${lightboxIdx + 1}`}
+            decoding="async"
             className="max-w-full max-h-full object-contain"
             onClick={(e) => e.stopPropagation()}
           />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { normalizeVi } from "@/lib/text";
+import { imageUrl } from "@/lib/images";
 import Twemoji from "./Twemoji";
 
 interface SidebarProps {
@@ -22,7 +23,7 @@ function ItemThumb({ item, extendedMap }: { item: NguonGen; extendedMap: Record<
   const cat = CATEGORY_MAP[item.nhom];
   const img = extendedMap[item.ma]?.form1?.hinh_anh?.[0];
   if (img) {
-    return <img src={img} alt="" className="w-11 h-11 rounded-lg object-cover shrink-0 border border-gray-200" />;
+    return <img src={imageUrl(img, { width: 96, height: 96, resize: "cover" })} alt="" loading="lazy" decoding="async" className="w-11 h-11 rounded-lg object-cover shrink-0 border border-gray-200" />;
   }
   const icon = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "🌿";
   return (
