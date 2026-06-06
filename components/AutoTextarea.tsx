@@ -9,7 +9,7 @@ interface Props extends TextareaHTMLAttributes<HTMLTextAreaElement> {
 // useLayoutEffect on the client, useEffect during SSR.
 const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-export default function AutoTextarea({ minRows = 2, value, style, rows, ...rest }: Props) {
+export default function AutoTextarea({ minRows = 2, value, style, rows, className = "", ...rest }: Props) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
   useIsoLayoutEffect(() => {
@@ -24,7 +24,12 @@ export default function AutoTextarea({ minRows = 2, value, style, rows, ...rest 
       ref={ref}
       value={value}
       rows={rows ?? minRows}
-      style={{ overflow: "hidden", resize: "none", ...style }}
+      // Values sit a touch lighter than the bold dark field labels.
+      className={`text-gray-700 ${className}`}
+      // appearance:none removes the browser's native textarea chrome (the faint
+      // dotted/beveled border + resize grip) that otherwise shows through on an
+      // underline-only field; border-style stays solid so border-b renders clean.
+      style={{ overflow: "hidden", resize: "none", appearance: "none", WebkitAppearance: "none", borderStyle: "solid", ...style }}
       {...rest}
     />
   );

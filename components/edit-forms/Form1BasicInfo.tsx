@@ -77,7 +77,7 @@ const Input = ({ label, value, onChange, required, placeholder }: {
   required?: boolean; placeholder?: string;
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-    <label className="text-sm text-gray-600 pt-1.5">
+    <label className="text-sm font-semibold text-gray-900 pt-1.5">
       {required && <span className="text-red-500 mr-0.5">*</span>}{label}
     </label>
     <div className="sm:col-span-2">
@@ -98,7 +98,7 @@ const Textarea = ({ label, value, onChange }: {
   label: string; value: string; onChange: (v: string) => void;
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-    <label className="text-sm text-gray-600 pt-1.5">{label}</label>
+    <label className="text-sm font-semibold text-gray-900 pt-1.5">{label}</label>
     <div className="sm:col-span-2">
       <AutoTextarea
         value={value}
@@ -140,7 +140,7 @@ function SearchableSelect({ label, value, onChange, options, required }: {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-      <label className="text-sm text-gray-600 pt-1.5">
+      <label className="text-sm font-semibold text-gray-900 pt-1.5">
         {required && <span className="text-red-500 mr-0.5">*</span>}{label}
       </label>
       <div className="sm:col-span-2 relative" ref={containerRef}>
@@ -307,7 +307,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Nơi thu thập</h3>
         <Input label="Người/cơ quan giao, trồng/cấp giống" value={d.nguon_giao} onChange={(v) => set('nguon_giao', v)} required />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-          <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Nơi thu thập</label>
+          <label className="text-sm font-semibold text-gray-900 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Nơi thu thập</label>
           <div className="col-span-2 flex gap-2 flex-wrap">
             {['noi_thu_thap_tinh', 'noi_thu_thap_huyen', 'noi_thu_thap_xa'].map((f, i) => (
               <input key={f} type="text" placeholder={['Tỉnh/TP', 'Huyện', 'Xã'][i]}
@@ -332,21 +332,21 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Tình trạng Bảo tồn</h3>
         <div className="py-2 border-b border-gray-100 flex items-center gap-2">
           <input type="checkbox" id="bao_ton" checked={d.dang_bao_ton} onChange={(e) => set('dang_bao_ton', e.target.checked)} className="accent-green-600" />
-          <label htmlFor="bao_ton" className="text-sm text-gray-600">Đang bảo tồn</label>
+          <label htmlFor="bao_ton" className="text-sm font-semibold text-gray-900">Đang bảo tồn</label>
         </div>
         {d.dang_bao_ton && (
           <>
             {(d.bao_ton_list ?? []).map((entry, idx) => (
               <div key={idx} className="border border-gray-200 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
                 <div className="flex justify-between items-center mb-2">
-                  <span className="text-xs font-semibold text-gray-500">Danh sách {idx + 1}</span>
+                  <span className="text-xs font-semibold text-gray-800">Danh sách {idx + 1}</span>
                   {(d.bao_ton_list ?? []).length > 1 && (
                     <button onClick={() => removeBaoTon(idx)} className="text-red-400 hover:text-red-600 text-xs">✕ Xóa</button>
                   )}
                 </div>
                 {/* Phương thức bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
-                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Phương thức bảo tồn</label>
+                  <label className="text-xs font-semibold text-gray-800"><span className="text-red-500 mr-0.5">*</span>Phương thức bảo tồn</label>
                   <div className="col-span-2">
                     <SearchSelect
                       value={entry.phuong_thuc}
@@ -358,7 +358,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 </div>
                 {/* Hình thức bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
-                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Hình thức bảo tồn</label>
+                  <label className="text-xs font-semibold text-gray-800"><span className="text-red-500 mr-0.5">*</span>Hình thức bảo tồn</label>
                   <div className="col-span-2">
                     <SearchSelect
                       multiple
@@ -375,13 +375,13 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                 </div>
                 {/* Đơn vị bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
-                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Đơn vị bảo tồn</label>
+                  <label className="text-xs font-semibold text-gray-800"><span className="text-red-500 mr-0.5">*</span>Đơn vị bảo tồn</label>
                   <AutoTextarea minRows={1} value={entry.don_vi} onChange={(e) => updateBaoTon(idx, 'don_vi', e.target.value)}
                     className="col-span-2 border-b-2 border-gray-800 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
                 </div>
                 {/* Nơi bảo tồn */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-2 items-start py-1 border-b border-gray-100">
-                  <label className="text-xs text-gray-500"><span className="text-red-500 mr-0.5">*</span>Nơi bảo tồn</label>
+                  <label className="text-xs font-semibold text-gray-800"><span className="text-red-500 mr-0.5">*</span>Nơi bảo tồn</label>
                   <AutoTextarea minRows={1} value={entry.noi} onChange={(e) => updateBaoTon(idx, 'noi', e.target.value)}
                     className="col-span-2 border-b-2 border-gray-800 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
                 </div>
@@ -399,12 +399,12 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         <h3 className="font-semibold text-gray-700 mb-2 bg-gray-50 px-2 py-1 rounded">Tình trạng Khai thác, sử dụng</h3>
         <div className="py-2 border-b border-gray-100 flex items-center gap-2">
           <input type="checkbox" id="khai_thac" checked={d.dang_khai_thac} onChange={(e) => set('dang_khai_thac', e.target.checked)} className="accent-green-600" />
-          <label htmlFor="khai_thac" className="text-sm text-gray-600">Đang khai thác, sử dụng</label>
+          <label htmlFor="khai_thac" className="text-sm font-semibold text-gray-900">Đang khai thác, sử dụng</label>
         </div>
         {d.dang_khai_thac && (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-              <label className="text-sm text-gray-600 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Hình thức khai thác, sử dụng</label>
+              <label className="text-sm font-semibold text-gray-900 pt-1.5"><span className="text-red-500 mr-0.5">*</span>Hình thức khai thác, sử dụng</label>
               <div className="sm:col-span-2">
                 <SearchSelect
                   multiple

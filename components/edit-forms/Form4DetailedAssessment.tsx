@@ -16,7 +16,7 @@ const Row = ({ label, value, onChange, rows }: {
   label: string; value: string; onChange: (v: string) => void; rows?: number;
 }) => (
   <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 sm:gap-3 items-start py-2 border-b border-gray-100">
-    <label className="text-sm text-gray-600 pt-1.5">{label}</label>
+    <label className="text-sm font-semibold text-gray-900 pt-1.5">{label}</label>
     <div className="sm:col-span-2">
       {/* All fields use the boxed auto-growing textarea so long content stays fully visible. */}
       <AutoTextarea minRows={rows ?? 1} value={value} onChange={(e) => onChange(e.target.value)}
@@ -127,14 +127,14 @@ export default function Form4DetailedAssessment({ ma, onMaChange, nhom, phan_nho
 
       <SectionTitle>III. Ghi chú</SectionTitle>
       <div className="py-2">
-        <p className="text-xs text-gray-500 mb-1">Dữ liệu đánh giá ban đầu nguồn gen</p>
+        <p className="text-xs font-semibold text-gray-800 mb-1">Dữ liệu đánh giá ban đầu nguồn gen</p>
         <AutoTextarea minRows={3} value={d.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)}
           className="w-full border-b-2 border-gray-800 px-1 py-1 text-sm outline-none focus:border-green-600 bg-transparent" />
       </div>
 
       <SectionTitle>IV. Tài liệu tham khảo</SectionTitle>
       <div className="py-2">
-        <p className="text-xs text-gray-500 mb-1">(Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu mô tả, đánh giá chi tiết nguồn gen)</p>
+        <p className="text-xs font-semibold text-gray-800 mb-1">(Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu mô tả, đánh giá chi tiết nguồn gen)</p>
         <AutoTextarea minRows={3} value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
           className="w-full border-b-2 border-gray-800 px-1 py-1 text-sm outline-none focus:border-green-600 bg-transparent" />
       </div>
