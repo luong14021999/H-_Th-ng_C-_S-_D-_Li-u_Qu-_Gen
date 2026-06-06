@@ -104,7 +104,7 @@ const Textarea = ({ label, value, onChange }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         minRows={2}
-        className="w-full border border-gray-200 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50"
+        className="w-full border border-gray-800 rounded p-1.5 text-base sm:text-sm focus:outline-none focus:border-green-500 bg-gray-50"
       />
     </div>
   </div>
@@ -337,7 +337,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
         {d.dang_bao_ton && (
           <>
             {(d.bao_ton_list ?? []).map((entry, idx) => (
-              <div key={idx} className="border border-gray-200 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
+              <div key={idx} className="border border-gray-800 rounded-lg p-3 mb-2 mt-2 bg-gray-50 relative">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-xs font-semibold text-gray-500">Danh sách {idx + 1}</span>
                   {(d.bao_ton_list ?? []).length > 1 && (

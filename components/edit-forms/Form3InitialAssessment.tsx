@@ -1145,14 +1145,14 @@ export default function Form3InitialAssessment({ ma, onMaChange, nhom, phan_nhom
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-1">{(isLNCayDacSan || isTTCayngo) ? '. Quan sát đánh giá khả năng chống chịu điều kiện bất thuận, sâu bệnh, chất lượng' : '(Quan sát khả năng chống chịu sinh thái bất thuận, khả năng kháng sâu/bệnh)'}</p>
         <AutoTextarea minRows={3} value={d.ghi_chu} onChange={(e) => set('ghi_chu', e.target.value)}
-          className="w-full border border-gray-200 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
+          className="w-full border border-gray-800 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
       </div>
 
       <SectionTitle>IV. Tài liệu tham khảo</SectionTitle>
       <div className="py-2">
         <p className="text-xs text-gray-500 mb-1">(Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu mô tả đánh giá ban đầu nguồn gen)</p>
         <AutoTextarea minRows={3} value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
-          className="w-full border border-gray-200 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
+          className="w-full border border-gray-800 rounded p-1.5 text-sm focus:outline-none focus:border-green-500 bg-gray-50" />
       </div>
     </div>
   );
