@@ -22,14 +22,14 @@ const TextRow = ({ label, value, onChange }: {
     <div className="sm:col-span-2">
       {/* Auto-growing: wraps to multiple lines so long content stays fully visible. */}
       <AutoTextarea minRows={1} value={value} onChange={(e) => onChange(e.target.value)}
-        className="w-full border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent leading-snug" />
+        className="w-full border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent leading-snug" />
     </div>
   </div>
 );
 
 // On mobile the input grows to fill the row (easy to tap & type); on desktop it
 // stays a compact inline field next to the "Khác" radio/checkbox.
-const OTHER_INPUT_CLS = "ml-1 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 sm:py-0 text-base sm:text-sm bg-transparent leading-snug align-top flex-1 min-w-0 sm:flex-none sm:w-40";
+const OTHER_INPUT_CLS = "ml-1 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 sm:py-0 text-base sm:text-sm bg-transparent leading-snug align-top flex-1 min-w-0 sm:flex-none sm:w-40";
 // The "Khác" option breaks onto its own full-width line on mobile so the text box has room.
 // No whitespace-nowrap: long option labels wrap within the row instead of forcing the
 // page to overflow/pan sideways on narrow screens.
@@ -158,22 +158,22 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên bộ</span>
               <AutoTextarea minRows={1} value={d.ten_viet_bo} onChange={(e) => set('ten_viet_bo', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên họ</span>
               <AutoTextarea minRows={1} value={d.ten_viet_ho} onChange={(e) => set('ten_viet_ho', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên chi</span>
               <AutoTextarea minRows={1} value={d.ten_viet_chi} onChange={(e) => set('ten_viet_chi', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên loài</span>
               <AutoTextarea minRows={1} value={d.ten_viet_loai} onChange={(e) => set('ten_viet_loai', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <p className="text-xs font-semibold text-gray-800 mt-2 mb-1">- Tên khoa học</p>
@@ -181,28 +181,28 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên bộ</span>
               <AutoTextarea minRows={1} value={d.ten_khoa_bo} onChange={(e) => set('ten_khoa_bo', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên họ</span>
               <AutoTextarea minRows={1} value={d.ten_khoa_ho} onChange={(e) => set('ten_khoa_ho', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên chi</span>
               <AutoTextarea minRows={1} value={d.ten_khoa_chi} onChange={(e) => set('ten_khoa_chi', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-12 shrink-0">Tên loài</span>
               <AutoTextarea minRows={1} value={d.ten_khoa_loai} onChange={(e) => set('ten_khoa_loai', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <div className="flex items-start gap-2 mt-2">
             <span className="text-xs font-semibold text-gray-800 shrink-0 pt-1">- Tên khác</span>
             <AutoTextarea minRows={1} value={d.ten_khac_2} onChange={(e) => set('ten_khac_2', e.target.value)}
-              className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent leading-snug" />
+              className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent leading-snug" />
           </div>
         </div>
       </div>
@@ -218,40 +218,40 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-20 shrink-0">Thôn/bản</span>
               <AutoTextarea minRows={1} value={d.thon_ban} onChange={(e) => set('thon_ban', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-32 shrink-0">Xã/phường/thị trấn</span>
               <AutoTextarea minRows={1} value={d.xa_phuong} onChange={(e) => set('xa_phuong', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-20 shrink-0">Huyện/thị/TP</span>
               <AutoTextarea minRows={1} value={d.huyen_thi_tp} onChange={(e) => set('huyen_thi_tp', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 w-32 shrink-0">Tỉnh</span>
               <AutoTextarea minRows={1} value={d.tinh} onChange={(e) => set('tinh', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-3 gap-y-2">
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 shrink-0">Tọa độ X</span>
               <input type="text" value={d.toa_do_x} onChange={(e) => set('toa_do_x', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-800 shrink-0">Y</span>
               <input type="text" value={d.toa_do_y} onChange={(e) => set('toa_do_y', e.target.value)}
-                className="flex-1 min-w-0 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-base sm:text-sm bg-transparent" />
             </div>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-800 shrink-0">Độ cao so với mặt biển (m)</span>
             <input type="text" value={d.do_cao} onChange={(e) => set('do_cao', e.target.value)}
-              className="w-32 border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
+              className="w-32 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-0.5 text-sm bg-transparent" />
           </div>
         </div>
       </div>
@@ -763,7 +763,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
       <div className="py-2">
         <p className="text-xs font-semibold text-gray-800 mb-2">{isTTCayngo ? '34. ' : ''}(Năng suất, chất lượng, đặc tính kháng sâu bệnh, đặc tính chống chịu sinh thái bất thuận)</p>
         <AutoTextarea value={d.dac_tinh_noi_bat} onChange={(e) => set('dac_tinh_noi_bat', e.target.value)}
-          minRows={4} className="w-full border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
+          minRows={4} className="w-full border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
       </div>
 
       {isTTCayngo && (
@@ -772,7 +772,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <div className="py-2 border-b border-gray-100">
             <p className="text-sm font-semibold text-gray-900 mb-2">35. Liệt kê danh mục tài liệu tham khảo để thực hiện Phiếu điều tra, thu thập nguồn gen)</p>
             <AutoTextarea value={d.tai_lieu_tham_khao} onChange={(e) => set('tai_lieu_tham_khao', e.target.value)}
-              minRows={3} className="w-full border-b-2 border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
+              minRows={3} className="w-full border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-sm bg-transparent" />
           </div>
         </>
       )}

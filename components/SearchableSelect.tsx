@@ -56,7 +56,7 @@ export default function SearchableSelect(props: Props) {
     <div ref={ref} className="relative w-full">
       {/* Trigger */}
       <div
-        className="min-h-[32px] border-b border-gray-300 focus-within:border-green-600 flex items-center flex-wrap gap-1 px-1 py-0.5 cursor-text"
+        className="min-h-[32px] border-b-2 border-dashed border-gray-400 focus-within:border-green-600 flex items-center flex-wrap gap-1 px-1 py-0.5 cursor-text"
         onClick={() => setOpen(true)}
       >
         {selected.length > 0 ? (
