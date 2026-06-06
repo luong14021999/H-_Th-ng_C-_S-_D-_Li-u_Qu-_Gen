@@ -18,11 +18,18 @@ export function imageUrl(
   const base = src.slice(0, i);
   const objectPath = src.slice(i + PUBLIC_MARKER.length).split("?")[0];
 
+  // Supabase distorts the image (stretches the other axis) when only ONE of
+  // width/height is given. Mirror the provided edge and default to "contain"
+  // so the aspect ratio is always preserved.
+  let { width, height, resize } = opts;
+  if (width && !height) { height = width; resize = resize ?? "contain"; }
+  else if (height && !width) { width = height; resize = resize ?? "contain"; }
+
   const params = new URLSearchParams();
-  if (opts.width) params.set("width", String(opts.width));
-  if (opts.height) params.set("height", String(opts.height));
+  if (width) params.set("width", String(width));
+  if (height) params.set("height", String(height));
   params.set("quality", String(opts.quality ?? 75));
-  if (opts.resize) params.set("resize", opts.resize);
+  if (resize) params.set("resize", resize);
 
   return `${base}/storage/v1/render/image/public/${objectPath}?${params.toString()}`;
 }

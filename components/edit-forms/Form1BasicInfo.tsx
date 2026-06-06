@@ -528,7 +528,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
             </>
           )}
           <img
-            src={imageUrl((d.hinh_anh ?? [])[lightboxIdx], { width: 1600, quality: 80 })}
+            src={imageUrl((d.hinh_anh ?? [])[lightboxIdx], { width: 1600, height: 1600, resize: "contain", quality: 80 })}
             alt={`Ảnh ${lightboxIdx + 1}`}
             decoding="async"
             className="max-w-full max-h-full object-contain"
