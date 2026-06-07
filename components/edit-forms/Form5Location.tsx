@@ -172,7 +172,7 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
                 value={latStr}
                 onChange={(e) => setLatStr(e.target.value)}
                 onBlur={commitLatLng}
-                className="flex-1 min-w-0 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent"
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent"
               />
             ) : (
               <span className="flex-1 text-right text-sm text-gray-800 font-mono truncate">
@@ -190,7 +190,7 @@ export default function Form5Location({ basic, onBasicChange, readOnly }: Props)
                 value={lngStr}
                 onChange={(e) => setLngStr(e.target.value)}
                 onBlur={commitLatLng}
-                className="flex-1 min-w-0 border-b border-gray-300 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent"
+                className="flex-1 min-w-0 border-b-2 border-dashed border-gray-400 focus:border-green-600 outline-none px-1 py-1 text-base sm:text-sm bg-transparent"
               />
             ) : (
               <span className="flex-1 text-right text-sm text-gray-800 font-mono truncate">
