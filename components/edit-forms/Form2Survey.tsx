@@ -300,23 +300,23 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <RadioRow
             label="12. Thời gian tồn tại của giống, loài tại nơi thu thập: (<2 năm/2-10 năm/>10 năm)"
             name="thoi_gian_ton_tai"
-            options={["Dưới 2 năm", "Từ 2 - 10 năm", "Trên 10 năm"]}
+            options={["Dưới 2 năm", "Từ 2 - 10 năm", "Trên 10 năm", "Khác"]}
             value={d.thoi_gian_ton_tai} onChange={(v) => set('thoi_gian_ton_tai', v)}
           />
           <RadioRow
             label={(isCNSpecial || isTS) ? "13. Mức độ phổ biến của giống tại nơi thu thập (nhiều (>30% hộ nuôi)/vừa phải (15-30%)/ít (5-15%)/hiếm (<5%))" : "13. Mức độ phổ biến của giống tại nơi thu thập (nhiều (>30% hộ trồng)/vừa phải (15-30%)/ít (5-15%)/hiếm (<5%))"}
             name="muc_do_pho_bien"
             options={isCNThuyCamLike
-              ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15–30%) hộ nuôi", "Ít (từ 5–15%) hộ nuôi"]
+              ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15–30%) hộ nuôi", "Ít (từ 5–15%) hộ nuôi", "Khác"]
               : (isCNSpecial || isTS)
-              ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15-30% hộ nuôi)", "Ít (từ 5-15% hộ nuôi)", "Hiếm (dưới 5% hộ nuôi)"]
-              : ["Nhiều (trên 30% hộ trồng)", "Vừa phải (từ 15 - 30%) hộ trồng", "Ít (từ 5 - 15%) hộ trồng", "Hiếm (dưới 5% hộ trồng)"]}
+              ? ["Nhiều (trên 30% hộ nuôi)", "Vừa phải (từ 15-30% hộ nuôi)", "Ít (từ 5-15% hộ nuôi)", "Hiếm (dưới 5% hộ nuôi)", "Khác"]
+              : ["Nhiều (trên 30% hộ trồng)", "Vừa phải (từ 15 - 30%) hộ trồng", "Ít (từ 5 - 15%) hộ trồng", "Hiếm (dưới 5% hộ trồng)", "Khác"]}
             value={d.muc_do_pho_bien} onChange={(v) => set('muc_do_pho_bien', v)}
           />
           <RadioRow
             label="14. Xu hướng phát triển của giống: (tăng/giữ nguyên/giảm/giảm nhanh/nguy cơ loại bỏ)"
             name="xu_huong_phat_trien"
-            options={isCNThuyCamLike ? ["Tăng", "Giữ nguyên", "Giảm", "Nguy cơ loại bỏ"] : ["Tăng", "Giữ nguyên", "Giảm", "Giảm nhanh", "Nguy cơ loại bỏ"]}
+            options={isCNThuyCamLike ? ["Tăng", "Giữ nguyên", "Giảm", "Nguy cơ loại bỏ", "Khác"] : ["Tăng", "Giữ nguyên", "Giảm", "Giảm nhanh", "Nguy cơ loại bỏ", "Khác"]}
             value={d.xu_huong_phat_trien} onChange={(v) => set('xu_huong_phat_trien', v)}
           />
         </>
@@ -384,7 +384,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <RadioRow
             label="24. Thời gian sinh trưởng hoặc thành thục (Dưới 5 năm/5–10 năm/10–20 năm/trên 20 năm)"
             name="thoi_gian_sinh_truong"
-            options={["Dưới 5 năm", "5–10 năm", "10–20 năm", "Trên 20 năm"]}
+            options={["Dưới 5 năm", "5–10 năm", "10–20 năm", "Trên 20 năm", "Khác"]}
             value={d.thoi_gian_sinh_truong} onChange={(v) => set('thoi_gian_sinh_truong', v)}
           />
           <RadioRow
@@ -463,7 +463,7 @@ export default function Form2Survey({ nhom, phan_nhom, data, onChange }: Props) 
           <RadioRow
             label="25. Thời gian sinh trưởng hoặc thành thục (Dưới 5 năm/5–10 năm/10–20 năm/trên 20 năm)"
             name="thoi_gian_sinh_truong"
-            options={["Dưới 5 năm", "5–10 năm", "10–20 năm", "Trên 20 năm"]}
+            options={["Dưới 5 năm", "5–10 năm", "10–20 năm", "Trên 20 năm", "Khác"]}
             value={d.thoi_gian_sinh_truong} onChange={(v) => set('thoi_gian_sinh_truong', v)}
           />
           <RadioRow
