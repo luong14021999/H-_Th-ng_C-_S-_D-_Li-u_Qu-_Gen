@@ -16,12 +16,13 @@ interface SidebarProps {
   total: number;
   items: NguonGen[];
   extendedMap: Record<string, ExtendedFormData>;
+  imagesMap?: Record<string, string>;
   onItemSelect?: (item: NguonGen) => void;
 }
 
-function ItemThumb({ item, extendedMap }: { item: NguonGen; extendedMap: Record<string, ExtendedFormData> }) {
+function ItemThumb({ item, extendedMap, imagesMap }: { item: NguonGen; extendedMap: Record<string, ExtendedFormData>; imagesMap?: Record<string, string> }) {
   const cat = CATEGORY_MAP[item.nhom];
-  const img = extendedMap[item.ma]?.form1?.hinh_anh?.[0];
+  const img = imagesMap?.[item.ma] ?? extendedMap[item.ma]?.form1?.hinh_anh?.[0];
   if (img) {
     return <img src={imageUrl(img, { width: 96, height: 96, resize: "cover" })} alt="" loading="lazy" decoding="async" className="w-11 h-11 rounded-lg object-cover shrink-0 border border-gray-200" />;
   }
@@ -38,7 +39,7 @@ function ItemThumb({ item, extendedMap }: { item: NguonGen; extendedMap: Record<
 
 export default function Sidebar({
   open, onClose, selectedCategory, onCategorySelect,
-  counts, total, items, extendedMap, onItemSelect,
+  counts, total, items, extendedMap, imagesMap, onItemSelect,
 }: SidebarProps) {
   const [search, setSearch] = useState("");
 
@@ -192,7 +193,7 @@ export default function Sidebar({
               onClick={() => handleItemClick(item)}
               className="w-full flex items-start gap-2.5 px-3 py-2.5 hover:bg-green-50 transition-colors text-left"
             >
-              <ItemThumb item={item} extendedMap={extendedMap} />
+              <ItemThumb item={item} extendedMap={extendedMap} imagesMap={imagesMap} />
               <div className="flex-1 min-w-0">
                 <p className="text-sm text-gray-800 leading-snug break-words">
                   <span className="text-gray-400 text-xs font-normal">Tên Việt Nam: </span>

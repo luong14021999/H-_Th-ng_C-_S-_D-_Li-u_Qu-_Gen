@@ -41,6 +41,10 @@ export const apiDelete = (ma: string) =>
 export const apiGetForms = (ma: string) =>
   req<ExtendedFormData>(`/nguon-gen/${ma}/forms`);
 
+// First image per record (for list/sidebar thumbnails)
+export const apiGetImages = () =>
+  req<{ ma: string; anh: string }[]>("/forms/images");
+
 export const apiSaveForm = (
   ma: string,
   formKey: "form1" | "form2" | "form3" | "form4",

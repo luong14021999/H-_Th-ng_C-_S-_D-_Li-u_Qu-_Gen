@@ -11,7 +11,7 @@ import EditModal from "@/components/EditModal";
 import { nguonGenData, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
-import { apiGetAll, apiGetForms, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
+import { apiGetAll, apiGetForms, apiGetImages, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
 import ThongKeTable from "@/components/ThongKeTable";
 import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
@@ -28,6 +28,7 @@ const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 export default function Home() {
   const [data, setData] = useState<NguonGen[]>([]);
   const [extendedMap, setExtendedMap] = useState<Record<string, ExtendedFormData>>({});
+  const [imagesMap, setImagesMap] = useState<Record<string, string>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showTable, setShowTable] = useState(false);
@@ -66,6 +67,13 @@ export default function Home() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Load the first image of every record so the list/sidebar shows real thumbnails.
+  useEffect(() => {
+    apiGetImages()
+      .then((rows) => setImagesMap(Object.fromEntries(rows.map((r) => [r.ma, r.anh]))))
+      .catch(() => { /* thumbnails are optional — ignore */ });
+  }, []);
 
   // Supabase Realtime — sync khi người khác thay đổi
   useEffect(() => {
@@ -294,6 +302,7 @@ export default function Home() {
               total={data.length}
               items={data}
               extendedMap={extendedMap}
+              imagesMap={imagesMap}
               onItemSelect={handleSidebarItemSelect}
             />
             <main className="flex-1 relative flex flex-col overflow-hidden">
