@@ -146,8 +146,8 @@ export const nguonGenData: NguonGen[] = [
   { ma:'VNN.CN.0035', ten:'Lợn Landrace', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:19.9738, lng:105.6465, created_at:'2024-01-06T16:51:00' },
   { ma:'VNN.CN.0036', ten:'Lợn Mán', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:20.1487, lng:105.3679, created_at:'2024-01-06T16:59:00' },
   { ma:'VNN.CN.0037', ten:'Lợn MeiShan', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:19.7246, lng:105.8134, created_at:'2024-01-06T17:03:00' },
-  { ma:'VNN.CN.0039', ten:'Lợn Rừng Thái Lan', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:19.6624, lng:105.5944, created_at:'2024-01-06T17:19:00' },
-  { ma:'VNN.CN.0040', ten:'Lợn Yorshire', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:19.9679, lng:105.6544, created_at:'2024-01-06T17:20:00' },
+  { ma:'VNN.CN.0038', ten:'Lợn Rừng Thái Lan', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:19.6624, lng:105.5944, created_at:'2024-01-06T17:19:00' },
+  { ma:'VNN.CN.0039', ten:'Lợn Yorshire', khoa_hoc:'Sus scrofa domesticus', don_vi:'Chưa có thông tin', phan_nhom:'Tiểu gia súc', nhom:'CN', lat:19.9679, lng:105.6544, created_at:'2024-01-06T17:20:00' },
   // ── NÔNG NGHIỆP (60) ──
   { ma:'VNN.TT.0001', ten:'Bưởi đào', khoa_hoc:'C.maxima', don_vi:'Xuân Lam, Thọ Xuân, Thanh Hóa', phan_nhom:'Cây ăn quả', nhom:'TT', lat:19.9329, lng:105.4176, created_at:'2023-10-25T17:17:00' },
   { ma:'VNN.TT.0002', ten:'Bưởi diễn', khoa_hoc:'Citrus maxima', don_vi:'Khu thực hành trường Cao đẳng Nông nghiệp Thanh Hóa', phan_nhom:'Cây ăn quả', nhom:'TT', lat:19.8393, lng:105.6410, created_at:'2023-10-25T16:56:00' },
