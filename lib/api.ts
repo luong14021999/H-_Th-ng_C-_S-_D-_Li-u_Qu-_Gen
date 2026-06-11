@@ -54,6 +54,26 @@ export const apiSaveForm = (
   return req(`/nguon-gen/${ma}/${formKey}`, { method: "PUT", body: JSON.stringify(data) });
 };
 
+// Combined save — one request (one auth check / rate-limit token) that writes
+// the main record plus every form table. `record` is optional so it can also be
+// used right after apiCreate (which already wrote the row) to save just forms.
+export const apiSave = (
+  ma: string,
+  payload: { record?: Partial<NguonGen>; ext: ExtendedFormData }
+) => {
+  if (!ma) return Promise.reject(new Error("Mã nguồn gen không được trống"));
+  return req(`/nguon-gen/${ma}/save`, {
+    method: "PUT",
+    body: JSON.stringify({
+      record: payload.record,
+      form1: payload.ext.form1,
+      form2: payload.ext.form2,
+      form3: payload.ext.form3,
+      form4: payload.ext.form4,
+    }),
+  });
+};
+
 // ── Images ────────────────────────────────────────────────
 // Uploads go straight from the browser to Supabase Storage so they bypass the
 // Vercel serverless 4.5MB body limit and our own server-side cap. Auth is

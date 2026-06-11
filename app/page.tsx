@@ -11,7 +11,7 @@ import EditModal from "@/components/EditModal";
 import { nguonGenData, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
-import { apiGetAll, apiGetForms, apiGetImages, apiCreate, apiUpdate, apiDelete, apiSaveForm, apiSeed } from "@/lib/api";
+import { apiGetAll, apiGetForms, apiGetImages, apiCreate, apiDelete, apiSave, apiSeed } from "@/lib/api";
 import ThongKeTable from "@/components/ThongKeTable";
 import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
@@ -143,13 +143,7 @@ export default function Home() {
 
   const handleEdit = async (updated: NguonGen, ext: ExtendedFormData) => {
     try {
-      await apiUpdate(updated.ma, updated);
-      await Promise.all([
-        apiSaveForm(updated.ma, "form1", ext.form1),
-        apiSaveForm(updated.ma, "form2", ext.form2),
-        apiSaveForm(updated.ma, "form3", ext.form3),
-        apiSaveForm(updated.ma, "form4", ext.form4),
-      ]);
+      await apiSave(updated.ma, { record: updated, ext });
       // Optimistic update (Realtime will also sync)
       setData((prev) => prev.map((item) => (item.ma === updated.ma ? updated : item)));
       setExtendedMap((prev) => ({ ...prev, [updated.ma]: ext }));
@@ -165,12 +159,7 @@ export default function Home() {
         ? newItem
         : { ...newItem, ma: `NG${Date.now()}` };
       const created = await apiCreate(body);
-      await Promise.all([
-        apiSaveForm(created.ma, "form1", ext.form1),
-        apiSaveForm(created.ma, "form2", ext.form2),
-        apiSaveForm(created.ma, "form3", ext.form3),
-        apiSaveForm(created.ma, "form4", ext.form4),
-      ]);
+      await apiSave(created.ma, { ext });
       setData((prev) => [...prev, created]);
       setExtendedMap((prev) => ({ ...prev, [created.ma]: ext }));
     } catch (err) {
