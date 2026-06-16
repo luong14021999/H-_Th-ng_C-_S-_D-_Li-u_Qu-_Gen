@@ -10,6 +10,38 @@ import { normalizeVi } from "@/lib/text";
 import AutoTextarea from "@/components/AutoTextarea";
 import { imageUrl } from "@/lib/images";
 
+// Image that survives a flaky transform endpoint. Supabase's on-the-fly
+// /render/image transform occasionally 4xx/5xx's on a *just-uploaded* object
+// (transform not warmed up / throttled under concurrent uploads), which shows
+// as a broken thumbnail even though the upload succeeded. We escalate on error:
+//   step 0: transformed URL  →  step 1: transform retry (cache-bust)  →  step 2: original
+// The original public URL always exists once upload returned it, so display is
+// guaranteed. `key={src}` at the call site resets the escalation per image.
+function StorageImage({
+  src,
+  width,
+  height,
+  quality,
+  resize,
+  ...imgProps
+}: {
+  src: string;
+  width?: number;
+  height?: number;
+  quality?: number;
+  resize?: "cover" | "contain" | "fill";
+} & React.ImgHTMLAttributes<HTMLImageElement>) {
+  const [step, setStep] = useState(0);
+  let url: string;
+  if (step >= 2) {
+    url = src; // give up on transforms — load the original
+  } else {
+    url = imageUrl(src, { width, height, quality, resize });
+    if (step === 1) url += (url.includes("?") ? "&" : "?") + "retry=1";
+  }
+  return <img src={url} onError={() => setStep((s) => Math.min(s + 1, 2))} {...imgProps} />;
+}
+
 // Browser-side image compression: kicks in only for very large files to keep
 // upload fast and storage reasonable. Files at or below this threshold are
 // sent to Supabase Storage untouched, preserving original quality.
@@ -462,7 +494,7 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
                   className="block w-full h-full rounded-lg border border-gray-200 overflow-hidden hover:ring-2 hover:ring-green-500 transition-all"
                   title="Nhấn để xem to"
                 >
-                  <img src={imageUrl(src, { width: 240, height: 240, resize: "cover" })} alt={`Ảnh ${idx + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                  <StorageImage key={src} src={src} width={240} height={240} resize="cover" alt={`Ảnh ${idx + 1}`} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </button>
                 <button
                   type="button"
@@ -527,8 +559,13 @@ export default function Form1BasicInfo({ basic, data, isNew, onBasicChange, onDa
               </button>
             </>
           )}
-          <img
-            src={imageUrl((d.hinh_anh ?? [])[lightboxIdx], { width: 1600, height: 1600, resize: "contain", quality: 80 })}
+          <StorageImage
+            key={(d.hinh_anh ?? [])[lightboxIdx]}
+            src={(d.hinh_anh ?? [])[lightboxIdx]}
+            width={1600}
+            height={1600}
+            resize="contain"
+            quality={80}
             alt={`Ảnh ${lightboxIdx + 1}`}
             decoding="async"
             className="max-w-full max-h-full object-contain"

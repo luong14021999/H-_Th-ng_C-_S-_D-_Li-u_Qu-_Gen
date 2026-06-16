@@ -88,7 +88,10 @@ export const apiUploadImage = async (ma: string, file: File): Promise<string> =>
   if (!ALLOWED_TYPES.has(file.type)) throw new Error("Định dạng ảnh không hỗ trợ");
 
   const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase();
-  const path = `${ma}/${Date.now()}.${ext}`;
+  // Unique suffix so several files uploaded in parallel (same millisecond)
+  // never collide under `upsert: false`, which would fail one of them.
+  const rand = Math.random().toString(36).slice(2, 8);
+  const path = `${ma}/${Date.now()}-${rand}.${ext}`;
 
   const { error } = await supabase.storage
     .from(BUCKET)
