@@ -14,7 +14,7 @@ interface DataTableProps {
   onEdit: (updated: NguonGen, ext: ExtendedFormData) => Promise<void>;
   onDelete: (ma: string) => void;
   onAdd: (item: NguonGen, ext: ExtendedFormData) => Promise<void>;
-  onOpenEdit?: (ma: string) => Promise<void>;
+  onOpenEdit?: (ma: string) => Promise<ExtendedFormData | undefined>;
   onClose: () => void;
   activeCategory?: string;
 }
@@ -98,8 +98,12 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
 
   const handleDownload = async (item: NguonGen) => {
     setLoadingDownload(item.ma);
-    if (!extendedMap[item.ma]) await onOpenEdit?.(item.ma);
-    const ext = extendedMap[item.ma] ?? { form1: {}, form2: {}, form3: {}, form4: {} };
+    // Use the value returned by onOpenEdit — `extendedMap` here is the stale
+    // closure value and won't reflect the just-loaded forms.
+    const ext =
+      extendedMap[item.ma] ??
+      (await onOpenEdit?.(item.ma)) ??
+      { form1: {}, form2: {}, form3: {}, form4: {} };
     await exportNguonGenExcel(item, ext);
     setLoadingDownload(null);
   };

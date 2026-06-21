@@ -179,14 +179,17 @@ export default function Home() {
     }
   };
 
-  const handleOpenEdit = async (ma: string) => {
-    if (!extendedMap[ma]) {
-      try {
-        const forms = await apiGetForms(ma);
-        setExtendedMap((prev) => ({ ...prev, [ma]: forms }));
-      } catch {
-        // use empty default
-      }
+  // Returns the loaded forms so callers can use them immediately — reading
+  // `extendedMap` right after this resolves would still see the pre-setState
+  // value (stale closure), which is how Excel downloads lost their form data.
+  const handleOpenEdit = async (ma: string): Promise<ExtendedFormData | undefined> => {
+    if (extendedMap[ma]) return extendedMap[ma];
+    try {
+      const forms = await apiGetForms(ma);
+      setExtendedMap((prev) => ({ ...prev, [ma]: forms }));
+      return forms;
+    } catch {
+      return undefined; // caller falls back to empty defaults
     }
   };
 
