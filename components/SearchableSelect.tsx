@@ -28,6 +28,12 @@ export default function SearchableSelect(props: Props) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  // Only autofocus the search box on pointer (mouse) devices. On touch, focusing
+  // it pops the on-screen keyboard, which resizes the viewport and makes the page
+  // jump the moment the dropdown opens. Touch users can tap the box to type.
+  const autoFocusSearch =
+    typeof window !== "undefined" && !!window.matchMedia?.("(pointer: fine)")?.matches;
+
   const q = normalizeVi(search);
   const filtered = options.filter((o) => normalizeVi(o).includes(q));
 
@@ -80,7 +86,7 @@ export default function SearchableSelect(props: Props) {
         <div className="absolute left-0 top-full mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-50 max-h-56 flex flex-col">
           <div className="flex items-center border-b border-gray-100 px-2">
             <input
-              autoFocus
+              autoFocus={autoFocusSearch}
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
