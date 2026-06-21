@@ -5,6 +5,7 @@ import { BAI_VIET_DATA } from "@/data/baiVietData";
 import { normalizeVi } from "@/lib/text";
 import AutoTextarea from "@/components/AutoTextarea";
 import { sanitizeHtml } from "@/lib/sanitize";
+import { isFinePointer } from "@/lib/pointer";
 
 const NHOM_SECTIONS = [
   { id: "TT", roman: "I",   label: "CÂY TRỒNG NÔNG NGHIỆP" },
@@ -604,7 +605,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
               {popup === "link" && (
                 <div className="bg-white border border-gray-300 rounded shadow-xl p-3 mt-1 w-80">
                   <p className="text-[10px] font-semibold text-gray-700 mb-2">Chèn liên kết</p>
-                  <input autoFocus value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)}
+                  <input autoFocus={isFinePointer()} value={linkUrl} onChange={(e) => setLinkUrl(e.target.value)}
                     placeholder="https://..." onKeyDown={(e) => e.key === "Enter" && insertLink()}
                     className="w-full border border-gray-300 rounded text-xs px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-2" />
                   <div className="flex gap-2 justify-end">
@@ -618,7 +619,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
               {popup === "image" && (
                 <div className="bg-white border border-gray-300 rounded shadow-xl p-3 mt-1 w-80">
                   <p className="text-[10px] font-semibold text-gray-700 mb-2">Chèn ảnh</p>
-                  <input autoFocus value={imgUrl} onChange={(e) => setImgUrl(e.target.value)}
+                  <input autoFocus={isFinePointer()} value={imgUrl} onChange={(e) => setImgUrl(e.target.value)}
                     placeholder="URL ảnh..." className="w-full border border-gray-300 rounded text-xs px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-1" />
                   <input value={imgAlt} onChange={(e) => setImgAlt(e.target.value)}
                     placeholder="Mô tả ảnh (alt)..." className="w-full border border-gray-300 rounded text-xs px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-2" />
@@ -633,7 +634,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
               {popup === "video" && (
                 <div className="bg-white border border-gray-300 rounded shadow-xl p-3 mt-1 w-80">
                   <p className="text-[10px] font-semibold text-gray-700 mb-2">Chèn video (YouTube hoặc URL nhúng)</p>
-                  <input autoFocus value={vidUrl} onChange={(e) => setVidUrl(e.target.value)}
+                  <input autoFocus={isFinePointer()} value={vidUrl} onChange={(e) => setVidUrl(e.target.value)}
                     placeholder="https://youtube.com/..." className="w-full border border-gray-300 rounded text-xs px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-400 mb-2" />
                   <div className="flex gap-2 justify-end">
                     <button onClick={closePopup} className="text-xs text-gray-500 hover:text-gray-700 px-2 py-1">Hủy</button>
@@ -666,7 +667,7 @@ export default function BaiVietKhaiThacPage(_props: Record<string, unknown>) {
           <div className="bg-yellow-50 border-b border-yellow-200 px-3 py-2 flex flex-col gap-1.5 shrink-0">
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-600 w-14 shrink-0">Tìm:</span>
-              <input autoFocus value={search} onChange={(e) => setSearch(e.target.value)}
+              <input autoFocus={isFinePointer()} value={search} onChange={(e) => setSearch(e.target.value)}
                 placeholder="Nhập từ cần tìm..." onKeyDown={(e) => e.key === "Escape" && setShowSearch(false)}
                 className="flex-1 border border-gray-300 rounded px-2 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-yellow-400" />
               <span className="text-xs text-gray-400">

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { normalizeVi } from "@/lib/text";
+import { isFinePointer } from "@/lib/pointer";
 
 interface BaseProps {
   options: string[];
@@ -28,11 +29,8 @@ export default function SearchableSelect(props: Props) {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  // Only autofocus the search box on pointer (mouse) devices. On touch, focusing
-  // it pops the on-screen keyboard, which resizes the viewport and makes the page
-  // jump the moment the dropdown opens. Touch users can tap the box to type.
-  const autoFocusSearch =
-    typeof window !== "undefined" && !!window.matchMedia?.("(pointer: fine)")?.matches;
+  // Only autofocus the search box on pointer (mouse) devices — see isFinePointer.
+  const autoFocusSearch = isFinePointer();
 
   const q = normalizeVi(search);
   const filtered = options.filter((o) => normalizeVi(o).includes(q));
