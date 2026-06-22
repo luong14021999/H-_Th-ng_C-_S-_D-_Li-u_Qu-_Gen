@@ -530,16 +530,34 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       });
     };
 
-    // A count badge for several records stacked on the exact same coordinate.
+    const esc = (s: string) =>
+      s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const itemEmoji = (it: NguonGen) =>
+      PHAN_NHOM_ICONS[it.phan_nhom] ?? CATEGORY_MAP[it.nhom]?.icon ?? "📍";
+
+    // A cluster badge for several records stacked on the exact same coordinate.
+    // Shows the most common category's emoji plus a count, and a hover tooltip
+    // listing the records, so you can tell what's there without clicking.
     const clusterMarker = (lat: number, lng: number, items: NguonGen[], key: string) => {
       const n = items.length;
+      const counts = new Map<string, number>();
+      for (const it of items) counts.set(itemEmoji(it), (counts.get(itemEmoji(it)) ?? 0) + 1);
+      const repEmoji = [...counts.entries()].sort((a, b) => b[1] - a[1])[0][0];
+      const imgHtml = twemojiImgHtml(repEmoji, 18, "display:block;");
       const icon = L.divIcon({
         className: "",
-        html: `<div style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:#15803d;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.55);color:#fff;font-weight:700;font-size:13px;">${n}</div>`,
+        html: `<div style="position:relative;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:rgba(255,255,255,0.95);border:1.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.55);">${imgHtml}<span style="position:absolute;top:-6px;right:-7px;display:flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 3px;border-radius:9999px;background:#15803d;border:1.5px solid #fff;color:#fff;font-weight:700;font-size:11px;line-height:1;">${n}</span></div>`,
         iconSize: [30, 30],
         iconAnchor: [15, 15],
       });
       const marker = L.marker([lat, lng], { icon, title: `${n} nguồn gen cùng vị trí` });
+      const listHtml = items
+        .map((it) => `${itemEmoji(it)} <b>${esc(it.ma)}</b> — ${esc(it.ten)}`)
+        .join("<br>");
+      marker.bindTooltip(
+        `<div style="font-weight:700;margin-bottom:2px;">${n} nguồn gen cùng vị trí</div>${listHtml}`,
+        { direction: "top", offset: [0, -14], opacity: 0.97 }
+      );
       marker.on("click", (e) => {
         L.DomEvent.stopPropagation(e);
         const tool = activeToolRef.current;
