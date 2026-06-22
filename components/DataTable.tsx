@@ -370,6 +370,9 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
                     <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden lg:table-cell whitespace-nowrap">
                       Ngày nhập liệu
                     </th>
+                    <th className="text-left px-3 py-3 font-semibold text-white text-xs hidden lg:table-cell whitespace-nowrap">
+                      Tọa độ (Vĩ độ, Kinh độ)
+                    </th>
                     <th className="text-center px-3 py-3 font-semibold text-white text-xs w-24">Thao tác</th>
                   </tr>
                 </thead>
@@ -403,6 +406,9 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
                           {cat && <p className="text-xs text-gray-400 mt-0.5">{cat.icon} {cat.label}</p>}
                         </td>
                         <td className="px-3 py-2.5 text-xs text-gray-500 hidden lg:table-cell whitespace-nowrap">{formatDate(item.created_at)}</td>
+                        <td className="px-3 py-2.5 text-xs text-gray-600 hidden lg:table-cell whitespace-nowrap font-mono">
+                          {item.lat && item.lng ? `${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}` : "—"}
+                        </td>
                         <td className="px-3 py-2.5">
                           <div className="flex items-center justify-center gap-1">
                             <button
@@ -540,6 +546,9 @@ export default function DataTable({ data, extendedMap, onEdit, onDelete, onAdd, 
                               <span className="text-xs text-gray-400">· {item.don_vi}</span>
                             )}
                             <span className="text-xs text-gray-400">{formatDate(item.created_at)}</span>
+                            {item.lat && item.lng && (
+                              <span className="text-xs text-gray-400 font-mono">📍 {item.lat.toFixed(5)}, {item.lng.toFixed(5)}</span>
+                            )}
                           </div>
                         </div>
                         {/* Actions */}
