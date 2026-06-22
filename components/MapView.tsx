@@ -206,6 +206,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
         maxZoom: 19,
         subdomains: "abcd",
         attribution: SAT_LABELS_ATTR,
+        opacity: 0.7, // let the place names recede behind the gene markers
       }).addTo(map);
       labelLayerRef.current = labels;
     }
@@ -456,12 +457,14 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     data.forEach((item) => {
       const cat = CATEGORY_MAP[item.nhom];
       const markerEmoji = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍";
-      const imgHtml = twemojiImgHtml(markerEmoji, 22, "filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));");
+      const imgHtml = twemojiImgHtml(markerEmoji, 20, "display:block;");
+      // Wrap each emoji in a white circular chip so it separates cleanly from
+      // the place-name labels and the busy satellite imagery behind it.
       const icon = L.divIcon({
         className: "",
-        html: `<div style="line-height:0;">${imgHtml}</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9999px;background:rgba(255,255,255,0.95);border:1.5px solid rgba(255,255,255,0.95);box-shadow:0 1px 4px rgba(0,0,0,0.55);">${imgHtml}</div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14],
       });
 
       const marker = L.marker([item.lat, item.lng], { icon, title: item.ten });
