@@ -165,7 +165,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   // "Nơi phân bố" highlight mode.
   const [distInfo, setDistInfo] = useState<{ ten: string; total: number; found: number } | null>(null);
   const [distLoading, setDistLoading] = useState<{ done: number; total: number } | null>(null);
-  const [satMap, setSatMap] = useState(false);
+  const [satMap, setSatMap] = useState(true); // satellite basemap by default
   const satMapRef = useRef(satMap);
   satMapRef.current = satMap;
 
