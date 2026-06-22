@@ -18,6 +18,7 @@ import { NguonGen, CATEGORY_MAP, CATEGORIES, PHAN_NHOM_ICONS } from "@/data/nguo
 import { twemojiImgHtml } from "@/lib/twemoji";
 import { apiGetForms } from "@/lib/api";
 import { geocodeDistribution } from "@/lib/geocode";
+import { THANH_HOA_BOUNDARY } from "@/data/thanhHoaBoundary";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
 
@@ -423,6 +424,13 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     });
 
     mapRef.current = map;
+
+    // Thanh Hóa province outline (drawn above the basemap/labels, below markers).
+    L.geoJSON(THANH_HOA_BOUNDARY, {
+      interactive: false,
+      style: { color: "#ff7800", weight: 2.5, fill: false },
+    }).addTo(map);
+
     layerGroupRef.current = L.layerGroup().addTo(map);
     distLayerRef.current = L.layerGroup().addTo(map);
 
