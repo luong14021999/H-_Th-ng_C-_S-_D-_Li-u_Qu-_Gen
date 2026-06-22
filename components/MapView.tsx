@@ -16,6 +16,8 @@ L.Icon.Default.mergeOptions({
 });
 import { NguonGen, CATEGORY_MAP, CATEGORIES, PHAN_NHOM_ICONS } from "@/data/nguonGen";
 import { twemojiImgHtml } from "@/lib/twemoji";
+import { apiGetForms } from "@/lib/api";
+import { geocodeDistribution } from "@/lib/geocode";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
 
@@ -128,6 +130,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
+  const distLayerRef = useRef<L.LayerGroup | null>(null);
+  const distActiveRef = useRef(false);
   const activeToolRef = useRef<string>("none");
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const measurePointsRef = useRef<[number, number][]>([]);
@@ -141,6 +145,9 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const [showLegend, setShowLegend] = useState(false);
   const [showLinhVucPanel, setShowLinhVucPanel] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  // "Nơi phân bố" highlight mode.
+  const [distInfo, setDistInfo] = useState<{ ten: string; total: number; found: number } | null>(null);
+  const [distLoading, setDistLoading] = useState<{ done: number; total: number } | null>(null);
 
   const showToast = useCallback((msg: string, duration = 2800) => {
     setToast(msg);
@@ -263,6 +270,79 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     }
   };
 
+  // ── "Nơi phân bố" highlight mode ──
+  // Geocode the record's free-text distribution field and show only those
+  // points glowing on the map (the normal gene markers are hidden until exit).
+  const showDistribution = useCallback(async (item: NguonGen) => {
+    const map = mapRef.current;
+    const distLayer = distLayerRef.current;
+    if (!map || !distLayer) return;
+
+    setPopup(null);
+    setDistInfo(null);
+    setDistLoading({ done: 0, total: 0 });
+
+    let text = "";
+    try {
+      const forms = await apiGetForms(item.ma);
+      text = forms.form1?.noi_phan_bo ?? "";
+    } catch {
+      /* fall through to the empty-text guard */
+    }
+
+    if (!text.trim()) {
+      setDistLoading(null);
+      showToast("Nguồn gen này chưa có thông tin Nơi phân bố", 3500);
+      return;
+    }
+
+    const { points, total, resolved } = await geocodeDistribution(text, (done, t) =>
+      setDistLoading({ done, total: t })
+    );
+    setDistLoading(null);
+
+    // Hide the normal markers, draw the glowing distribution points.
+    if (layerGroupRef.current && map.hasLayer(layerGroupRef.current)) {
+      map.removeLayer(layerGroupRef.current);
+    }
+    distLayer.clearLayers();
+    const bounds: [number, number][] = [];
+    points.forEach((p) => {
+      const icon = L.divIcon({
+        className: "",
+        html: `<div class="dist-glow"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      const m = L.marker([p.lat, p.lng], { icon, title: p.names.join(", ") });
+      m.bindTooltip(p.names.join(", ") + (p.approx ? " — vị trí cấp huyện" : ""), {
+        direction: "top",
+        offset: [0, -8],
+      });
+      distLayer.addLayer(m);
+      bounds.push([p.lat, p.lng]);
+    });
+
+    distActiveRef.current = true;
+    setDistInfo({ ten: item.ten, total, found: resolved });
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
+    } else {
+      showToast("Không định vị được địa danh nào trong Nơi phân bố (OSM thiếu dữ liệu cấp xã)", 4500);
+    }
+  }, [showToast]);
+
+  const exitDistribution = useCallback(() => {
+    const map = mapRef.current;
+    distActiveRef.current = false;
+    distLayerRef.current?.clearLayers();
+    if (map && layerGroupRef.current && !map.hasLayer(layerGroupRef.current)) {
+      map.addLayer(layerGroupRef.current);
+    }
+    setDistInfo(null);
+    setDistLoading(null);
+  }, []);
+
   // Initialize map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -296,6 +376,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
 
     mapRef.current = map;
     layerGroupRef.current = L.layerGroup().addTo(map);
+    distLayerRef.current = L.layerGroup().addTo(map);
 
     // Leaflet measures the container once at init. If the container later grows
     // (layout settling, mobile category bar, orientation change, font/data load
@@ -309,6 +390,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       map.remove();
       mapRef.current = null;
       layerGroupRef.current = null;
+      distLayerRef.current = null;
       measureLayerRef.current = null;
     };
   }, [onAddNewAtPoint, doMeasure]);
@@ -363,7 +445,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       bounds.push([item.lat, item.lng]);
     });
 
-    if (bounds.length > 0) map.fitBounds(bounds, { padding: [40, 40] });
+    // Don't steal the viewport while the "Nơi phân bố" highlight is showing.
+    if (bounds.length > 0 && !distActiveRef.current) map.fitBounds(bounds, { padding: [40, 40] });
   }, [data, onDeleteItem, doMeasure]);
 
   const isMeasureActive = activeTool.startsWith("measure-");
@@ -631,6 +714,33 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
         </div>
       )}
 
+      {/* ── "Nơi phân bố" banner ── */}
+      {(distLoading || distInfo) && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1001] bg-amber-500 text-white text-xs sm:text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg flex items-center gap-2 max-w-[calc(100%-1.5rem)]">
+          {distLoading ? (
+            <>
+              <span className="w-3.5 h-3.5 border-2 border-white/60 border-t-transparent rounded-full animate-spin shrink-0" />
+              <span className="truncate">
+                Đang tìm vị trí phân bố{distLoading.total ? ` (${distLoading.done}/${distLoading.total})` : "…"}
+              </span>
+            </>
+          ) : distInfo ? (
+            <>
+              <span aria-hidden>📍</span>
+              <span className="truncate">
+                Nơi phân bố: {distInfo.ten} — {distInfo.found}/{distInfo.total} vị trí
+              </span>
+              <button
+                onClick={exitDistribution}
+                className="ml-1 bg-white/20 hover:bg-white/30 rounded-full px-2 py-0.5 shrink-0"
+              >
+                Thoát
+              </button>
+            </>
+          ) : null}
+        </div>
+      )}
+
       {/* ── Marker popup ── */}
       {popup && (() => {
         const item = popup.item;
@@ -646,18 +756,26 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           </div>
         );
         const actions = (
-          <div className="flex gap-3 pt-1">
+          <div className="flex flex-col gap-2 pt-1">
+            <div className="flex gap-3">
+              <button
+                onClick={() => { setPopup(null); onViewDetail?.(item); }}
+                className="flex-1 text-center text-sm font-medium text-green-700 border border-green-600 rounded-lg py-1.5 hover:bg-green-50 transition-colors"
+              >
+                Xem thêm
+              </button>
+              <button
+                onClick={() => { const it = popup!.item; setPopup(null); router.push(`/tim-duong?ma=${encodeURIComponent(it.ma)}`); }}
+                className="flex-1 text-center text-sm font-medium text-blue-700 border border-blue-500 rounded-lg py-1.5 hover:bg-blue-50 transition-colors"
+              >
+                Chỉ đường
+              </button>
+            </div>
             <button
-              onClick={() => { setPopup(null); onViewDetail?.(item); }}
-              className="flex-1 text-center text-sm font-medium text-green-700 border border-green-600 rounded-lg py-1.5 hover:bg-green-50 transition-colors"
+              onClick={() => showDistribution(item)}
+              className="w-full text-center text-sm font-medium text-amber-700 border border-amber-500 rounded-lg py-1.5 hover:bg-amber-50 transition-colors flex items-center justify-center gap-1.5"
             >
-              Xem thêm
-            </button>
-            <button
-              onClick={() => { const it = popup!.item; setPopup(null); router.push(`/tim-duong?ma=${encodeURIComponent(it.ma)}`); }}
-              className="flex-1 text-center text-sm font-medium text-blue-700 border border-blue-500 rounded-lg py-1.5 hover:bg-blue-50 transition-colors"
-            >
-              Chỉ đường
+              <span aria-hidden>📍</span> Nơi phân bố
             </button>
           </div>
         );
