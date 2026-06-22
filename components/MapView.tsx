@@ -21,17 +21,18 @@ import { geocodeDistribution } from "@/lib/geocode";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
 
-// Basemaps: light (OSM standard) and dark (CartoDB Dark Matter). The dark map
-// makes gene markers and the glowing "Nơi phân bố" points stand out.
+// Basemaps: light (OSM standard) and satellite (Esri World Imagery). The
+// satellite map's natural green terrain suits the agriculture theme and makes
+// gene markers and the glowing "Nơi phân bố" points stand out.
 const LIGHT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const LIGHT_ATTR = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
-const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-const DARK_ATTR = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>';
+const SAT_TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
+const SAT_ATTR = 'Tiles © <a href="https://www.esri.com/">Esri</a> — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
 
-function addBasemap(map: L.Map, dark: boolean): L.TileLayer {
-  const layer = L.tileLayer(dark ? DARK_TILES : LIGHT_TILES, {
-    attribution: dark ? DARK_ATTR : LIGHT_ATTR,
-    subdomains: dark ? "abcd" : "abc",
+function addBasemap(map: L.Map, satellite: boolean): L.TileLayer {
+  const layer = L.tileLayer(satellite ? SAT_TILES : LIGHT_TILES, {
+    attribution: satellite ? SAT_ATTR : LIGHT_ATTR,
+    subdomains: satellite ? "" : "abc",
     maxZoom: 19,
   }).addTo(map);
   layer.bringToBack();
@@ -166,9 +167,9 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   // "Nơi phân bố" highlight mode.
   const [distInfo, setDistInfo] = useState<{ ten: string; total: number; found: number } | null>(null);
   const [distLoading, setDistLoading] = useState<{ done: number; total: number } | null>(null);
-  const [darkMap, setDarkMap] = useState(false);
-  const darkMapRef = useRef(darkMap);
-  darkMapRef.current = darkMap;
+  const [satMap, setSatMap] = useState(false);
+  const satMapRef = useRef(satMap);
+  satMapRef.current = satMap;
 
   const showToast = useCallback((msg: string, duration = 2800) => {
     setToast(msg);
@@ -374,7 +375,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       zoomControl: false,
     });
 
-    tileLayerRef.current = addBasemap(map, darkMapRef.current);
+    tileLayerRef.current = addBasemap(map, satMapRef.current);
 
     measureLayerRef.current = L.layerGroup().addTo(map);
     map.on("click", (e) => {
@@ -475,8 +476,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     const map = mapRef.current;
     if (!map) return;
     if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
-    tileLayerRef.current = addBasemap(map, darkMap);
-  }, [darkMap]);
+    tileLayerRef.current = addBasemap(map, satMap);
+  }, [satMap]);
 
   const isMeasureActive = activeTool.startsWith("measure-");
   const cursorClass =
@@ -502,7 +503,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
 
 
   return (
-    <div className={`w-full h-full relative ${cursorClass} ${darkMap ? "map-dark-green" : ""}`}>
+    <div className={`w-full h-full relative ${cursorClass}`}>
       <div ref={containerRef} className="w-full h-full" />
 
       {/* ── Right toolbar ── */}
@@ -535,16 +536,10 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           </svg>
         </ToolButton>
 
-        <ToolButton title={darkMap ? "Nền sáng" : "Nền tối"} onClick={() => setDarkMap((d) => !d)} active={darkMap}>
-          {darkMap ? (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
-          )}
+        <ToolButton title={satMap ? "Bản đồ thường" : "Bản đồ vệ tinh"} onClick={() => setSatMap((d) => !d)} active={satMap}>
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
         </ToolButton>
 
         <ToolButton locked={!isAdmin} title="Xóa nguồn gen" onClick={() => requireAdmin(() => { activateTool(activeTool === "delete" ? "none" : "delete"); showToast("Nhấn vào marker để xóa nguồn gen", 4000); })} active={activeTool === "delete"}>
