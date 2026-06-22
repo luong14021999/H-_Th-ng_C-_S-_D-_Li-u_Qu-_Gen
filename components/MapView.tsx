@@ -30,7 +30,11 @@ const LIGHT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const LIGHT_ATTR = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const SAT_TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const SAT_ATTR = 'Tiles © <a href="https://www.esri.com/">Esri</a> — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
-const SAT_LABELS = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
+// Labels overlay rendered from OpenStreetMap (CARTO), which tracks Vietnam's
+// 2025 administrative reform — Tỉnh → Xã/Phường, no Huyện — better than Esri's
+// reference layer. Transparent: place names only, no basemap fill.
+const SAT_LABELS = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png";
+const SAT_LABELS_ATTR = '© <a href="https://carto.com/attributions">CARTO</a>';
 
 interface MapViewProps {
   data: NguonGen[];
@@ -194,7 +198,11 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (satellite) {
       // Transparent reference layer drawn above the imagery but still in the
       // tile pane, so it stays below the gene markers / glow points.
-      const labels = L.tileLayer(SAT_LABELS, { maxZoom: 19, attribution: "" }).addTo(map);
+      const labels = L.tileLayer(SAT_LABELS, {
+        maxZoom: 19,
+        subdomains: "abcd",
+        attribution: SAT_LABELS_ATTR,
+      }).addTo(map);
       labelLayerRef.current = labels;
     }
   }, []);
