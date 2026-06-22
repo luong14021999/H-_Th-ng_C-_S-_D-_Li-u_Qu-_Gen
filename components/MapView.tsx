@@ -191,6 +191,10 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       attribution: satellite ? SAT_ATTR : LIGHT_ATTR,
       subdomains: satellite ? "" : "abc",
       maxZoom: 19,
+      // Esri imagery runs out of high-res tiles over rural areas and returns a
+      // grey "Map data not yet available" placeholder past ~z18. Cap the native
+      // zoom so Leaflet upscales z18 imagery instead of requesting those.
+      ...(satellite ? { maxNativeZoom: 18 } : {}),
     }).addTo(map);
     base.bringToBack();
     tileLayerRef.current = base;
