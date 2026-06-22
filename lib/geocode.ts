@@ -23,9 +23,32 @@ export interface GeoPoint {
   approx: boolean;
 }
 
+import { THANH_HOA_BOUNDARY } from "@/data/thanhHoaBoundary";
+
 // Thanh Hóa province bounding box: viewbox = lonMin,latMax,lonMax,latMin.
 const VIEWBOX = "104.3,20.8,106.2,19.1";
 const PROVINCE = "Thanh Hóa, Việt Nam";
+
+// Point-in-polygon (ray casting) against the real province outline — the bbox
+// alone lets matches in neighbouring provinces slip through.
+function pointInRing(lng: number, lat: number, ring: number[][]): boolean {
+  let inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    if ((yi > lat) !== (yj > lat) && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) {
+      inside = !inside;
+    }
+  }
+  return inside;
+}
+
+function inProvince(lng: number, lat: number): boolean {
+  const rings = THANH_HOA_BOUNDARY.coordinates as number[][][];
+  if (!pointInRing(lng, lat, rings[0])) return false;
+  for (let h = 1; h < rings.length; h++) if (pointInRing(lng, lat, rings[h])) return false;
+  return true;
+}
 
 // query string -> resolved point (or null when nothing was found).
 const cache = new Map<string, { lat: number; lng: number } | null>();
@@ -140,18 +163,40 @@ export interface GeocodeResult {
   resolved: number; // place names that got a coordinate
 }
 
+// Spread points that share a coordinate (e.g. several communes that fell back
+// to the same district centre) into a small ring so each glow is individually
+// visible and the lit count matches the number of places found.
+function jitterColocated(points: GeoPoint[]): void {
+  const groups = new Map<string, GeoPoint[]>();
+  for (const p of points) {
+    const k = `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
+    const g = groups.get(k);
+    if (g) g.push(p);
+    else groups.set(k, [p]);
+  }
+  for (const g of groups.values()) {
+    if (g.length < 2) continue;
+    const r = 0.0035; // ~350 m
+    g.forEach((p, i) => {
+      const a = (2 * Math.PI * i) / g.length;
+      p.lat += r * Math.sin(a);
+      p.lng += (r * Math.cos(a)) / Math.cos((p.lat * Math.PI) / 180);
+    });
+  }
+}
+
 // Geocode every place sequentially (natural rate-limiting that respects
-// Nominatim's usage policy). Points that collapse onto the same coordinate
-// (e.g. several communes falling back to one district centre) are merged so the
-// map shows one glow per location. `onProgress` reports done/total.
+// Nominatim's usage policy). Each place that resolves to a point *inside the
+// province* becomes its own glow; out-of-province matches are dropped, and
+// points that land on the same coordinate are spread apart. `onProgress`
+// reports done/total.
 export async function geocodeDistribution(
   text: string,
   onProgress?: (done: number, total: number) => void,
 ): Promise<GeocodeResult> {
   const places = parsePlaces(text);
-  const byKey = new Map<string, GeoPoint>();
+  const points: GeoPoint[] = [];
   let done = 0;
-  let resolved = 0;
   onProgress?.(0, places.length);
 
   for (const p of places) {
@@ -159,24 +204,11 @@ export async function geocodeDistribution(
     done++;
     onProgress?.(done, places.length);
     if (!r) continue;
-    resolved++;
+    if (!inProvince(r.lng, r.lat)) continue; // outside Thanh Hóa — false match
     const label = p.district ? `${p.name} (${p.district})` : p.name;
-    const key = `${r.lat.toFixed(3)},${r.lng.toFixed(3)}`;
-    const existing = byKey.get(key);
-    if (existing) {
-      existing.names.push(label);
-      existing.approx = existing.approx && r.approx;
-    } else {
-      byKey.set(key, {
-        name: p.name,
-        district: p.district,
-        lat: r.lat,
-        lng: r.lng,
-        names: [label],
-        approx: r.approx,
-      });
-    }
+    points.push({ name: p.name, district: p.district, lat: r.lat, lng: r.lng, names: [label], approx: r.approx });
   }
 
-  return { points: [...byKey.values()], total: places.length, resolved };
+  jitterColocated(points);
+  return { points, total: places.length, resolved: points.length };
 }
