@@ -49,20 +49,24 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Pulsing glow marker for the "Nơi phân bố" highlight mode on the map. */
+/* Pulsing glow marker for the "Nơi phân bố" highlight mode on the map. A bright
+   core with a constant halo plus an expanding ring so it stands out on both the
+   light and dark basemaps. */
 .dist-glow {
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   border-radius: 9999px;
-  background: #f59e0b;
+  background: radial-gradient(circle, #fffbeb 0%, #fbbf24 45%, #f59e0b 100%);
   border: 2px solid #fff;
-  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
-  animation: distPulse 1.5s infinite;
+  box-shadow:
+    0 0 10px 3px rgba(251, 191, 36, 0.95),
+    0 0 0 0 rgba(251, 191, 36, 0.7);
+  animation: distPulse 1.4s ease-out infinite;
 }
 @keyframes distPulse {
-  0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
-  70% { box-shadow: 0 0 0 16px rgba(245, 158, 11, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+  0% { box-shadow: 0 0 10px 3px rgba(251, 191, 36, 0.95), 0 0 0 0 rgba(251, 191, 36, 0.7); }
+  70% { box-shadow: 0 0 10px 3px rgba(251, 191, 36, 0.95), 0 0 0 20px rgba(251, 191, 36, 0); }
+  100% { box-shadow: 0 0 10px 3px rgba(251, 191, 36, 0.95), 0 0 0 0 rgba(251, 191, 36, 0); }
 }
 
 /* Any scroll container reserves its scrollbar's width up-front, so content

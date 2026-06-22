@@ -21,6 +21,23 @@ import { geocodeDistribution } from "@/lib/geocode";
 
 const MAP_CENTER: [number, number] = [20.0, 105.5];
 
+// Basemaps: light (OSM standard) and dark (CartoDB Dark Matter). The dark map
+// makes gene markers and the glowing "Nơi phân bố" points stand out.
+const LIGHT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+const LIGHT_ATTR = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const DARK_TILES = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+const DARK_ATTR = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/attributions">CARTO</a>';
+
+function addBasemap(map: L.Map, dark: boolean): L.TileLayer {
+  const layer = L.tileLayer(dark ? DARK_TILES : LIGHT_TILES, {
+    attribution: dark ? DARK_ATTR : LIGHT_ATTR,
+    subdomains: dark ? "abcd" : "abc",
+    maxZoom: 19,
+  }).addTo(map);
+  layer.bringToBack();
+  return layer;
+}
+
 interface MapViewProps {
   data: NguonGen[];
   isAdmin?: boolean;
@@ -132,6 +149,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
   const distLayerRef = useRef<L.LayerGroup | null>(null);
   const distActiveRef = useRef(false);
+  const tileLayerRef = useRef<L.TileLayer | null>(null);
   const activeToolRef = useRef<string>("none");
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const measurePointsRef = useRef<[number, number][]>([]);
@@ -148,6 +166,9 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   // "Nơi phân bố" highlight mode.
   const [distInfo, setDistInfo] = useState<{ ten: string; total: number; found: number } | null>(null);
   const [distLoading, setDistLoading] = useState<{ done: number; total: number } | null>(null);
+  const [darkMap, setDarkMap] = useState(false);
+  const darkMapRef = useRef(darkMap);
+  darkMapRef.current = darkMap;
 
   const showToast = useCallback((msg: string, duration = 2800) => {
     setToast(msg);
@@ -311,8 +332,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       const icon = L.divIcon({
         className: "",
         html: `<div class="dist-glow"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
       const m = L.marker([p.lat, p.lng], { icon, title: p.names.join(", ") });
       m.bindTooltip(p.names.join(", ") + (p.approx ? " — vị trí cấp huyện" : ""), {
@@ -353,10 +374,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       zoomControl: false,
     });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-    }).addTo(map);
+    tileLayerRef.current = addBasemap(map, darkMapRef.current);
 
     measureLayerRef.current = L.layerGroup().addTo(map);
     map.on("click", (e) => {
@@ -449,6 +467,17 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (bounds.length > 0 && !distActiveRef.current) map.fitBounds(bounds, { padding: [40, 40] });
   }, [data, onDeleteItem, doMeasure]);
 
+  // Swap the basemap when the dark toggle changes (the init effect already set
+  // the initial one, so skip the first run to avoid a redundant tile reload).
+  const firstBasemapRun = useRef(true);
+  useEffect(() => {
+    if (firstBasemapRun.current) { firstBasemapRun.current = false; return; }
+    const map = mapRef.current;
+    if (!map) return;
+    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
+    tileLayerRef.current = addBasemap(map, darkMap);
+  }, [darkMap]);
+
   const isMeasureActive = activeTool.startsWith("measure-");
   const cursorClass =
     isMeasureActive || activeTool === "add" ? "[&_.leaflet-container]:!cursor-crosshair" : "";
@@ -504,6 +533,18 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 7l3-3M3 7l3 3M21 7l-3-3M21 7l-3 3M7 7v10M17 7v10M3 17h18M3 17l3-3M3 17l3 3M21 17l-3-3M21 17l-3 3" />
           </svg>
+        </ToolButton>
+
+        <ToolButton title={darkMap ? "Nền sáng" : "Nền tối"} onClick={() => setDarkMap((d) => !d)} active={darkMap}>
+          {darkMap ? (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          )}
         </ToolButton>
 
         <ToolButton locked={!isAdmin} title="Xóa nguồn gen" onClick={() => requireAdmin(() => { activateTool(activeTool === "delete" ? "none" : "delete"); showToast("Nhấn vào marker để xóa nguồn gen", 4000); })} active={activeTool === "delete"}>
