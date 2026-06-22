@@ -49,6 +49,13 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Tint the dark basemap toward a deep agricultural green. The filter only
+   touches the tile pane, so gene markers, the glow points and labels keep their
+   own colours. Tune hue-rotate/saturate to shift the green. */
+.map-dark-green .leaflet-tile-pane {
+  filter: brightness(0.78) sepia(0.7) hue-rotate(58deg) saturate(2.4);
+}
+
 /* Pulsing glow marker for the "Nơi phân bố" highlight mode on the map. A bright
    core with a constant halo plus an expanding ring so it stands out on both the
    light and dark basemaps. */

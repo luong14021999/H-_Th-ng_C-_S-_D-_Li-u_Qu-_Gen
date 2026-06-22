@@ -502,7 +502,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
 
 
   return (
-    <div className={`w-full h-full relative ${cursorClass}`}>
+    <div className={`w-full h-full relative ${cursorClass} ${darkMap ? "map-dark-green" : ""}`}>
       <div ref={containerRef} className="w-full h-full" />
 
       {/* ── Right toolbar ── */}
