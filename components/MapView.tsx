@@ -149,6 +149,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
   const distLayerRef = useRef<L.LayerGroup | null>(null);
   const distActiveRef = useRef(false);
+  const spiderLayerRef = useRef<L.LayerGroup | null>(null);
+  const expandedKeyRef = useRef<string | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const labelLayerRef = useRef<L.TileLayer | null>(null);
   const activeToolRef = useRef<string>("none");
@@ -422,6 +424,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
         return;
       }
       setPopup(null);
+      spiderLayerRef.current?.clearLayers();
+      expandedKeyRef.current = null;
     });
 
     mapRef.current = map;
@@ -439,6 +443,10 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
 
     layerGroupRef.current = L.layerGroup().addTo(map);
     distLayerRef.current = L.layerGroup().addTo(map);
+    spiderLayerRef.current = L.layerGroup().addTo(map);
+
+    // Collapse an expanded same-coordinate cluster on zoom.
+    map.on("zoomstart", () => { spiderLayerRef.current?.clearLayers(); expandedKeyRef.current = null; });
 
     // Leaflet measures the container once at init. If the container later grows
     // (layout settling, mobile category bar, orientation change, font/data load
@@ -453,6 +461,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       mapRef.current = null;
       layerGroupRef.current = null;
       distLayerRef.current = null;
+      spiderLayerRef.current = null;
       tileLayerRef.current = null;
       labelLayerRef.current = null;
       measureLayerRef.current = null;
@@ -466,27 +475,26 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (!map || !group) return;
 
     group.clearLayers();
-    const bounds: [number, number][] = [];
+    spiderLayerRef.current?.clearLayers();
+    expandedKeyRef.current = null;
 
-    data.forEach((item) => {
+    // A gene marker (emoji in a white chip) at a given position. `pos` can be an
+    // offset position for a spiderfied child, while the data/popup still refer to
+    // the real record.
+    const geneMarker = (item: NguonGen, pos: [number, number]) => {
       const cat = CATEGORY_MAP[item.nhom];
-      const markerEmoji = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍";
-      const imgHtml = twemojiImgHtml(markerEmoji, 20, "display:block;");
-      // Wrap each emoji in a white circular chip so it separates cleanly from
-      // the place-name labels and the busy satellite imagery behind it.
+      const emoji = PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍";
+      const imgHtml = twemojiImgHtml(emoji, 20, "display:block;");
       const icon = L.divIcon({
         className: "",
         html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:9999px;background:rgba(255,255,255,0.95);border:1.5px solid rgba(255,255,255,0.95);box-shadow:0 1px 4px rgba(0,0,0,0.55);">${imgHtml}</div>`,
         iconSize: [28, 28],
         iconAnchor: [14, 14],
       });
-
-      const marker = L.marker([item.lat, item.lng], { icon, title: item.ten });
-
+      const marker = L.marker(pos, { icon, title: item.ten });
       marker.on("click", (e) => {
         L.DomEvent.stopPropagation(e);
         const tool = activeToolRef.current;
-
         if (tool === "delete") {
           if (confirm(`Xóa nguồn gen "${item.ten}"?`)) {
             onDeleteItem?.(item.ma);
@@ -495,21 +503,79 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           }
           return;
         }
-
         if (tool === "measure-distance" || tool === "measure-area") {
-          doMeasure(item.lat, item.lng);
+          doMeasure(pos[0], pos[1]);
           return;
         }
-
-        const containerEl = containerRef.current;
-        if (!containerEl) return;
-        const point = map.latLngToContainerPoint([item.lat, item.lng]);
+        const point = map.latLngToContainerPoint(pos);
         setPopup({ item, x: point.x, y: point.y });
       });
+      return marker;
+    };
 
-      group.addLayer(marker);
+    // Fan out the records that share one exact coordinate so each is clickable.
+    const spiderfy = (lat: number, lng: number, items: NguonGen[]) => {
+      const sl = spiderLayerRef.current;
+      if (!sl) return;
+      sl.clearLayers();
+      const center = map.latLngToLayerPoint([lat, lng]);
+      const n = items.length;
+      const radius = 22 + n * 6;
+      items.forEach((item, i) => {
+        const angle = (2 * Math.PI * i) / n - Math.PI / 2;
+        const p = L.point(center.x + radius * Math.cos(angle), center.y + radius * Math.sin(angle));
+        const ll = map.layerPointToLatLng(p);
+        L.polyline([[lat, lng], [ll.lat, ll.lng]], { color: "#ffffff", weight: 1, opacity: 0.6 }).addTo(sl);
+        sl.addLayer(geneMarker(item, [ll.lat, ll.lng]));
+      });
+    };
+
+    // A count badge for several records stacked on the exact same coordinate.
+    const clusterMarker = (lat: number, lng: number, items: NguonGen[], key: string) => {
+      const n = items.length;
+      const icon = L.divIcon({
+        className: "",
+        html: `<div style="display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:9999px;background:#15803d;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,0.55);color:#fff;font-weight:700;font-size:13px;">${n}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      });
+      const marker = L.marker([lat, lng], { icon, title: `${n} nguồn gen cùng vị trí` });
+      marker.on("click", (e) => {
+        L.DomEvent.stopPropagation(e);
+        const tool = activeToolRef.current;
+        if (tool === "measure-distance" || tool === "measure-area") { doMeasure(lat, lng); return; }
+        if (tool === "delete") return;
+        if (expandedKeyRef.current === key) {
+          spiderLayerRef.current?.clearLayers();
+          expandedKeyRef.current = null;
+        } else {
+          setPopup(null);
+          spiderfy(lat, lng, items);
+          expandedKeyRef.current = key;
+        }
+      });
+      return marker;
+    };
+
+    // Group records by exact coordinate; only exact duplicates get a cluster.
+    const groups = new Map<string, NguonGen[]>();
+    const bounds: [number, number][] = [];
+    for (const item of data) {
+      const key = `${item.lat.toFixed(5)},${item.lng.toFixed(5)}`;
+      const g = groups.get(key);
+      if (g) g.push(item);
+      else groups.set(key, [item]);
       bounds.push([item.lat, item.lng]);
-    });
+    }
+
+    for (const [key, items] of groups) {
+      if (items.length === 1) {
+        group.addLayer(geneMarker(items[0], [items[0].lat, items[0].lng]));
+      } else {
+        const [lat, lng] = key.split(",").map(Number);
+        group.addLayer(clusterMarker(lat, lng, items, key));
+      }
+    }
 
     // Don't steal the viewport while the "Nơi phân bố" highlight is showing.
     if (bounds.length > 0 && !distActiveRef.current) map.fitBounds(bounds, { padding: [40, 40] });
