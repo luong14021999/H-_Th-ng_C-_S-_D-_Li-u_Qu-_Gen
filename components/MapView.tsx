@@ -23,21 +23,14 @@ const MAP_CENTER: [number, number] = [20.0, 105.5];
 
 // Basemaps: light (OSM standard) and satellite (Esri World Imagery). The
 // satellite map's natural green terrain suits the agriculture theme and makes
-// gene markers and the glowing "Nơi phân bố" points stand out.
+// gene markers and the glowing "Nơi phân bố" points stand out. Esri imagery is
+// label-free, so in satellite mode we overlay a transparent reference layer
+// (boundaries + place names) so xã/phường/huyện/tỉnh are still readable.
 const LIGHT_TILES = "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const LIGHT_ATTR = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 const SAT_TILES = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}";
 const SAT_ATTR = 'Tiles © <a href="https://www.esri.com/">Esri</a> — Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community';
-
-function addBasemap(map: L.Map, satellite: boolean): L.TileLayer {
-  const layer = L.tileLayer(satellite ? SAT_TILES : LIGHT_TILES, {
-    attribution: satellite ? SAT_ATTR : LIGHT_ATTR,
-    subdomains: satellite ? "" : "abc",
-    maxZoom: 19,
-  }).addTo(map);
-  layer.bringToBack();
-  return layer;
-}
+const SAT_LABELS = "https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}";
 
 interface MapViewProps {
   data: NguonGen[];
@@ -151,6 +144,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const distLayerRef = useRef<L.LayerGroup | null>(null);
   const distActiveRef = useRef(false);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
+  const labelLayerRef = useRef<L.TileLayer | null>(null);
   const activeToolRef = useRef<string>("none");
   const measureLayerRef = useRef<L.LayerGroup | null>(null);
   const measurePointsRef = useRef<[number, number][]>([]);
@@ -182,6 +176,28 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (onLoginRequired) onLoginRequired();
     else showToast("Vui lòng đăng nhập với quyền admin để sử dụng tính năng này", 3000);
   }, [isAdmin, onLoginRequired, showToast]);
+
+  // (Re)build the basemap. Satellite mode = Esri imagery + a transparent label
+  // overlay (boundaries + xã/phường/huyện/tỉnh names); light mode = OSM only.
+  const applyBasemap = useCallback((map: L.Map, satellite: boolean) => {
+    if (tileLayerRef.current) { map.removeLayer(tileLayerRef.current); tileLayerRef.current = null; }
+    if (labelLayerRef.current) { map.removeLayer(labelLayerRef.current); labelLayerRef.current = null; }
+
+    const base = L.tileLayer(satellite ? SAT_TILES : LIGHT_TILES, {
+      attribution: satellite ? SAT_ATTR : LIGHT_ATTR,
+      subdomains: satellite ? "" : "abc",
+      maxZoom: 19,
+    }).addTo(map);
+    base.bringToBack();
+    tileLayerRef.current = base;
+
+    if (satellite) {
+      // Transparent reference layer drawn above the imagery but still in the
+      // tile pane, so it stays below the gene markers / glow points.
+      const labels = L.tileLayer(SAT_LABELS, { maxZoom: 19, attribution: "" }).addTo(map);
+      labelLayerRef.current = labels;
+    }
+  }, []);
 
   const exportMapImage = useCallback(async () => {
     const el = containerRef.current;
@@ -375,7 +391,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       zoomControl: false,
     });
 
-    tileLayerRef.current = addBasemap(map, satMapRef.current);
+    applyBasemap(map, satMapRef.current);
 
     measureLayerRef.current = L.layerGroup().addTo(map);
     map.on("click", (e) => {
@@ -410,9 +426,11 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       mapRef.current = null;
       layerGroupRef.current = null;
       distLayerRef.current = null;
+      tileLayerRef.current = null;
+      labelLayerRef.current = null;
       measureLayerRef.current = null;
     };
-  }, [onAddNewAtPoint, doMeasure]);
+  }, [onAddNewAtPoint, doMeasure, applyBasemap]);
 
   // Sync markers whenever data changes
   useEffect(() => {
@@ -475,9 +493,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (firstBasemapRun.current) { firstBasemapRun.current = false; return; }
     const map = mapRef.current;
     if (!map) return;
-    if (tileLayerRef.current) map.removeLayer(tileLayerRef.current);
-    tileLayerRef.current = addBasemap(map, satMap);
-  }, [satMap]);
+    applyBasemap(map, satMap);
+  }, [satMap, applyBasemap]);
 
   const isMeasureActive = activeTool.startsWith("measure-");
   const cursorClass =
