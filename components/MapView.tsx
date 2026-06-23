@@ -406,6 +406,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       center: MAP_CENTER,
       zoom: 9,
       zoomControl: false,
+      attributionControl: false,
     });
 
     applyBasemap(map, satMapRef.current);
