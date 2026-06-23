@@ -56,6 +56,19 @@ const ALIAS: Record<string, string> = {
   lc: "lang chanh", nx: "nhu xuan", nc: "nong cong", tx: "thuong xuan",
   ds: "dong son", "c thuy": "cam thuy",
 };
+// Normalized district key -> proper accented display name.
+const DISTRICT_DISPLAY: Record<string, string> = {
+  "thanh hoa": "Thanh Hóa", "bim son": "Bỉm Sơn", "sam son": "Sầm Sơn",
+  "ba thuoc": "Bá Thước", "cam thuy": "Cẩm Thủy", "dong son": "Đông Sơn",
+  "ha trung": "Hà Trung", "hau loc": "Hậu Lộc", "hoang hoa": "Hoằng Hóa",
+  "lang chanh": "Lang Chánh", "muong lat": "Mường Lát", "nga son": "Nga Sơn",
+  "ngoc lac": "Ngọc Lặc", "nhu thanh": "Như Thanh", "nhu xuan": "Như Xuân",
+  "nong cong": "Nông Cống", "quan hoa": "Quan Hóa", "quan son": "Quan Sơn",
+  "quang xuong": "Quảng Xương", "thach thanh": "Thạch Thành", "thieu hoa": "Thiệu Hóa",
+  "tho xuan": "Thọ Xuân", "thuong xuan": "Thường Xuân", "tinh gia": "Tĩnh Gia",
+  "nghi son": "Nghi Sơn", "trieu son": "Triệu Sơn", "vinh loc": "Vĩnh Lộc",
+  "yen dinh": "Yên Định",
+};
 
 function strip(s: string): string {
   return s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
@@ -72,7 +85,22 @@ function findDist(s: string): string {
   return DISTRICTS.find((d) => t.includes(d)) ?? "";
 }
 
-export interface Place { name: string; district: string }
+// Tidy a place name for display: keep the original diacritics, drop the
+// administrative prefix, trim stray punctuation, and capitalize each word.
+function cleanDisplay(s: string): string {
+  const t = s
+    .replace(/\([^)]*\)?/g, " ") // drop any leftover parenthetical (district remnant)
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^(xã|xa\.?|phường|phuong|thị trấn|thi tran|tt\.?|thôn|thon|bản|ban|huyện|huyen|thành phố|thanh pho|tp\.?)\s+/i, "")
+    .replace(/^[–—()[\]\\.,;\s]+|[–—()[\]\\.,;\s]+$/g, "");
+  return t
+    .split(/\s+/)
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(" ");
+}
+
+export interface Place { name: string; district: string; nameDisplay: string; districtDisplay: string }
 
 function splitEntry(raw: string): Place {
   let s = raw.trim();
@@ -100,12 +128,16 @@ function splitEntry(raw: string): Place {
       if (n.endsWith(" " + d) && n.length - d.length > 3) {
         n = n.slice(0, n.length - d.length).trim();
         dist = d;
+        // drop the same trailing district words from the display string too
+        const wc = d.split(" ").length;
+        s = s.trim().split(/\s+/).slice(0, -wc).join(" ");
         break;
       }
     }
   }
+  const nameDisplay = cleanDisplay(s);
   if (n.length < 2) { n = ""; dist = dist || "thanh hoa"; }
-  return { name: n, district: dist };
+  return { name: n, district: dist, nameDisplay, districtDisplay: DISTRICT_DISPLAY[dist] ?? "" };
 }
 
 export function parsePlaces(text: string): Place[] {
@@ -210,8 +242,8 @@ export async function geocodeDistribution(
     onProgress?.(done, places.length);
     if (!r) continue;
     if (!inProvince(r.lng, r.lat)) continue;
-    const label = p.district ? `${p.name} (${p.district})` : p.name;
-    points.push({ name: p.name, district: p.district, lat: r.lat, lng: r.lng, names: [label], approx: r.approx });
+    const label = p.districtDisplay ? `${p.nameDisplay} (${p.districtDisplay})` : p.nameDisplay;
+    points.push({ name: p.nameDisplay, district: p.districtDisplay, lat: r.lat, lng: r.lng, names: [label], approx: r.approx });
   }
 
   jitterColocated(points);
