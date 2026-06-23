@@ -1,36 +1,31 @@
-// Forward-geocode the free-text "Nơi phân bố/nuôi/trồng" field into map points
-// via OpenStreetMap Nominatim (already used elsewhere in the app for routing /
-// reverse-geocoding).
+// Turn the free-text "Nơi phân bố/nuôi/trồng" field into map points.
 //
-// Reality check: OSM has good DISTRICT (huyện) coverage for Thanh Hóa but very
-// sparse COMMUNE (xã) coverage, and bare commune names without a district can
-// resolve to the wrong province entirely. So we:
-//   1. constrain every query to the Thanh Hóa bounding box (bounded=1), which
-//      throws out out-of-province false matches; and
-//   2. try the precise "commune, district, province" query first, then fall
-//      back to "district, province" (reliable) when the commune isn't found.
-// Net effect: points resolve at commune precision where OSM has it, else at the
-// district centre. Results are cached per query for the session.
+// Strategy (most accurate first):
+//   1. Look up a precomputed local table (data/thanhHoaPlaces.ts) keyed by the
+//      normalized "<xã>|<huyện>" — built offline from OpenStreetMap + a one-off
+//      Nominatim pass, all validated inside the province. Covers ~86% of the
+//      place names currently in the data, commune-precise where OSM has it.
+//   2. Fall back to the district (huyện) centre when only the district is known.
+//   3. Last resort: live Nominatim (network), constrained to the province bbox.
+// Every resulting point is checked against the real province polygon, and points
+// landing on the same coordinate are spread apart so each is visible.
+
+import { THANH_HOA_BOUNDARY } from "@/data/thanhHoaBoundary";
+import { PLACE_COORDS, DISTRICT_COORDS } from "@/data/thanhHoaPlaces";
 
 export interface GeoPoint {
   name: string;
   district?: string;
   lat: number;
   lng: number;
-  /** All place labels that collapsed onto this point (district-level matches). */
   names: string[];
-  /** True when this resolved at district granularity (commune not in OSM). */
-  approx: boolean;
+  approx: boolean; // true when only resolved to the district centre
 }
 
-import { THANH_HOA_BOUNDARY } from "@/data/thanhHoaBoundary";
-
-// Thanh Hóa province bounding box: viewbox = lonMin,latMax,lonMax,latMin.
 const VIEWBOX = "104.3,20.8,106.2,19.1";
 const PROVINCE = "Thanh Hóa, Việt Nam";
 
-// Point-in-polygon (ray casting) against the real province outline — the bbox
-// alone lets matches in neighbouring provinces slip through.
+// ── Province polygon test (the bbox alone lets neighbouring provinces slip in) ──
 function pointInRing(lng: number, lat: number, ring: number[][]): boolean {
   let inside = false;
   for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
@@ -42,7 +37,6 @@ function pointInRing(lng: number, lat: number, ring: number[][]): boolean {
   }
   return inside;
 }
-
 function inProvince(lng: number, lat: number): boolean {
   const rings = THANH_HOA_BOUNDARY.coordinates as number[][][];
   if (!pointInRing(lng, lat, rings[0])) return false;
@@ -50,86 +44,105 @@ function inProvince(lng: number, lat: number): boolean {
   return true;
 }
 
-// query string -> resolved point (or null when nothing was found).
-const cache = new Map<string, { lat: number; lng: number } | null>();
-
-// Abbreviations occasionally used for districts in the free text.
-const DISTRICT_ALIASES: Record<string, string> = {
-  lc: "Lang Chánh",
-  nx: "Như Xuân",
-  nc: "Nông Cống",
-  tx: "Thường Xuân",
+// ── Parsing (mirrors the offline build so the local-table keys line up) ──
+const DISTRICTS = [
+  "thanh hoa", "bim son", "sam son", "ba thuoc", "cam thuy", "dong son", "ha trung",
+  "hau loc", "hoang hoa", "lang chanh", "muong lat", "nga son", "ngoc lac", "nhu thanh",
+  "nhu xuan", "nong cong", "quan hoa", "quan son", "quang xuong", "thach thanh",
+  "thieu hoa", "tho xuan", "thuong xuan", "tinh gia", "nghi son", "trieu son",
+  "vinh loc", "yen dinh",
+];
+const ALIAS: Record<string, string> = {
+  lc: "lang chanh", nx: "nhu xuan", nc: "nong cong", tx: "thuong xuan",
+  ds: "dong son", "c thuy": "cam thuy",
 };
 
-function normDistrict(d: string): string {
-  const t = d.trim();
-  return DISTRICT_ALIASES[t.toLowerCase()] ?? t;
+function strip(s: string): string {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+}
+const PREF = /^(xa\.?|phuong|thi tran|tt\.?|huyen|thanh pho|tp\.?|thon|ban)\s+/;
+function norm(s: string): string {
+  let t = strip(s);
+  for (let i = 0; i < 2; i++) t = t.replace(PREF, "");
+  return t.replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+}
+function findDist(s: string): string {
+  let t = strip(s).trim();
+  t = ALIAS[t] ?? t;
+  return DISTRICTS.find((d) => t.includes(d)) ?? "";
 }
 
-// Split the field into individual { name, district } entries. The text is a
-// comma/semicolon list where a name may carry its district in parentheses, and
-// several "name (district)" groups can appear inside one comma-part without a
-// separator (e.g. "Bắc Lương (Thọ Xuân) Minh Nghĩa (Nông Cống)").
-export function parsePlaces(text: string): { name: string; district?: string }[] {
+export interface Place { name: string; district: string }
+
+function splitEntry(raw: string): Place {
+  let s = raw.trim();
+  let dist = "";
+  const par = s.match(/\(([^)]*)\)/);
+  if (par && par.index !== undefined) {
+    dist = dist || findDist(par[1]);
+    s = s.slice(0, par.index) + " " + s.slice(par.index + par[0].length);
+  }
+  if (/(?:huyen|huyện|tp|thành phố|thanh pho)/i.test(s)) {
+    const after = s.replace(/.*?(?:huyen|huyện|tp|thành phố|thanh pho)/i, "");
+    dist = dist || findDist(after);
+    s = s.replace(/(?:huyện|huyen|tp\.?|thành phố|thanh pho).*$/i, "");
+  }
+  if (!dist && /[–—-]/.test(s)) {
+    const parts = s.split(/\s*[–—-]\s*/);
+    if (parts.length >= 2) {
+      const d = findDist(parts.slice(1).join(" "));
+      if (d) { s = parts[0]; dist = d; }
+    }
+  }
+  let n = norm(s);
+  if (!dist) {
+    for (const d of DISTRICTS) {
+      if (n.endsWith(" " + d) && n.length - d.length > 3) {
+        n = n.slice(0, n.length - d.length).trim();
+        dist = d;
+        break;
+      }
+    }
+  }
+  if (n.length < 2) { n = ""; dist = dist || "thanh hoa"; }
+  return { name: n, district: dist };
+}
+
+export function parsePlaces(text: string): Place[] {
   if (!text) return [];
-  const out: { name: string; district?: string }[] = [];
-
-  for (const rawPart of text.split(/[,;]/)) {
-    const part = rawPart.trim();
-    if (!part) continue;
-
-    const re = /([^()]+?)\s*\(([^)]*)\)/g;
-    let m: RegExpExecArray | null;
-    let lastIndex = 0;
-    let matched = false;
-    while ((m = re.exec(part))) {
-      matched = true;
-      const name = m[1].trim();
-      const district = m[2].trim();
-      if (name) out.push({ name, district: district ? normDistrict(district) : undefined });
-      lastIndex = re.lastIndex;
-    }
-    if (!matched) {
-      out.push({ name: part });
-    } else {
-      const trailing = part.slice(lastIndex).trim();
-      if (trailing) out.push({ name: trailing });
-    }
-  }
-
-  // De-dupe by name + district (case-insensitive).
+  const out: Place[] = [];
   const seen = new Set<string>();
-  return out.filter((p) => {
-    const k = `${p.name}|${p.district ?? ""}`.toLowerCase();
-    if (seen.has(k)) return false;
+  for (const part of text.split(/[,;]/)) {
+    const p = part.trim();
+    if (!p) continue;
+    const e = splitEntry(p);
+    if (!e.name) continue;
+    const k = `${e.name}|${e.district}`;
+    if (seen.has(k)) continue;
     seen.add(k);
-    return true;
-  });
-}
-
-// Ordered candidate queries for one place: most precise first.
-function candidates(name: string, district?: string): string[] {
-  const clean = name.replace(/^TT\.?\s+/i, "Thị trấn ").trim();
-  if (district) {
-    return [`${clean}, ${district}, ${PROVINCE}`, `${district}, ${PROVINCE}`];
+    out.push(e);
   }
-  return [`${clean}, ${PROVINCE}`];
+  return out;
 }
 
+// ── Resolution ──
+function resolveLocal(name: string, district: string): { lat: number; lng: number; approx: boolean } | null {
+  const exact = PLACE_COORDS[`${name}|${district}`] ?? PLACE_COORDS[`${name}|`];
+  if (exact) return { lat: exact[0], lng: exact[1], approx: false };
+  const dc = district ? DISTRICT_COORDS[district] : undefined;
+  if (dc) return { lat: dc[0], lng: dc[1], approx: true };
+  return null;
+}
+
+const cache = new Map<string, { lat: number; lng: number } | null>();
 async function fetchNominatim(q: string): Promise<{ lat: number; lng: number } | null> {
   if (cache.has(q)) return cache.get(q)!;
   try {
     const url =
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=vn` +
       `&viewbox=${VIEWBOX}&bounded=1&q=${encodeURIComponent(q)}`;
-    const res = await fetch(url, {
-      headers: { "Accept-Language": "vi" },
-      signal: AbortSignal.timeout(8000),
-    });
-    if (!res.ok) {
-      cache.set(q, null);
-      return null;
-    }
+    const res = await fetch(url, { headers: { "Accept-Language": "vi" }, signal: AbortSignal.timeout(8000) });
+    if (!res.ok) { cache.set(q, null); return null; }
     const arr = await res.json();
     if (Array.isArray(arr) && arr[0]?.lat && arr[0]?.lon) {
       const pt = { lat: parseFloat(arr[0].lat), lng: parseFloat(arr[0].lon) };
@@ -139,44 +152,31 @@ async function fetchNominatim(q: string): Promise<{ lat: number; lng: number } |
     cache.set(q, null);
     return null;
   } catch {
-    return null; // network/timeout — don't cache, allow a later retry
+    return null;
   }
 }
-
-// Try each candidate in order; returns the first hit plus whether it was the
-// precise (index 0) match or a district-level fallback.
-async function geocodeOne(
-  name: string,
-  district?: string,
-): Promise<{ lat: number; lng: number; approx: boolean } | null> {
-  const cands = candidates(name, district);
-  for (let i = 0; i < cands.length; i++) {
-    const pt = await fetchNominatim(cands[i]);
-    if (pt) return { ...pt, approx: i > 0 };
+async function geocodeRemote(name: string, district: string): Promise<{ lat: number; lng: number } | null> {
+  const queries = district && district !== "thanh hoa"
+    ? [`${name}, ${district}, ${PROVINCE}`, `${district}, ${PROVINCE}`]
+    : [`${name}, ${PROVINCE}`];
+  for (const q of queries) {
+    const pt = await fetchNominatim(q);
+    if (pt && inProvince(pt.lng, pt.lat)) return pt;
   }
   return null;
 }
 
-export interface GeocodeResult {
-  points: GeoPoint[];
-  total: number; // place names parsed from the field
-  resolved: number; // place names that got a coordinate
-}
-
-// Spread points that share a coordinate (e.g. several communes that fell back
-// to the same district centre) into a small ring so each glow is individually
-// visible and the lit count matches the number of places found.
+// Spread points sharing a coordinate into a small ring so each glow shows.
 function jitterColocated(points: GeoPoint[]): void {
   const groups = new Map<string, GeoPoint[]>();
   for (const p of points) {
     const k = `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`;
     const g = groups.get(k);
-    if (g) g.push(p);
-    else groups.set(k, [p]);
+    if (g) g.push(p); else groups.set(k, [p]);
   }
   for (const g of groups.values()) {
     if (g.length < 2) continue;
-    const r = 0.0035; // ~350 m
+    const r = 0.0035;
     g.forEach((p, i) => {
       const a = (2 * Math.PI * i) / g.length;
       p.lat += r * Math.sin(a);
@@ -185,11 +185,12 @@ function jitterColocated(points: GeoPoint[]): void {
   }
 }
 
-// Geocode every place sequentially (natural rate-limiting that respects
-// Nominatim's usage policy). Each place that resolves to a point *inside the
-// province* becomes its own glow; out-of-province matches are dropped, and
-// points that land on the same coordinate are spread apart. `onProgress`
-// reports done/total.
+export interface GeocodeResult {
+  points: GeoPoint[];
+  total: number;
+  resolved: number;
+}
+
 export async function geocodeDistribution(
   text: string,
   onProgress?: (done: number, total: number) => void,
@@ -200,11 +201,15 @@ export async function geocodeDistribution(
   onProgress?.(0, places.length);
 
   for (const p of places) {
-    const r = await geocodeOne(p.name, p.district);
+    let r = resolveLocal(p.name, p.district);
+    if (!r) {
+      const remote = await geocodeRemote(p.name, p.district);
+      if (remote) r = { ...remote, approx: !p.district ? false : true };
+    }
     done++;
     onProgress?.(done, places.length);
     if (!r) continue;
-    if (!inProvince(r.lng, r.lat)) continue; // outside Thanh Hóa — false match
+    if (!inProvince(r.lng, r.lat)) continue;
     const label = p.district ? `${p.name} (${p.district})` : p.name;
     points.push({ name: p.name, district: p.district, lat: r.lat, lng: r.lng, names: [label], approx: r.approx });
   }
