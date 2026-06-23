@@ -167,7 +167,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const [showLinhVucPanel, setShowLinhVucPanel] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   // "Nơi phân bố" highlight mode.
-  const [distInfo, setDistInfo] = useState<{ ten: string; total: number; found: number } | null>(null);
+  const [distInfo, setDistInfo] = useState<{ ten: string; found: number } | null>(null);
   const [distLoading, setDistLoading] = useState<{ done: number; total: number } | null>(null);
   const [satMap, setSatMap] = useState(true); // satellite basemap by default
   const satMapRef = useRef(satMap);
@@ -351,7 +351,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       return;
     }
 
-    const { points, total, resolved } = await geocodeDistribution(text, (done, t) =>
+    const { points, resolved } = await geocodeDistribution(text, (done, t) =>
       setDistLoading({ done, total: t })
     );
     setDistLoading(null);
@@ -379,7 +379,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     });
 
     distActiveRef.current = true;
-    setDistInfo({ ten: item.ten, total, found: resolved });
+    setDistInfo({ ten: item.ten, found: resolved });
     if (bounds.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13 });
     } else {
@@ -894,7 +894,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
             <>
               <span aria-hidden>📍</span>
               <span className="truncate">
-                Nơi phân bố: {distInfo.ten} — {distInfo.found}/{distInfo.total} vị trí
+                Nơi phân bố: {distInfo.ten} — {distInfo.found} vị trí
               </span>
               <button
                 onClick={exitDistribution}
