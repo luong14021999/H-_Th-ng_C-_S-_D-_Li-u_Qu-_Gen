@@ -199,13 +199,13 @@ export default function Home() {
     setSidebarEditItem(item);
   };
 
-  if (loading || seeding) {
+  // Only the one-time first-run seed blocks the whole page (it replaces all data).
+  // A normal load renders the app shell immediately and fills data in when ready.
+  if (seeding) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-gray-50 gap-3">
         <div className="w-8 h-8 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-gray-500">
-          {seeding ? "Đang khởi tạo dữ liệu lần đầu..." : "Đang tải dữ liệu..."}
-        </p>
+        <p className="text-sm text-gray-500">Đang khởi tạo dữ liệu lần đầu...</p>
       </div>
     );
   }
@@ -252,6 +252,13 @@ export default function Home() {
           setShowTable(false);
         }}
       />
+
+      {loading && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-[1500] bg-white/95 shadow-lg rounded-full px-4 py-1.5 flex items-center gap-2 text-sm text-gray-600 border border-gray-200 pointer-events-none">
+          <span className="w-4 h-4 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
+          Đang tải dữ liệu…
+        </div>
+      )}
 
       <div className="flex flex-1 overflow-hidden pb-nav-safe md:pb-0">
         {activeDanhMuc === "dm-nhom-nguon-gen" ? (
