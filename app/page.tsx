@@ -11,7 +11,7 @@ import EditModal from "@/components/EditModal";
 import { nguonGenData, NguonGen } from "@/data/nguonGen";
 import { ExtendedFormData } from "@/data/extendedTypes";
 import { supabase } from "@/lib/supabase";
-import { apiGetAll, apiGetForms, apiGetImages, apiCreate, apiDelete, apiSave, apiSeed } from "@/lib/api";
+import { apiGetAll, apiGetForms, apiGetImages, apiGetLocations, apiCreate, apiDelete, apiSave, apiSeed } from "@/lib/api";
 import ThongKeTable from "@/components/ThongKeTable";
 import ThongKeDonViHC from "@/components/ThongKeDonViHC";
 import ThongKeNhomNguonGen from "@/components/ThongKeNhomNguonGen";
@@ -29,6 +29,7 @@ export default function Home() {
   const [data, setData] = useState<NguonGen[]>([]);
   const [extendedMap, setExtendedMap] = useState<Record<string, ExtendedFormData>>({});
   const [imagesMap, setImagesMap] = useState<Record<string, string>>({});
+  const [locationsMap, setLocationsMap] = useState<Record<string, { huyen: string; xa: string; nguon_giao: string }>>({});
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [showTable, setShowTable] = useState(false);
@@ -73,6 +74,13 @@ export default function Home() {
     apiGetImages()
       .then((rows) => setImagesMap(Object.fromEntries(rows.map((r) => [r.ma, r.anh]))))
       .catch(() => { /* thumbnails are optional — ignore */ });
+  }, []);
+
+  // Load collection district/ward (form1) for the statistics pages.
+  useEffect(() => {
+    apiGetLocations()
+      .then((rows) => setLocationsMap(Object.fromEntries(rows.map((r) => [r.ma, { huyen: r.huyen, xa: r.xa, nguon_giao: r.nguon_giao }]))))
+      .catch(() => { /* stats fall back to empty — ignore */ });
   }, []);
 
   // Supabase Realtime — sync khi người khác thay đổi
@@ -264,7 +272,7 @@ export default function Home() {
         {activeDanhMuc === "dm-nhom-nguon-gen" ? (
           <NhomNguonGenTable />
         ) : activeDanhMuc === "dm-don-vi-sx" ? (
-          <DonViSanXuatTable data={data} />
+          <DonViSanXuatTable data={data} locations={locationsMap} />
         ) : activeDanhMuc === "dm-phuong-thuc-bao-ton" ? (
           <PhuongThucBaoTonTable />
         ) : activeDanhMuc === "dm-hinh-thuc-bao-ton" ? (
@@ -276,7 +284,7 @@ export default function Home() {
         ) : activeStats === "tk-don-vi-quan-ly" ? (
           <ThongKeTable data={data} />
         ) : activeStats === "tk-don-vi-hc" ? (
-          <ThongKeDonViHC data={data} />
+          <ThongKeDonViHC data={data} locations={locationsMap} />
         ) : activeStats === "tk-nhom" ? (
           <ThongKeNhomNguonGen data={data} />
         ) : showTable && isAdmin ? (

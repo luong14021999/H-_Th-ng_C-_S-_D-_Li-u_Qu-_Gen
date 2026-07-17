@@ -3,7 +3,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { NguonGen, CATEGORIES, PHAN_NHOM_BY_NHOM } from "@/data/nguonGen";
-import { DISTRICTS_THANH_HOA, WARDS_BY_DISTRICT } from "@/data/thanhHoaAdmin";
 import { normalizeVi } from "@/lib/text";
 
 interface HCRow {
@@ -13,17 +12,22 @@ interface HCRow {
 
 interface Props {
   data: NguonGen[];
+  // Collection district/ward (form1 "Nơi thu thập") per record — the accurate
+  // source for the administrative-unit statistics.
+  locations: Record<string, { huyen: string; xa: string }>;
 }
 
 const PAGE_SIZES = [10, 20, 50];
 
-// Find which Thanh Hóa district the don_vi belongs to by substring match
-function extractDistrict(donVi: string): string {
-  const dv = (donVi ?? "").toLowerCase();
-  for (const d of DISTRICTS_THANH_HOA) {
-    if (dv.includes(d.toLowerCase())) return d;
-  }
-  return "";
+// Normalize a place name for grouping/display: trim and Title-Case so case
+// variants ("Nghi sơn" / "Nghi Sơn") collapse to one bucket.
+function canon(s: string): string {
+  return (s ?? "")
+    .trim()
+    .replace(/^(huyện|thị xã|thị trấn|thành phố|tp\.?|tx\.?|thị|xã|phường)\s+/i, "")
+    .split(/\s+/)
+    .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w))
+    .join(" ");
 }
 
 // ── Bar chart ────────────────────────────────────────────────────────────────
@@ -278,18 +282,14 @@ function NhomTreeDropdown({ nhomId, phanNhom, onSelect }: {
 function SidebarContent({
   filterDistrict, filterWard, filterNhomId, filterPhanNhom,
   setFilterDistrict, setFilterWard, setFilterNhomId, setFilterPhanNhom,
-  setPage, reportType, setReportType, districtOptions,
+  setPage, reportType, setReportType, districtOptions, wardOptions,
 }: {
   filterDistrict: string; filterWard: string; filterNhomId: string; filterPhanNhom: string;
   setFilterDistrict: (v: string) => void; setFilterWard: (v: string) => void;
   setFilterNhomId: (v: string) => void; setFilterPhanNhom: (v: string) => void;
   setPage: (p: number) => void; reportType: "list" | "chart";
-  setReportType: (v: "list" | "chart") => void; districtOptions: string[];
+  setReportType: (v: "list" | "chart") => void; districtOptions: string[]; wardOptions: string[];
 }) {
-  const wardOptions = filterDistrict
-    ? (WARDS_BY_DISTRICT[filterDistrict] ?? [])
-    : Object.values(WARDS_BY_DISTRICT).flat();
-
   return (
     <>
       <FilterSection title="Loại báo cáo">
@@ -339,7 +339,7 @@ function SidebarContent({
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function ThongKeDonViHC({ data }: Props) {
+export default function ThongKeDonViHC({ data, locations }: Props) {
   const [sortAsc, setSortAsc] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
@@ -354,27 +354,49 @@ export default function ThongKeDonViHC({ data }: Props) {
 
   useEffect(() => { setMounted(true); }, []);
 
-  // Step 1: filter individual records by nhom/phan_nhom and ward
+  const huyenOf = (ma: string) => canon(locations[ma]?.huyen ?? "");
+  const xaOf = (ma: string) => canon(locations[ma]?.xa ?? "");
+
+  // Step 1: filter individual records by nhom/phan_nhom and ward (form1 Nơi thu thập)
   const filteredRecords = useMemo(() => {
     return data.filter((item) => {
       if (filterPhanNhom && item.phan_nhom !== filterPhanNhom) return false;
       if (filterNhomId && !filterPhanNhom && item.nhom !== filterNhomId) return false;
-      if (filterWard && !normalizeVi(item.don_vi ?? "").includes(normalizeVi(filterWard))) return false;
+      if (filterWard && !normalizeVi(xaOf(item.ma)).includes(normalizeVi(filterWard))) return false;
       return true;
     });
-  }, [data, filterNhomId, filterPhanNhom, filterWard]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, locations, filterNhomId, filterPhanNhom, filterWard]);
 
-  // Step 2: group by district
+  // Step 2: group by collection district (form1 noi_thu_thap_huyen)
   const allRows = useMemo<HCRow[]>(() => {
     const map = new Map<string, number>();
     for (const item of filteredRecords) {
-      const d = extractDistrict(item.don_vi ?? "");
+      const d = huyenOf(item.ma);
       map.set(d, (map.get(d) ?? 0) + 1);
     }
     return Array.from(map.entries()).map(([district, count]) => ({ district, count }));
-  }, [filteredRecords]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filteredRecords, locations]);
 
-  const districtOptions = DISTRICTS_THANH_HOA;
+  // District / ward options come from the actual collection data.
+  const districtOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const item of data) { const h = huyenOf(item.ma); if (h) set.add(h); }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "vi"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, locations]);
+
+  const wardOptions = useMemo(() => {
+    const set = new Set<string>();
+    for (const item of data) {
+      if (filterDistrict && huyenOf(item.ma) !== filterDistrict) continue;
+      const x = xaOf(item.ma);
+      if (x) set.add(x);
+    }
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "vi"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, locations, filterDistrict]);
 
   // Step 3: filter rows by district, then sort
   const rows = useMemo<HCRow[]>(() => {
@@ -411,7 +433,7 @@ export default function ThongKeDonViHC({ data }: Props) {
   const sidebarProps = {
     filterDistrict, filterWard, filterNhomId, filterPhanNhom,
     setFilterDistrict, setFilterWard, setFilterNhomId, setFilterPhanNhom,
-    setPage, reportType, setReportType, districtOptions,
+    setPage, reportType, setReportType, districtOptions, wardOptions,
   };
 
   return (
@@ -496,7 +518,7 @@ export default function ThongKeDonViHC({ data }: Props) {
                 <thead>
                   <tr style={{ backgroundColor: "#5b8fa8" }} className="text-white">
                     <th className="px-3 sm:px-4 py-3 text-center font-semibold w-10 sm:w-12">#</th>
-                    <th className="px-3 sm:px-4 py-3 text-left font-semibold">Quận/huyện</th>
+                    <th className="px-3 sm:px-4 py-3 text-left font-semibold">Xã/Phường</th>
                     <th
                       className="px-3 sm:px-4 py-3 text-right font-semibold cursor-pointer select-none whitespace-nowrap"
                       onClick={() => { setSortAsc((v) => !v); setPage(1); }}

@@ -4,7 +4,11 @@ import { useState, useMemo } from "react";
 import { NguonGen } from "@/data/nguonGen";
 import { normalizeVi } from "@/lib/text";
 
-interface Props { data: NguonGen[]; }
+interface Props {
+  data: NguonGen[];
+  // form1 "Người/cơ quan giao, trồng/cấp giống" (nguon_giao) per record.
+  locations: Record<string, { nguon_giao: string }>;
+}
 
 function formatDate(iso?: string) {
   if (!iso) return "—";
@@ -24,7 +28,7 @@ const IconFilter = () => (
   </svg>
 );
 
-export default function DonViSanXuatTable({ data }: Props) {
+export default function DonViSanXuatTable({ data, locations }: Props) {
   const [search, setSearch] = useState("");
   const [dateMode, setDateMode] = useState<"all" | "custom">("all");
   const [fromDate, setFromDate] = useState("");
@@ -33,15 +37,18 @@ export default function DonViSanXuatTable({ data }: Props) {
   const [pageSize, setPageSize] = useState(20);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
+  // List the distinct supplying units from form1 (nguon_giao), keeping the
+  // earliest-seen record's date for the date filter/sort.
   const allRows = useMemo(() => {
     const map = new Map<string, string>();
     data.forEach((item) => {
-      if (item.don_vi && !map.has(item.don_vi)) map.set(item.don_vi, item.created_at ?? "");
+      const ten = (locations[item.ma]?.nguon_giao ?? "").trim();
+      if (ten && !map.has(ten)) map.set(ten, item.created_at ?? "");
     });
     return Array.from(map.entries())
       .map(([ten, created_at]) => ({ ten, created_at }))
       .sort((a, b) => b.created_at.localeCompare(a.created_at));
-  }, [data]);
+  }, [data, locations]);
 
   const filtered = useMemo(() => {
     let rows = allRows;

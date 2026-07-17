@@ -45,6 +45,11 @@ export const apiGetForms = (ma: string) =>
 export const apiGetImages = () =>
   req<{ ma: string; anh: string }[]>("/forms/images");
 
+// Form1 fields (collection district/ward + supplying unit) per record — used by
+// the statistics and catalog pages.
+export const apiGetLocations = () =>
+  req<{ ma: string; huyen: string; xa: string; nguon_giao: string }[]>("/forms/locations");
+
 export const apiSaveForm = (
   ma: string,
   formKey: "form1" | "form2" | "form3" | "form4",
