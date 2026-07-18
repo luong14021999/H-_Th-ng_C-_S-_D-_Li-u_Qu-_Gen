@@ -2,10 +2,11 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { apiGetAll } from "@/lib/api";
+import { apiGetAll, apiGetImages } from "@/lib/api";
 import { NguonGen, CATEGORIES, CATEGORY_MAP, PHAN_NHOM_ICONS } from "@/data/nguonGen";
 import { normalizeVi } from "@/lib/text";
 import { isFinePointer } from "@/lib/pointer";
+import { imageUrl } from "@/lib/images";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 function formatDuration(sec: number): string {
@@ -45,6 +46,12 @@ const TRANSPORT_MODES = [
   { id: "motorbike", icon: "🏍️", label: "Xe máy", avgKph: 40, color: "#1a73e8" },
   { id: "foot",      icon: "🚶", label: "Đi bộ",  avgKph: 5,  color: "#1a73e8" },
 ];
+
+// Rough bounding box of Vietnam's territory — used to refuse directions when
+// the user's GPS location is clearly outside the country.
+function inVietnam(lat: number, lng: number): boolean {
+  return lat >= 8.0 && lat <= 23.6 && lng >= 102.0 && lng <= 110.0;
+}
 
 async function fetchRoutes(
   from: [number, number],
@@ -171,10 +178,20 @@ function TimDuongInner() {
   const [expandedRouteIdx, setExpandedRouteIdx] = useState<number | null>(null);
   const [routeLoading, setRouteLoading] = useState(false);
   const [geoError, setGeoError] = useState(false);
+  const [outsideVN, setOutsideVN] = useState(false);
   const [swapped, setSwapped] = useState(false);
+
+  const [imagesMap, setImagesMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     apiGetAll().then(setData).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  // First image per record (form1) so the list shows real thumbnails.
+  useEffect(() => {
+    apiGetImages()
+      .then((rows) => setImagesMap(Object.fromEntries(rows.map((r) => [r.ma, r.anh]))))
+      .catch(() => { /* thumbnails optional */ });
   }, []);
 
   const filtered = useMemo(() => data.filter((item) => {
@@ -193,6 +210,7 @@ function TimDuongInner() {
     setSelectedItem(item);
     setRoutesByMode({});
     setGeoError(false);
+    setOutsideVN(false);
     setActiveTransport("driving");
     setActiveRouteIdx(0);
     setExpandedRouteIdx(null);
@@ -202,6 +220,12 @@ function TimDuongInner() {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const from: [number, number] = [pos.coords.latitude, pos.coords.longitude];
+        // Refuse to route when the user is outside Vietnam.
+        if (!inVietnam(from[0], from[1])) {
+          setOutsideVN(true);
+          setRouteLoading(false);
+          return;
+        }
         setUserLoc(from);
         // Reverse-geocode for display name (best-effort)
         fetch(`https://nominatim.openstreetmap.org/reverse?lat=${from[0]}&lon=${from[1]}&format=json`)
@@ -308,9 +332,14 @@ function TimDuongInner() {
       {geoError && (
         <p className="px-5 py-4 text-sm text-red-500">Không lấy được vị trí. Hãy cho phép truy cập GPS.</p>
       )}
+      {outsideVN && (
+        <p className="px-5 py-4 text-sm text-red-500">
+          Bạn đang không ở trong lãnh thổ Việt Nam nên không thể chỉ dẫn đường đi.
+        </p>
+      )}
 
       {/* Route summary + alternatives */}
-      {!routeLoading && !geoError && currentRoutes.length > 0 && (
+      {!routeLoading && !geoError && !outsideVN && currentRoutes.length > 0 && (
         <div className="flex-1 overflow-y-auto">
           {/* Best route summary */}
           <div className="px-5 py-4">
@@ -383,7 +412,7 @@ function TimDuongInner() {
         </div>
       )}
 
-      {!routeLoading && !geoError && currentRoutes.length === 0 && (
+      {!routeLoading && !geoError && !outsideVN && currentRoutes.length === 0 && (
         <p className="px-5 py-4 text-sm text-gray-400">Không tìm được tuyến đường phù hợp.</p>
       )}
     </div>
@@ -429,10 +458,20 @@ function TimDuongInner() {
             <div key={item.ma}>
               <button onClick={() => handleSelect(item)}
                 className="w-full flex items-center gap-3 px-4 py-4 text-left active:bg-blue-100 hover:bg-blue-50 transition-colors touch-manipulation">
-                <div className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-3xl"
-                  style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}>
-                  {PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍"}
-                </div>
+                {imagesMap[item.ma] ? (
+                  <img
+                    src={imageUrl(imagesMap[item.ma], { width: 112, height: 112, resize: "cover" })}
+                    alt={item.ten}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-14 h-14 shrink-0 rounded-xl object-cover border border-gray-200"
+                  />
+                ) : (
+                  <div className="w-14 h-14 shrink-0 rounded-xl flex items-center justify-center text-3xl"
+                    style={{ backgroundColor: `${cat?.color ?? "#888"}22` }}>
+                    {PHAN_NHOM_ICONS[item.phan_nhom] ?? cat?.icon ?? "📍"}
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm text-gray-900 truncate">{item.ten}</p>
                   {item.phan_nhom && <p className="text-xs text-gray-500 mt-0.5 truncate">{item.phan_nhom}</p>}
