@@ -719,13 +719,6 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
           </svg>
         </ToolButton>
 
-        <ToolButton locked={!isAdmin} title="Tìm đường" onClick={() => requireAdmin(() => router.push("/tim-duong"))}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </ToolButton>
-
         <ToolButton locked={!isAdmin} title="Danh mục hiện trạng bảo tồn, khai thác, sử dụng nguồn gen Tỉnh Thanh Hóa" onClick={() => requireAdmin(() => window.open("/danh-muc-hien-trang", "_blank"))}>
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -932,7 +925,11 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
                 Xem thêm
               </button>
               <button
-                onClick={() => { const it = popup!.item; setPopup(null); router.push(`/tim-duong?ma=${encodeURIComponent(it.ma)}`); }}
+                onClick={() => {
+                  const it = popup!.item;
+                  setPopup(null);
+                  window.open(`https://www.google.com/maps/dir/?api=1&destination=${it.lat},${it.lng}&travelmode=driving`, "_blank", "noopener,noreferrer");
+                }}
                 className="flex-1 text-center text-sm font-medium text-blue-700 border border-blue-500 rounded-lg py-1.5 hover:bg-blue-50 transition-colors"
               >
                 Chỉ đường

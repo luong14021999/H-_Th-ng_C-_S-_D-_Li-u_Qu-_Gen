@@ -16,8 +16,7 @@ type SectionId =
   | "edit-form"
   | "import-export"
   | "danh-muc"
-  | "thong-ke"
-  | "tim-duong";
+  | "thong-ke";
 
 const SECTIONS: { id: SectionId; label: string; icon: string }[] = [
   { id: "tong-quan", label: "Tổng quan hệ thống", icon: "🏠" },
@@ -29,7 +28,6 @@ const SECTIONS: { id: SectionId; label: string; icon: string }[] = [
   { id: "import-export", label: "Nhập / xuất Excel", icon: "📥" },
   { id: "danh-muc", label: "Quản lý danh mục", icon: "📂" },
   { id: "thong-ke", label: "Thống kê & báo cáo", icon: "📊" },
-  { id: "tim-duong", label: "Tìm đường đến nguồn gen", icon: "🧭" },
 ];
 
 // ── Visual mock components (illustrate UI without screenshots) ──
@@ -223,7 +221,6 @@ function SectionToolbar() {
           { icon: "🖼️", label: "Xuất ảnh bản đồ (admin)" },
           { icon: "📄", label: "Xuất PDF (admin)" },
           { icon: "🏷️", label: "Chú giải (admin)" },
-          { icon: "🧭", label: "Tìm đường (admin)" },
         ]} />
       </div>
 
@@ -235,7 +232,6 @@ function SectionToolbar() {
         <li><strong>🖼️ Xuất ảnh bản đồ:</strong> chụp lại khung bản đồ đang hiển thị thành file PNG.</li>
         <li><strong>📄 Xuất PDF:</strong> tạo file PDF chứa bản đồ + chú giải, phục vụ báo cáo.</li>
         <li><strong>🏷️ Chú giải:</strong> bật / tắt bảng chú giải hiển thị màu sắc - phân nhóm.</li>
-        <li><strong>🧭 Tìm đường:</strong> mở phân hệ tìm đường đi từ vị trí của bạn đến một nguồn gen.</li>
       </ul>
 
       <Callout kind="warn">
@@ -414,31 +410,6 @@ function SectionThongKe() {
   );
 }
 
-function SectionTimDuong() {
-  return (
-    <>
-      <p className="text-gray-700 mb-3">
-        Phân hệ <strong>Tìm đường</strong> giúp xác định lộ trình từ vị trí của bạn đến một nguồn gen cụ thể trên bản đồ.
-      </p>
-      <Step n={1} title="Mở phân hệ">
-        Trên bản đồ, nhấn nút 🧭 <strong>Tìm đường</strong> ở thanh công cụ bên phải.
-      </Step>
-      <Step n={2} title="Cho phép định vị">
-        Trình duyệt sẽ yêu cầu quyền truy cập vị trí. Nhấn <strong>Cho phép</strong> để hệ thống biết điểm xuất phát.
-      </Step>
-      <Step n={3} title="Chọn điểm đến">
-        Chọn một nguồn gen trong danh sách bên trái (hoặc nhấn marker trên bản đồ).
-      </Step>
-      <Step n={4} title="Xem lộ trình">
-        Hệ thống vẽ đường đi, hiển thị khoảng cách và thời gian dự kiến. Có thể chuyển giữa các phương tiện (ô tô, xe máy, đi bộ).
-      </Step>
-      <Callout kind="info">
-        Lộ trình tham khảo dựa trên dữ liệu OpenStreetMap. Trong khu vực miền núi, đường thực tế có thể khác hiển thị.
-      </Callout>
-    </>
-  );
-}
-
 const SECTION_RENDERERS: Record<SectionId, () => React.ReactElement> = {
   "tong-quan": SectionTongQuan,
   "dang-nhap": SectionDangNhap,
@@ -449,7 +420,6 @@ const SECTION_RENDERERS: Record<SectionId, () => React.ReactElement> = {
   "import-export": SectionImportExport,
   "danh-muc": SectionDanhMuc,
   "thong-ke": SectionThongKe,
-  "tim-duong": SectionTimDuong,
 };
 
 export default function GuideModal({ onClose }: GuideModalProps) {
