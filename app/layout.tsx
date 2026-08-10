@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   creator: ORG_NAME,
   publisher: ORG_NAME,
   category: "science",
+  verification: {
+    google: "Xr1eqorYk0BwFw7XbDm7wQK0BS72gOlo77baMdWLWDA",
+  },
   alternates: { canonical: "/" },
   robots: {
     index: true,
