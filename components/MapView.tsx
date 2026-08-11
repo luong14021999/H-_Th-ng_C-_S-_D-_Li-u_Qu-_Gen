@@ -232,14 +232,15 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (!el) return;
     showToast("Đang xuất ảnh...", 8000);
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(el, { useCORS: true, logging: false, scale: 2 });
+      const { toCanvas } = await import("html-to-image");
+      const canvas = await toCanvas(el, { pixelRatio: 2, cacheBust: true, backgroundColor: "#ffffff" });
       const link = document.createElement("a");
       link.download = `ban-do-nguon-gen-${Date.now()}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
       showToast("Đã xuất ảnh thành công");
-    } catch {
+    } catch (e) {
+      console.error("export image:", e);
       showToast("Lỗi khi xuất ảnh");
     }
   }, [showToast]);
@@ -249,9 +250,9 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
     if (!el) return;
     showToast("Đang xuất PDF...", 8000);
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const { toCanvas } = await import("html-to-image");
       const { jsPDF } = await import("jspdf");
-      const canvas = await html2canvas(el, { useCORS: true, logging: false, scale: 2 });
+      const canvas = await toCanvas(el, { pixelRatio: 2, cacheBust: true, backgroundColor: "#ffffff" });
       const imgData = canvas.toDataURL("image/jpeg", 0.92);
       const w = canvas.width / 2;
       const h = canvas.height / 2;
@@ -260,7 +261,8 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
       pdf.addImage(imgData, "JPEG", 0, 0, w, h);
       pdf.save(`ban-do-nguon-gen-${Date.now()}.pdf`);
       showToast("Đã xuất PDF thành công");
-    } catch {
+    } catch (e) {
+      console.error("export pdf:", e);
       showToast("Lỗi khi xuất PDF");
     }
   }, [showToast]);
