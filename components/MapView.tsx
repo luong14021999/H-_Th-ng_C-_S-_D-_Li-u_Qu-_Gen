@@ -15,7 +15,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 import { NguonGen, CATEGORY_MAP, CATEGORIES, PHAN_NHOM_ICONS } from "@/data/nguonGen";
-import { twemojiImgHtml } from "@/lib/twemoji";
+import { twemojiImgHtml, preloadTwemoji } from "@/lib/twemoji";
 import { apiGetForms } from "@/lib/api";
 import { geocodeDistribution } from "@/lib/geocode";
 import { THANH_HOA_BOUNDARY } from "@/data/thanhHoaBoundary";
@@ -170,6 +170,17 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
   const [distInfo, setDistInfo] = useState<{ ten: string; found: number } | null>(null);
   const [distLoading, setDistLoading] = useState<{ done: number; total: number } | null>(null);
   const [satMap, setSatMap] = useState(true); // satellite basemap by default
+  const [emojiReady, setEmojiReady] = useState(false);
+
+  // Inline the marker emojis as data URIs so html2canvas can capture them when
+  // exporting the map to image/PDF (cross-origin CDN SVGs render blank there).
+  useEffect(() => {
+    preloadTwemoji([
+      ...CATEGORIES.map((c) => c.icon),
+      ...Object.values(PHAN_NHOM_ICONS),
+      "📍",
+    ]).then(() => setEmojiReady(true));
+  }, []);
   const satMapRef = useRef(satMap);
   satMapRef.current = satMap;
 
@@ -598,7 +609,7 @@ export default function MapView({ data, isAdmin, onAddNewAtPoint, onDeleteItem, 
 
     // Don't steal the viewport while the "Nơi phân bố" highlight is showing.
     if (bounds.length > 0 && !distActiveRef.current) map.fitBounds(bounds, { padding: [40, 40] });
-  }, [data, onDeleteItem, doMeasure]);
+  }, [data, onDeleteItem, doMeasure, emojiReady]);
 
   // Swap the basemap when the dark toggle changes (the init effect already set
   // the initial one, so skip the first run to avoid a redundant tile reload).

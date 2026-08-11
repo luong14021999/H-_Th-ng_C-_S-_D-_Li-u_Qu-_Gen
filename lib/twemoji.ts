@@ -19,7 +19,37 @@ export function twemojiUrl(emoji: string): string {
   return `${TWEMOJI_BASE}/${emojiToCodepoints(emoji)}.svg`;
 }
 
+// emoji -> inlined data: URI. Populated by preloadTwemoji(). Using a same-origin
+// data URI (instead of the cross-origin CDN URL) lets html2canvas capture the
+// marker emojis when exporting the map to image/PDF — cross-origin SVGs render
+// blank otherwise.
+const dataUriCache = new Map<string, string>();
+
+// Fetch each emoji's SVG once and store it as a data: URI. Safe to call repeatedly
+// (cached) and on unknown emojis (failures are ignored → falls back to the CDN URL).
+export async function preloadTwemoji(emojis: Iterable<string>): Promise<void> {
+  const todo = [...new Set(emojis)].filter((e) => e && !dataUriCache.has(e));
+  await Promise.all(
+    todo.map(async (e) => {
+      try {
+        const res = await fetch(twemojiUrl(e));
+        if (!res.ok) return;
+        const svg = await res.text();
+        dataUriCache.set(e, `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
+      } catch {
+        /* leave uncached → falls back to CDN url */
+      }
+    })
+  );
+}
+
+// The best available source for an emoji: the inlined data URI if preloaded,
+// otherwise the CDN URL.
+export function twemojiSrc(emoji: string): string {
+  return dataUriCache.get(emoji) ?? twemojiUrl(emoji);
+}
+
 export function twemojiImgHtml(emoji: string, size = 22, extraStyle = ""): string {
-  const url = twemojiUrl(emoji);
+  const url = twemojiSrc(emoji);
   return `<img src="${url}" alt="${emoji}" width="${size}" height="${size}" style="display:inline-block;vertical-align:middle;width:${size}px;height:${size}px;${extraStyle}" />`;
 }
