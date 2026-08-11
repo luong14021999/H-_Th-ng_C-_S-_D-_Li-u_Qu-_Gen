@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { CATEGORY_MAP } from "@/data/nguonGen";
 import { SITE_URL, SITE_NAME, ORG_NAME } from "@/lib/site";
+import SiteNav from "@/components/SiteNav";
 
 // Pre-render every gene at build time; refresh hourly so edits/new records show.
 export const revalidate = 3600;
@@ -184,6 +185,16 @@ export default async function Page({ params }: { params: Promise<Params> }) {
           Nguồn: {ORG_NAME} — {SITE_NAME}.
         </p>
       </article>
+
+      <footer className="border-t border-gray-200 bg-white mt-4">
+        <div className="max-w-3xl mx-auto px-4 py-6">
+          <p className="text-sm font-semibold text-gray-800 mb-2">Chuyên mục</p>
+          <SiteNav
+            className="flex flex-wrap gap-x-4 gap-y-2"
+            linkClassName="text-sm text-green-700 hover:underline"
+          />
+        </div>
+      </footer>
     </main>
   );
 }

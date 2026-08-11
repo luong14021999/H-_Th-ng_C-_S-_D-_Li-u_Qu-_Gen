@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION, ORG_NAME } from "@/lib/site";
+import SiteNav from "@/components/SiteNav";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -90,6 +91,8 @@ export default function RootLayout({
         />
         {/* Server-rendered primary heading for crawlers (the app UI is client-side). */}
         <h1 className="sr-only">{SITE_NAME}</h1>
+        {/* Crawlable site sections (visually hidden — the visible UI is client-side). */}
+        <SiteNav className="sr-only" />
         {children}
       </body>
     </html>
