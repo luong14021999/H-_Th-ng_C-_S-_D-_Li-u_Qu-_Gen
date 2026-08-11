@@ -14,6 +14,9 @@ export async function generateMetadata({
     title,
     description: `Bản đồ phân bố và danh sách các nguồn gen ${label} của tỉnh Thanh Hóa: vị trí thu thập, thông tin bảo tồn và khai thác.`,
     alternates: { canonical: `/ban-do/${loai.toLowerCase()}` },
+    // Keep these category map pages out of search — the gene detail pages are
+    // the SEO targets. `follow` so Google still crawls through to gene links.
+    robots: { index: false, follow: true },
   };
 }
 

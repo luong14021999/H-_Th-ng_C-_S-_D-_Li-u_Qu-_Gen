@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
-import { CATEGORIES } from "@/data/nguonGen";
 import { supabaseAdmin } from "@/lib/supabase-server";
 
 export const revalidate = 3600;
@@ -8,11 +7,9 @@ export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
-  const staticPaths = [
-    "/",
-    "/danh-muc-hien-trang",
-    ...CATEGORIES.map((c) => `/ban-do/${c.id.toLowerCase()}`),
-  ];
+  // Category map pages (/ban-do/*) are intentionally left out — the gene detail
+  // pages are the SEO targets.
+  const staticPaths = ["/", "/danh-muc-hien-trang"];
 
   const entries: MetadataRoute.Sitemap = staticPaths.map((path) => ({
     url: `${SITE_URL}${path}`,
