@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { supabaseAdmin } from "@/lib/supabase-server";
 import { CATEGORY_MAP } from "@/data/nguonGen";
 import { SITE_URL, SITE_NAME, ORG_NAME } from "@/lib/site";
-import SiteNav from "@/components/SiteNav";
 
 // Pre-render every gene at build time; refresh hourly so edits/new records show.
 export const revalidate = 3600;
@@ -46,6 +45,16 @@ async function getGene(ma: string): Promise<{ gene: Gene; form1: Form1 | null } 
     .eq("ma_nguon_gen", ma)
     .maybeSingle();
   return { gene: gene as Gene, form1: (form1 as Form1) ?? null };
+}
+
+async function getRelated(nhom: string, excludeMa: string): Promise<{ ma: string; ten: string }[]> {
+  const { data } = await supabaseAdmin
+    .from("nguon_gen")
+    .select("ma, ten")
+    .eq("nhom", nhom)
+    .neq("ma", excludeMa)
+    .limit(12);
+  return (data ?? []) as { ma: string; ten: string }[];
 }
 
 export async function generateStaticParams(): Promise<Params[]> {
@@ -108,6 +117,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
   const res = await getGene(decodeURIComponent(ma));
   if (!res) notFound();
   const { gene, form1 } = res;
+  const related = await getRelated(gene.nhom, gene.ma);
   const cat = CATEGORY_MAP[gene.nhom];
   const noiThuThap = [form1?.noi_thu_thap_xa, form1?.noi_thu_thap_huyen, form1?.noi_thu_thap_tinh]
     .filter(Boolean)
@@ -186,15 +196,22 @@ export default async function Page({ params }: { params: Promise<Params> }) {
         </p>
       </article>
 
-      <footer className="border-t border-gray-200 bg-white mt-4">
-        <div className="max-w-3xl mx-auto px-4 py-6">
-          <p className="text-sm font-semibold text-gray-800 mb-2">Chuyên mục</p>
-          <SiteNav
-            className="flex flex-wrap gap-x-4 gap-y-2"
-            linkClassName="text-sm text-green-700 hover:underline"
-          />
-        </div>
-      </footer>
+      {related.length > 0 && (
+        <footer className="border-t border-gray-200 bg-white mt-4">
+          <div className="max-w-3xl mx-auto px-4 py-6">
+            <p className="text-sm font-semibold text-gray-800 mb-2">
+              Nguồn gen khác cùng nhóm {cat ? cat.label : ""}
+            </p>
+            <nav aria-label="Nguồn gen liên quan" className="flex flex-wrap gap-x-4 gap-y-2">
+              {related.map((g) => (
+                <Link key={g.ma} href={`/nguon-gen/${g.ma}`} className="text-sm text-green-700 hover:underline">
+                  {g.ten}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </footer>
+      )}
     </main>
   );
 }
