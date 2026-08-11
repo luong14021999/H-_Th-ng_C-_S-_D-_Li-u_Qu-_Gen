@@ -50,11 +50,6 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: ["/logo.png"],
   },
-  icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
-  },
   manifest: "/manifest.webmanifest",
 };
 
