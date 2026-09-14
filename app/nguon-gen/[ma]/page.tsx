@@ -134,8 +134,16 @@ export default async function Page({ params }: { params: Promise<Params> }) {
     description,
     inLanguage: "vi-VN",
     keywords: [cat?.label, gene.phan_nhom, "nguồn gen", "quỹ gen", "Thanh Hóa"].filter(Boolean).join(", "),
-    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    url: `${SITE_URL}/nguon-gen/${gene.ma}`,
+    // Google's Dataset type only accepts a Dataset for isPartOf; the site-wide catalog goes here.
+    includedInDataCatalog: { "@type": "DataCatalog", name: SITE_NAME, url: SITE_URL },
+    creator: { "@type": "Organization", name: ORG_NAME, url: SITE_URL },
     publisher: { "@type": "Organization", name: ORG_NAME, url: SITE_URL },
+    license: {
+      "@type": "CreativeWork",
+      name: `© ${ORG_NAME}. Bảo lưu mọi quyền.`,
+      url: SITE_URL,
+    },
     ...(img ? { image: img } : {}),
     ...(gene.lat && gene.lng
       ? { spatialCoverage: { "@type": "Place", geo: { "@type": "GeoCoordinates", latitude: gene.lat, longitude: gene.lng } } }
