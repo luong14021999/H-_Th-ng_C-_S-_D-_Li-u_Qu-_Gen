@@ -1,7 +1,7 @@
 // Canonical site identity for SEO metadata (layout, sitemap, robots, manifest).
 // Override the domain in production via NEXT_PUBLIC_SITE_URL.
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "https://nguongenviennongnghiepthanhhoa.vn"
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nguongenviennongnghiepthanhhoa.vn"
 ).replace(/\/+$/, "");
 
 export const SITE_NAME = "Hệ Thống Cơ Sở Dữ Liệu Quỹ Gen Tỉnh Thanh Hóa";
